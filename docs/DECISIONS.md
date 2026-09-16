@@ -441,3 +441,41 @@ Consequence:
 Evidence: the `--stop`/`--replace` cycle exercised end to end; the message now prints
 the owning pid.
 Revisit when: more than one parcel-forge service can hold a port.
+
+## D023 - Hold the probe with gravity, not by making it kinematic
+
+Status: accepted
+Reason: `pf view` originally held the probe by setting `kinematicEnabled = true`.
+PhysX rejects that combination with our D017 fix:
+"PxRigidBody::setRigidBodyFlag(): kinematic bodies with CCD enabled are not
+supported! CCD will be ignored." CCD is precisely what stops the probe tunnelling
+through the 5 mm bottom plate, so a hold that silently discards it risks the viewer
+showing behaviour the test suite has ruled out. Whether CCD is restored when the
+kinematic flag is cleared is not something to assume when the check is this cheap.
+Alternative: Keeping kinematic and re-asserting CCD on release. Rejected: it depends
+on undocumented ordering, and a gravity toggle has none of that risk.
+Consequence: the hold now sets `PhysxRigidBodyAPI.disableGravity`. The body stays
+dynamic throughout, so CCD is never disabled, and a bonus: a held probe can still be
+pushed around with the mouse before it is allowed to fall.
+Evidence: the PhysX error in `runs/viewer.log` before the change; absent after.
+Revisit when: a hold is needed for a body that should also ignore contacts.
+
+## D024 - The Kit experience file decides whether there is any editor UI
+
+Status: accepted
+Reason: The user asked why `pf view` showed a bare viewport with none of the windows
+their previous viewer had. Cause: `SimulationApp` takes an `experience` argument and,
+when it is empty, resolves to `isaacsim.exp.base.python.kit` -- a minimal app that
+renders a viewport and nothing else. It is not a livestream limitation and not
+something `headless` controls.
+Isaac Sim ships `isaacsim.exp.full.streaming.kit`, described in its own package
+metadata as "Headless Isaac Sim with Livestream using WebRTC": it depends on
+`isaacsim.exp.full` and sets `app.window.hideUi = false`.
+Consequence: `pf view --ui` loads that experience, giving the stage tree, property
+panel, toolbar and the PhysX debug visualisation (collider wireframes, which are
+genuinely useful for confirming that the box walls are where the geometry says).
+Without `--ui` the minimal experience is kept: it starts faster and is enough when
+only the result matters.
+Evidence: 3 editor UI extensions loaded and `hideUi = false` in the .kit file;
+verified by a run reaching READY with the port bound.
+Revisit when: a purpose-built layout is wanted rather than the stock editor.

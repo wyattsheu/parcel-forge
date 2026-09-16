@@ -33,6 +33,9 @@ def parse_args(argv):
     p.add_argument("--signaling-port", type=int, default=49100)
     p.add_argument("--stream-port", type=int, default=47998)
     p.add_argument("--fps", type=int, default=30)
+    p.add_argument("--ui", action="store_true",
+                   help="stream the full Isaac Sim editor (stage tree, property panel, "
+                        "toolbar) instead of a bare viewport")
     p.add_argument("--probe-path", default="/World/Probe")
     p.add_argument("--dt", type=float, default=1 / 120.0)
     return p.parse_args(argv)
@@ -65,12 +68,28 @@ def main(argv) -> int:
 
     from isaacsim import SimulationApp
 
+    # Which Kit "experience" is loaded decides whether there is any editor UI at all.
+    # SimulationApp defaults to isaacsim.exp.base.python.kit, a minimal app that
+    # renders a viewport and nothing else -- no stage tree, no property panel, no
+    # toolbar. isaacsim.exp.full.streaming.kit is the shipped "Headless Isaac Sim
+    # with Livestream using WebRTC" experience: it pulls in isaacsim.exp.full and
+    # sets hideUi = false, so the whole editor is streamed.
+    experience = ""
+    if args.ui:
+        import os as _os
+
+        import isaacsim as _isaacsim
+
+        experience = _os.path.join(_os.path.dirname(_isaacsim.__file__),
+                                   "apps", "isaacsim.exp.full.streaming.kit")
+        print(f"[VIEW] full editor experience: {experience}", flush=True)
+
     app = SimulationApp({
         "headless": True,
         "enable_cameras": True,
         "width": 1280,
         "height": 720,
-    })
+    }, experience=experience)
 
     import carb
     import omni.timeline
@@ -95,9 +114,15 @@ def main(argv) -> int:
 
     held = False
     if probe is not None and probe.HasAPI(UsdPhysics.RigidBodyAPI):
-        # Kinematic bodies are simulated but not moved by gravity: the probe stays
-        # exactly where the run put it until we hand it back to the solver.
-        UsdPhysics.RigidBodyAPI(probe).CreateKinematicEnabledAttr(True)
+        # Hold by switching gravity off, NOT by making the body kinematic. PhysX
+        # rejects that combination outright:
+        #   "kinematic bodies with CCD enabled are not supported! CCD will be ignored"
+        # and CCD is exactly what stops the probe tunnelling through the 5 mm bottom
+        # plate (D017). A gravity-disabled body stays dynamic, so CCD remains in
+        # force, and it can still be pushed around while it waits.
+        from pxr import PhysxSchema
+
+        PhysxSchema.PhysxRigidBodyAPI.Apply(probe).CreateDisableGravityAttr(True)
         held = True
 
     timeline = omni.timeline.get_timeline_interface()
@@ -141,7 +166,9 @@ def main(argv) -> int:
     while app.is_running():
         app.update()
         if not released and (time.time() - start) >= args.hold_seconds:
-            UsdPhysics.RigidBodyAPI(probe).CreateKinematicEnabledAttr(False)
+            from pxr import PhysxSchema
+
+            PhysxSchema.PhysxRigidBodyAPI.Apply(probe).CreateDisableGravityAttr(False)
             released = True
             print("[VIEW] RELEASED - the probe is now dynamic; drag it with "
                   "Shift + left mouse drag", flush=True)

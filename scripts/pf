@@ -13,6 +13,7 @@ Implemented now (S0/S1):
     pf build  --case <case-id>            schema check, then author asset.usda
     pf verify (--case <case-id> | --all)  build + static USD validation (no GPU)
     pf view   [--run <run-id>] [--scene asset.usda|scene_final.usda] [--hold-seconds N]
+              [--ui]        stream the full editor UI, not just the viewport
               [--replace]   stop an existing parcel-forge viewer and take over
     pf view --stop          stop the parcel-forge viewer holding the WebRTC ports
     pf runs   [--last N]
