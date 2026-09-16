@@ -17,7 +17,7 @@ Read `docs/STATE.md` for the verified state and the single next action, and
 | Launch Isaac Sim 6.0.1 headless from this repo | verified | S1 run log under `runs/` |
 | Finite-step PhysX simulation (ground + rigid cube) | verified | `trajectory.csv` in the S1 run |
 | Per-step pose / orientation / velocity / sim-time read-back | verified | same `trajectory.csv` |
-| Offline PNG render of the real final scene | see `docs/STATE.md` | S1 run `renders/` + image statistics |
+| Offline PNG render of the real final scene | verified | S1 run `renders/scene_final.png` + image statistics |
 | WebRTC human viewing of a parcel-forge scene | **not tested** | livestream is never enabled here |
 | Open-box geometry, USD authoring, schema, batch, repair loop | **not implemented** | planned for S2-S7 |
 

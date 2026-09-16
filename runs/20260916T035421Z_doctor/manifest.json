@@ -1,0 +1,40 @@
+{
+  "schema": "parcel_forge.manifest/1",
+  "created_utc": "2026-09-16T03:54:21Z",
+  "run_id": "20260916T035421Z_doctor",
+  "stage": "S0",
+  "case": null,
+  "seed": null,
+  "profile": null,
+  "profile_sha256": null,
+  "backend": "none (read-only inventory)",
+  "device": null,
+  "dt": null,
+  "command": "scripts/pf doctor",
+  "exit_code": 0,
+  "external_exit_code": null,
+  "asset_path": null,
+  "asset_sha256": null,
+  "inputs_sha256": null,
+  "code_version": {
+    "commit": "fc38bca3f251d9094c768cbc8ec224ba16c383e4",
+    "dirty": true,
+    "dirty_files": [
+      "M README.md",
+      "?? docs/STATE.md",
+      "?? docs/sessions/",
+      "?? docs/tasks/S1.md",
+      "?? runs/20260916T035235Z_s1_smoke/",
+      "?? runs/20260916T035421Z_doctor/",
+      "?? tests/"
+    ],
+    "dirty_diff_sha256": "cfc20967da9445c66bc4adf703ab9f3dd560d1a41bc1fd4b6a7e1f60639f7ae1"
+  },
+  "evidence": {
+    "doctor": "doctor.json",
+    "environment": "environment.json"
+  },
+  "notes": [
+    "doctor does not boot Kit; not_tested entries are proven by `pf smoke`"
+  ]
+}

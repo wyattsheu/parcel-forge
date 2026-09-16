@@ -1,0 +1,195 @@
+{
+  "schema": "parcel_forge.s1_result/1",
+  "profile": "profile.json",
+  "runtime": {
+    "backend": "isaacsim-standalone",
+    "adapter": "parcel_forge.runtime.isaacsim_runtime",
+    "python": "3.12.14",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "headless": true,
+    "enable_cameras": true,
+    "livestream": false,
+    "requested_dt": 0.004166666666666667,
+    "requested_device": "cuda:0",
+    "isaacsim_version": "6.0.1",
+    "physics_scene": {
+      "physics_scene_path": "/PhysicsScene",
+      "gravity_direction": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "gravity_magnitude": 9.8100004196167,
+      "dt_readback": 0.004166666666666667,
+      "device_readback": "cuda:0",
+      "solver_type": "TGS",
+      "gpu_dynamics": true,
+      "time_steps_per_second": 240
+    }
+  },
+  "physics": {
+    "status": "ran",
+    "steps_requested": 600,
+    "steps_executed": 600,
+    "dt_s": 0.004166666666666667,
+    "sim_time_end_s": 2.525,
+    "terminated": "finite step budget exhausted"
+  },
+  "readback": {
+    "status": "ok",
+    "fields": [
+      "position_m",
+      "orientation_wxyz",
+      "linear_velocity_mps",
+      "angular_velocity_radps"
+    ],
+    "source_api": "isaacsim.core.experimental.prims.RigidPrim (tensor backend)",
+    "first_row": {
+      "step": 1,
+      "t": 0.029166666666666667,
+      "p": [
+        0.0,
+        0.0,
+        0.4952312707901001
+      ],
+      "v": [
+        0.0,
+        0.0,
+        -0.2861250042915344
+      ],
+      "q": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "w": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "last_row": {
+      "step": 600,
+      "t": 2.525,
+      "p": [
+        5.189099829294719e-05,
+        -6.259940710151568e-05,
+        0.019999995827674866
+      ],
+      "v": [
+        2.6357327442383394e-05,
+        1.572612745803781e-05,
+        -5.315301677910611e-05
+      ],
+      "q": [
+        1.0,
+        -1.3611253280032543e-06,
+        -7.308922249649186e-07,
+        4.239426289132098e-06
+      ],
+      "w": [
+        -0.0021062486339360476,
+        0.000263386988081038,
+        5.435765615402488e-06
+      ]
+    },
+    "trajectory_csv": "trajectory.csv"
+  },
+  "render": {
+    "status": "ok",
+    "png": "renders/scene_final.png",
+    "png_bytes": 106642,
+    "image_stats": {
+      "width": 1280,
+      "height": 720,
+      "mean_r": 226.8166,
+      "distinct_r": 98,
+      "looks_blank": false
+    },
+    "camera": {
+      "camera_path": "/World/EvidenceCam",
+      "eye_m": [
+        0.55,
+        -0.55,
+        0.32
+      ],
+      "target_m": [
+        0.0,
+        0.0,
+        0.05
+      ],
+      "up": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "focal_length_mm": 24.0,
+      "convention": "USD camera looks down -Z with +Y up in camera space"
+    },
+    "captured_after": "final physics step (no scene rebuild)",
+    "settle_frames": 48
+  },
+  "checks": [
+    {
+      "id": "S1.finite_steps",
+      "status": "pass",
+      "detail": "executed 600/600 steps, ended at t=2.5250s"
+    },
+    {
+      "id": "S1.no_nan",
+      "status": "pass",
+      "detail": "all pose/velocity samples finite"
+    },
+    {
+      "id": "S1.free_fall_matches_analytic",
+      "status": "pass",
+      "detail": "at t=0.1000s fell 0.05109 m, analytic 0.04905 m, error 0.00204 m (tolerance 0.003 m)"
+    },
+    {
+      "id": "S1.cube_rests_on_ground",
+      "status": "pass",
+      "detail": "final z=0.02000 m, expected 0.02000 m (half edge), error 0.00000 m (tolerance 0.002 m)"
+    },
+    {
+      "id": "S1.settled",
+      "status": "pass",
+      "detail": "final |v|=0.000061 m/s (tolerance 0.01 m/s)"
+    },
+    {
+      "id": "S1.no_tunneling",
+      "status": "pass",
+      "detail": "final z=0.02000 m is above the ground plane"
+    },
+    {
+      "id": "S1.render_png_not_blank",
+      "status": "pass",
+      "detail": "1280x720 png, 106642 bytes, mean_r=226.8166, distinct_r=98"
+    },
+    {
+      "id": "S1.webrtc_human_view",
+      "status": "not_tested",
+      "detail": "this run never enabled livestream; only a human can confirm a WebRTC view"
+    }
+  ],
+  "errors": [],
+  "scene": {
+    "cube": {
+      "path": "/World/Cube",
+      "size_m": 0.04,
+      "spawn_position_m": [
+        0.0,
+        0.0,
+        0.5
+      ],
+      "mass_kg": 0.1
+    },
+    "ground_size_m": 20.0
+  },
+  "summary": {
+    "checks_total": 8,
+    "checks_graded": 7,
+    "checks_failed": 0,
+    "verdict": "pass"
+  }
+}
