@@ -1,3 +1,7 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# pf view is a human-facing tool; its log is transient and is never acceptance
+# evidence (D020). Run evidence under runs/<run-id>/ stays tracked.
+runs/viewer.log
