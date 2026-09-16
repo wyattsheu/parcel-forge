@@ -1,0 +1,21 @@
+{
+  "schema": "parcel_forge.isaac_env/1",
+  "discovered_utc": "2026-09-16T03:40:00Z",
+  "discovery_method": "read-only inspection of running processes and site-packages; nothing installed or modified",
+  "install_kind": "pip-in-venv",
+  "isaac_python": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3",
+  "isaac_cwd": "/mnt/HDD4/wyattsheu/IsaacLab",
+  "site_packages": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/lib/python3.12/site-packages",
+  "ld_preload": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+  "env": {
+    "OMNI_KIT_ACCEPT_EULA": "Y",
+    "OMP_NUM_THREADS": "4",
+    "ISAAC_LAB_ENABLE_ISAAC_RTX_PER_ENV_SCENE_PARTITION": "0"
+  },
+  "default_cuda_visible_devices": "0",
+  "do_not_touch": {
+    "webrtc_signaling_port": 49100,
+    "webrtc_stream_port": 47998,
+    "reason": "an existing user WebRTC viewer session owns these ports; parcel-forge never enables livestream"
+  }
+}

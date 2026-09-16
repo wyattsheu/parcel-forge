@@ -1,0 +1,3 @@
+Run evidence lives here. Directories are append-only: never edit or delete a
+past run to make a later claim look better. Each run carries its own
+manifest.json binding it to a code version, profile and command.

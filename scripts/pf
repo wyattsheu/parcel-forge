@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""parcel-forge CLI.
+
+Runs on the plain system Python with the standard library only. Subcommands
+that need Kit re-launch themselves inside the installed Isaac runtime through
+src/parcel_forge/runtime/launcher.py. This CLI never pip-installs or upgrades
+anything.
+
+Implemented now (S0/S1):
+    pf doctor [--out DIR]
+    pf smoke  [--profile FILE] [--device N] [--timeout SEC]
+    pf runs   [--last N]
+
+Specified in the handbook but NOT implemented yet (they exit 4, never pretend):
+    pf build | validate | simulate | render | verify | batch
+"""
+
+import os
+import sys
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO_ROOT, "src"))
+
+from parcel_forge import EXIT_INSUFFICIENT_EVIDENCE  # noqa: E402
+
+NOT_IMPLEMENTED = {
+    "build": "S3", "validate": "S3", "simulate": "S4",
+    "render": "S4", "verify": "S3", "batch": "S6",
+}
+
+
+def usage() -> int:
+    print(__doc__)
+    return 2
+
+
+def cmd_runs(argv) -> int:
+    n = int(argv[argv.index("--last") + 1]) if "--last" in argv else 10
+    runs_dir = os.path.join(REPO_ROOT, "runs")
+    entries = sorted(d for d in os.listdir(runs_dir) if os.path.isdir(os.path.join(runs_dir, d)))
+    import json
+    for d in entries[-n:]:
+        mpath = os.path.join(runs_dir, d, "manifest.json")
+        if os.path.isfile(mpath):
+            with open(mpath, encoding="utf-8") as fh:
+                m = json.load(fh)
+            print(f"{d}  stage={m.get('stage')}  exit={m.get('exit_code')}  backend={m.get('backend')}")
+        else:
+            print(f"{d}  (no manifest)")
+    return 0
+
+
+def main() -> int:
+    if len(sys.argv) < 2:
+        return usage()
+    cmd, argv = sys.argv[1], sys.argv[2:]
+
+    if cmd in ("-h", "--help", "help"):
+        return usage()
+    if cmd == "doctor":
+        from parcel_forge.doctor import main as doctor_main
+        return doctor_main(argv)
+    if cmd == "smoke":
+        from parcel_forge.smoke_host import main as smoke_main
+        return smoke_main(argv)
+    if cmd == "runs":
+        return cmd_runs(argv)
+    if cmd in NOT_IMPLEMENTED:
+        print(f"`pf {cmd}` is specified in IsaacSim_Asset_Workflow_Handbook.md but is not "
+              f"implemented yet (planned for stage {NOT_IMPLEMENTED[cmd]}).")
+        print(f"Exiting {EXIT_INSUFFICIENT_EVIDENCE} (insufficient evidence) rather than pretending to pass.")
+        return EXIT_INSUFFICIENT_EVIDENCE
+    print(f"unknown subcommand: {cmd}")
+    return usage()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
