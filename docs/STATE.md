@@ -75,8 +75,15 @@ handbook section 19 table (total plate volume 0.0010105 m^3, COM z = 0.055233795
 Ixx/Iyy/Izz = 0.0016619320 / 0.0027588147 / 0.0034580587 kg m^2) **before** touching
 the simulator. Card: docs/tasks/S4.md.
 
+## Method sources
+- \`docs/METHODS.md\` records, per cited source, the mechanism read, what was
+  implemented, where it lives, and what was deliberately not taken. Written from the
+  sources themselves on 2026-09-16, not from summaries.
+
 ## Related task and decisions
-- docs/tasks/S1.md, S2.md, S3.md (all done), docs/tasks/S4.md (next)
+- docs/tasks/S1.md, S2.md, S3.md (all done), docs/tasks/S4.md (next), S5.md (drafted)
 - D001 standalone launcher, D002 6.0 experimental API, D003 livestream off,
   D004 stdlib PNG, D005 split collision/visual ground, D006 local-frame judgement,
-  D007 two evidence views, D008 pxr without Kit, D009 invalid cases in a subdirectory
+  D007 two evidence views, D008 pxr without Kit, D009 invalid cases in a subdirectory,
+  D010 official validator + G7 reliability check, D011 version-matched API lookup
+  (not yet implemented), D012 a critic may never upgrade a verdict

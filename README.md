@@ -25,7 +25,8 @@ Read `docs/STATE.md` for the verified state and the single next action, and
 | Clean USD asset authored per case | verified | `pf verify`: defaultPrim, SI units, upAxis=Z, 71-line layer |
 | Illegal specs rejected before any launch | verified | 7 invalid cases, each with its own error class |
 | Static USD checks read back from the output file | verified | 10 G1 rules; dimension error ~1e-8 m |
-| Official Isaac asset-validation rules | **blocked** | not invoked; reported as `blocked`, never as a pass |
+| NVIDIA's official USD validator (41 rules) | verified | runs on every built asset; 0 failures on all 6 legal cases |
+| Proof that the official validator can fail | verified | `G7`: 3 failures on a deliberately broken fixture |
 | Mass properties, batch driver, repair loop, VLM review | **not implemented** | planned for S4-S7 |
 
 Nothing above is claimed from reading code. Each "verified" row points at a run
@@ -98,7 +99,7 @@ src/parcel_forge/runtime/       launcher (host side) + Isaac Sim 6.0 adapter (in
 src/parcel_forge/smoke_s1.py    S1 scene, stepping, checks (runs inside Isaac)
 src/parcel_forge/smoke_host.py  S1 host driver: run dir, launch, manifest, summary
 src/parcel_forge/geometry.py    open-box plate table and spec rejection (pure maths)
-src/parcel_forge/validation/    outcome classification in the box local frame
+src/parcel_forge/validation/    outcome classification, internal G1 rules, official NVIDIA validator
 src/parcel_forge/box_s2.py      S2 box + probe scene and checks (runs inside Isaac)
 src/parcel_forge/box_host.py    S2 host driver: per-case runs and the suite table
 src/parcel_forge/schema.py      case-file validation with named error classes (stdlib)
@@ -106,7 +107,7 @@ src/parcel_forge/usd_author.py  writes the open-box asset as a clean USD layer
 src/parcel_forge/usd_tool.py    in-runtime build/validate entry point (pxr only, no Kit)
 src/parcel_forge/build_host.py  S3 host driver: schema first, then build and validate
 profiles/                       versioned acceptance thresholds
-docs/                           STATE, ROADMAP, ENVIRONMENT, DECISIONS, tasks/, sessions/
+docs/                           STATE, ROADMAP, ENVIRONMENT, DECISIONS, METHODS, tasks/, sessions/
 runs/                           append-only evidence
 cases/                          legal cases, including deliberate geometry faults
 cases/invalid/                  specs that must be rejected, plus their expected error classes
