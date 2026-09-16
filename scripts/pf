@@ -10,6 +10,8 @@ Implemented now (S0/S1):
     pf doctor [--out DIR]
     pf smoke  [--profile FILE] [--device N] [--timeout SEC]
     pf box    (--case <case-id> | --all) [--profile FILE] [--device N] [--timeout SEC]
+    pf build  --case <case-id>            schema check, then author asset.usda
+    pf verify (--case <case-id> | --all)  build + static USD validation (no GPU)
     pf runs   [--last N]
 
 Specified in the handbook but NOT implemented yet (they exit 4, never pretend):
@@ -25,8 +27,7 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "src"))
 from parcel_forge import EXIT_INSUFFICIENT_EVIDENCE  # noqa: E402
 
 NOT_IMPLEMENTED = {
-    "build": "S3", "validate": "S3", "simulate": "S4",
-    "render": "S4", "verify": "S3", "batch": "S6",
+    "simulate": "S4", "render": "S4", "batch": "S6",
 }
 
 
@@ -64,6 +65,17 @@ def main() -> int:
     if cmd == "smoke":
         from parcel_forge.smoke_host import main as smoke_main
         return smoke_main(argv)
+    if cmd in ("build", "verify", "validate"):
+        from parcel_forge.build_host import build_case, main as verify_main
+        if cmd == "build":
+            case = argv[argv.index("--case") + 1] if "--case" in argv else None
+            if not case:
+                print("usage: pf build --case <case-id>")
+                return 3
+            code, run_dir, _m = build_case(case)
+            print(f"run: {run_dir}")
+            return code
+        return verify_main(argv)
     if cmd == "box":
         from parcel_forge.box_host import main as box_main
         return box_main(argv)

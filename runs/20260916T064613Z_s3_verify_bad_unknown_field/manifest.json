@@ -1,0 +1,59 @@
+{
+  "schema": "parcel_forge.manifest/1",
+  "created_utc": "2026-09-16T06:46:13Z",
+  "run_id": "20260916T064613Z_s3_verify_bad_unknown_field",
+  "stage": "S3",
+  "case": "bad_unknown_field",
+  "seed": null,
+  "profile": null,
+  "profile_sha256": null,
+  "backend": "none (schema only, no USD, no Kit)",
+  "device": null,
+  "dt": null,
+  "command": "scripts/pf build --case bad_unknown_field",
+  "exit_code": 2,
+  "external_exit_code": null,
+  "asset_path": null,
+  "asset_sha256": null,
+  "inputs_sha256": {
+    "case": "3a3ce3f16b75a33f1e7b562835b61f46bce38dd2d5813e0c00fcb43b97816a4a"
+  },
+  "code_version": {
+    "commit": "4737f086707d833d931825a0c1369796df4534fc",
+    "dirty": true,
+    "dirty_files": [
+      "M scripts/pf",
+      "?? cases/invalid/",
+      "?? cases/open_box_small.json",
+      "?? cases/open_box_tall.json",
+      "?? cases/open_box_thick_wall.json",
+      "?? profiles/static_usd_v1.json",
+      "?? runs/20260916T064557Z_s3_verify_open_box_normal/",
+      "?? runs/20260916T064609Z_s3_verify_open_box_no_bottom/",
+      "?? runs/20260916T064610Z_s3_verify_open_box_normal/",
+      "?? runs/20260916T064610Z_s3_verify_open_box_sealed/",
+      "?? runs/20260916T064611Z_s3_verify_open_box_small/",
+      "?? runs/20260916T064611Z_s3_verify_open_box_tall/",
+      "?? runs/20260916T064612Z_s3_verify_bad_fault_enum/",
+      "?? runs/20260916T064612Z_s3_verify_bad_negative_probe_mass/",
+      "?? runs/20260916T064612Z_s3_verify_bad_non_finite_height/",
+      "?? runs/20260916T064612Z_s3_verify_open_box_thick_wall/",
+      "?? runs/20260916T064613Z_s3_verify_bad_probe_too_big/",
+      "?? runs/20260916T064613Z_s3_verify_bad_units_cm/",
+      "?? runs/20260916T064613Z_s3_verify_bad_unknown_field/",
+      "?? src/parcel_forge/build_host.py",
+      "?? src/parcel_forge/schema.py",
+      "?? src/parcel_forge/usd_author.py",
+      "?? src/parcel_forge/usd_tool.py",
+      "?? src/parcel_forge/validation/static_usd.py"
+    ],
+    "dirty_diff_sha256": "b4884b24842d1bca3ea423ab58a0eecb1f157966081c058a43a22def2df75615"
+  },
+  "evidence": {
+    "request": "request.json",
+    "schema_findings": "schema_findings.json"
+  },
+  "notes": [
+    "rejected before authoring: no interpreter for the simulator was launched"
+  ]
+}

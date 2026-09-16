@@ -1,0 +1,13 @@
+{
+  "schema": "parcel_forge.expected_errors/1",
+  "note": "Each file in cases/invalid/ must be rejected by parcel_forge.schema with at least this error class. The expectation lives here rather than inside the case files, because the case files must remain exactly as invalid as they claim to be.",
+  "expected_error_class": {
+    "bad_wall_too_thick": "geometry_not_constructible",
+    "bad_unknown_field": "unknown_field",
+    "bad_negative_probe_mass": "value_out_of_range",
+    "bad_fault_enum": "enum_invalid",
+    "bad_non_finite_height": "value_not_finite",
+    "bad_units_cm": "unit_mismatch",
+    "bad_probe_too_big": "geometry_not_constructible"
+  }
+}

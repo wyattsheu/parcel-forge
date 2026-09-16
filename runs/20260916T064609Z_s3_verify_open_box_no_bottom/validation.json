@@ -1,0 +1,155 @@
+{
+  "schema": "parcel_forge.static_validation/1",
+  "asset": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T064609Z_s3_verify_open_box_no_bottom/asset.usda",
+  "tolerance_m": 0.0001,
+  "checks": [
+    {
+      "rule": "G1.stage_opens",
+      "status": "pass",
+      "detail": "stage opened from the written file",
+      "measured": null
+    },
+    {
+      "rule": "G1.no_missing_references",
+      "status": "pass",
+      "detail": "0 external dependency/ies, 0 unresolvable",
+      "measured": {
+        "dependencies": [],
+        "broken": [],
+        "invalid_prims": []
+      }
+    },
+    {
+      "rule": "G1.default_prim",
+      "status": "pass",
+      "detail": "defaultPrim is /OpenBox, expected /OpenBox",
+      "measured": null
+    },
+    {
+      "rule": "G1.stage_units_and_axis",
+      "status": "pass",
+      "detail": "metersPerUnit=1.0, kilogramsPerUnit=1.0, upAxis=Z; expected 1.0 / 1.0 / Z",
+      "measured": {
+        "metersPerUnit": 1.0,
+        "kilogramsPerUnit": 1.0,
+        "upAxis": "Z"
+      }
+    },
+    {
+      "rule": "G1.plate_dimensions",
+      "status": "pass",
+      "detail": "largest world size/centre error 0.0000000083 m on wall_y_pos (tolerance 0.0001 m), read back through the composed transform",
+      "measured": [
+        {
+          "name": "wall_x_pos",
+          "world_size_m": [
+            0.004999999888241291,
+            0.20000000298023224,
+            0.14499999582767487
+          ],
+          "world_center_m": [
+            0.1475,
+            0.0,
+            0.07750000000000001
+          ],
+          "size_error_m": 4.1723251242853365e-09,
+          "center_error_m": 1.3877787807814457e-17
+        },
+        {
+          "name": "wall_x_neg",
+          "world_size_m": [
+            0.004999999888241291,
+            0.20000000298023224,
+            0.14499999582767487
+          ],
+          "world_center_m": [
+            -0.1475,
+            0.0,
+            0.07750000000000001
+          ],
+          "size_error_m": 4.1723251242853365e-09,
+          "center_error_m": 1.3877787807814457e-17
+        },
+        {
+          "name": "wall_y_pos",
+          "world_size_m": [
+            0.28999999165534973,
+            0.004999999888241291,
+            0.14499999582767487
+          ],
+          "world_center_m": [
+            0.0,
+            0.0975,
+            0.07750000000000001
+          ],
+          "size_error_m": 8.344650248570673e-09,
+          "center_error_m": 1.3877787807814457e-17
+        },
+        {
+          "name": "wall_y_neg",
+          "world_size_m": [
+            0.28999999165534973,
+            0.004999999888241291,
+            0.14499999582767487
+          ],
+          "world_center_m": [
+            0.0,
+            -0.0975,
+            0.07750000000000001
+          ],
+          "size_error_m": 8.344650248570673e-09,
+          "center_error_m": 1.3877787807814457e-17
+        }
+      ]
+    },
+    {
+      "rule": "G1.collider_count",
+      "status": "pass",
+      "detail": "4 colliders, expected 4",
+      "measured": [
+        "/OpenBox/wall_x_pos",
+        "/OpenBox/wall_x_neg",
+        "/OpenBox/wall_y_pos",
+        "/OpenBox/wall_y_neg"
+      ]
+    },
+    {
+      "rule": "G1.rigid_body_count",
+      "status": "pass",
+      "detail": "0 rigid bodies, expected 0 for body_mode=static",
+      "measured": []
+    },
+    {
+      "rule": "G1.no_nested_rigid_bodies",
+      "status": "pass",
+      "detail": "no rigid body is nested inside another",
+      "measured": []
+    },
+    {
+      "rule": "G1.unique_prim_names",
+      "status": "pass",
+      "detail": "all prim names unique",
+      "measured": []
+    },
+    {
+      "rule": "G1.finite_positive_mass",
+      "status": "pass",
+      "detail": "every authored mass is finite and > 0",
+      "measured": []
+    },
+    {
+      "rule": "G1.official_isaac_asset_validation",
+      "status": "blocked",
+      "detail": "Isaac Sim 6.0's own asset-validation rule set has not been invoked by this tool yet (planned work). These are parcel-forge's internal checks, and passing them is NOT a SimReady certification.",
+      "measured": null
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "graded": 10,
+    "failed": 0,
+    "blocked": 1,
+    "verdict": "pass"
+  },
+  "profile": "static_usd_v1"
+}

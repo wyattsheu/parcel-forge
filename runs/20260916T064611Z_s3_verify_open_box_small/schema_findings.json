@@ -1,0 +1,8 @@
+{
+  "schema": "parcel_forge.schema_findings/1",
+  "case": "open_box_small",
+  "checked_utc": "2026-09-16T06:46:11Z",
+  "verdict": "accepted",
+  "error_classes": [],
+  "findings": []
+}

@@ -1,0 +1,16 @@
+# command: /mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/usd_tool.py validate --asset /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T064611Z_s3_verify_open_box_small/asset.usda --manifest /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T064611Z_s3_verify_open_box_small/build_manifest.json --profile /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T064611Z_s3_verify_open_box_small/static_profile.json --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T064611Z_s3_verify_open_box_small
+# cwd: /mnt/HDD4/wyattsheu/IsaacLab
+# CUDA_VISIBLE_DEVICES=0
+#
+[VALIDATE] pass     G1.stage_opens: stage opened from the written file
+[VALIDATE] pass     G1.no_missing_references: 0 external dependency/ies, 0 unresolvable
+[VALIDATE] pass     G1.default_prim: defaultPrim is /OpenBox, expected /OpenBox
+[VALIDATE] pass     G1.stage_units_and_axis: metersPerUnit=1.0, kilogramsPerUnit=1.0, upAxis=Z; expected 1.0 / 1.0 / Z
+[VALIDATE] pass     G1.plate_dimensions: largest world size/centre error 0.0000000062 m on wall_y_pos (tolerance 0.0001 m), read back through the composed transform
+[VALIDATE] pass     G1.collider_count: 5 colliders, expected 5
+[VALIDATE] pass     G1.rigid_body_count: 0 rigid bodies, expected 0 for body_mode=static
+[VALIDATE] pass     G1.no_nested_rigid_bodies: no rigid body is nested inside another
+[VALIDATE] pass     G1.unique_prim_names: all prim names unique
+[VALIDATE] pass     G1.finite_positive_mass: every authored mass is finite and > 0
+[VALIDATE] blocked  G1.official_isaac_asset_validation: Isaac Sim 6.0's own asset-validation rule set has not been invoked by this tool yet (planned work). These are parcel-forge's internal checks, and passing them is NOT a SimReady certification.
+[VALIDATE] verdict=pass failed=0 blocked=1
