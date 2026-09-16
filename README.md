@@ -5,7 +5,7 @@ zero on 2026-09-16 against the Isaac Sim 6.0.1.0 install already present on this
 machine. This repository does not reuse the earlier Task 1 code and never
 modifies, reinstalls or upgrades the simulator, the driver or the shared venv.
 
-**Current stage: S1 complete. S2 (open box) not started.**
+**Current stage: S2 complete. S3 (schema + static USD validation) not started.**
 Read `docs/STATE.md` for the verified state and the single next action, and
 `docs/ROADMAP.md` for the S0-S7 plan.
 
@@ -19,7 +19,11 @@ Read `docs/STATE.md` for the verified state and the single next action, and
 | Per-step pose / orientation / velocity / sim-time read-back | verified | same `trajectory.csv` |
 | Offline PNG render of the real final scene | verified | S1 run `renders/scene_final.png` + image statistics |
 | WebRTC human viewing of a parcel-forge scene | **not tested** | livestream is never enabled here |
-| Open-box geometry, USD authoring, schema, batch, repair loop | **not implemented** | planned for S2-S7 |
+| Five-plate open box built from the handbook geometry | verified | S2 runs; plate sizes read back to 1e-8 m |
+| Probe drop judged in the box local frame | verified | S2 suite table: inside / at_mouth / fell_through |
+| Two deliberate faults detected (sealed lid, missing bottom) | verified | both fault cases classified correctly, neither passed as `inside` |
+| USD asset written per run | partial | `asset.usda` is a flattened Kit stage; a clean asset layer is S3 |
+| Input schema, batch driver, repair loop, VLM review | **not implemented** | planned for S3-S7 |
 
 Nothing above is claimed from reading code. Each "verified" row points at a run
 directory containing the command, exit code, log and outputs.
@@ -36,6 +40,8 @@ anything that needs Kit. Paths live in `config/isaac_env.json`.
 ./scripts/pf doctor            # read-only environment health -> runs/<id>/doctor.json
 ./scripts/pf smoke             # S1 cube drop -> runs/<id>/{trajectory.csv,renders/,summary.md}
 ./scripts/pf smoke --device 1  # pick a different GPU
+./scripts/pf box --case open_box_normal   # one S2 case -> runs/<id>/
+./scripts/pf box --all                    # all three S2 cases + a suite table
 ./scripts/pf runs --last 5     # list recent runs with stage and exit code
 ```
 
@@ -86,10 +92,15 @@ src/parcel_forge/pngio.py       stdlib PNG encoder + blank-frame statistics
 src/parcel_forge/runtime/       launcher (host side) + Isaac Sim 6.0 adapter (in-runtime)
 src/parcel_forge/smoke_s1.py    S1 scene, stepping, checks (runs inside Isaac)
 src/parcel_forge/smoke_host.py  S1 host driver: run dir, launch, manifest, summary
+src/parcel_forge/geometry.py    open-box plate table and spec rejection (pure maths)
+src/parcel_forge/validation/    outcome classification in the box local frame
+src/parcel_forge/box_s2.py      S2 box + probe scene and checks (runs inside Isaac)
+src/parcel_forge/box_host.py    S2 host driver: per-case runs and the suite table
 profiles/                       versioned acceptance thresholds
 docs/                           STATE, ROADMAP, ENVIRONMENT, DECISIONS, tasks/, sessions/
 runs/                           append-only evidence
-cases/ tests/ src/.../validation/   empty until S2/S3
+cases/                          one JSON per test case, including deliberate faults
+tests/                          offline regressions: geometry, outcome rule, PNG
 ```
 
 ## Rules for anyone (human or agent) working here

@@ -71,3 +71,35 @@ Consequence: The visual slab carries no collider and sits below z=0; any future
 check must read the collider, not the slab.
 Evidence: S1 render and `S1.cube_rests_on_ground` (final z = half edge length).
 Revisit when: S2 introduces the box, whose walls need both roles on one prim.
+
+## D006 - The probe outcome is judged in the box local frame
+
+Status: accepted
+Reason: The test box floats 0.20 m above the world floor. In the missing-bottom
+fault the probe still comes to rest on a solid surface, so in world coordinates it
+looks supported (z = 0.02 m) and the fault would pass. In box local coordinates the
+same state reads z = -0.18 m, clearly below the box. Judging in world Z would make
+the whole fault suite blind.
+Alternative: Comparing against the world floor height. Rejected: it conflates "the
+box held it" with "something held it".
+Consequence: `validation/outcome.py` takes local coordinates only, and the runtime
+adapter exposes `world_to_local()` via the composed USD transform.
+Evidence: `runs/20260916T053320Z_s2_open_box_no_bottom/` (local z = -0.18000) and
+`tests/test_outcome.py::test_probe_on_the_world_floor_is_fell_through_not_inside`.
+Revisit when: A box is allowed to tilt or move (S4 dynamic box); the local frame
+then follows the box, which is exactly what is wanted.
+
+## D007 - Two evidence views per S2 case
+
+Status: accepted
+Reason: A single side view rendered the box correctly but hid the probe behind a
+wall, so the picture could not corroborate the verdict. No single camera can show
+all three expected resting places (interior floor, sealed mouth, world floor
+beneath a floating box).
+Alternative: One view plus trusting the numbers. Rejected: evidence should show the
+thing being judged.
+Consequence: `profiles/open_box_v1.json` carries a `views` list (`interior_top`,
+`side_low`); the render check fails if any view is blank. Only framing changed; no
+acceptance tolerance was touched, and verdicts are unaffected by camera placement.
+Evidence: `renders/*_interior_top.png` and `renders/*_side_low.png` in each S2 run.
+Revisit when: S6 adds multi-view VLM review, which will need a named view set.
