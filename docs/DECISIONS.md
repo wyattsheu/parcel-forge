@@ -511,3 +511,26 @@ and logs what it framed on: `framing on ['Box', 'Probe'], extent 0.300 m`. The
 user's own viewer solved this the same way, with a name-marker exclusion list; the
 approach is borrowed deliberately.
 Revisit when: an asset legitimately contains a prim whose name matches a marker.
+
+## D027 - Finding: the probe is very light, so mouse drag throws it
+
+Status: open finding (behaviour is correct; the parameter choice is the question)
+Reason: The user observed that a light drag sends the probe flying, and asked whether
+gravity was wrong. It is not. Checked against run evidence:
+  * gravity reads back as (0, 0, -1) x 9.8100004196167 m/s^2;
+  * S1's free-fall check matches the analytic drop to 2.04 mm at t = 0.1 s, which is
+    exactly the expected semi-implicit Euler overshoot;
+  * the probe comes to rest at precisely half its edge length above the floor.
+The cause is the mass. The probe is a 4 cm cube at 0.05 kg, so its density is
+781 kg/m^3 -- lighter than water -- and it weighs **0.49 N**. Omniverse's mouse
+interaction applies a force that does not scale with mass, so a drag of order 1 N
+gives a = F/m = 20 m/s^2, about 2 g. A light object flying under that force is
+correct physics, not a bug.
+Consequence: recorded rather than "fixed", because nothing is broken. `probe.mass_kg`
+is a case-file parameter whose provenance is already `uncalibrated_assumption`, and
+raising it is a one-line change per case. For a 4 cm cube: ~0.058 kg is
+polypropylene, ~0.064 kg is water, ~0.17 kg is aluminium, ~0.50 kg is steel.
+What this does flag: the project has never justified 0.05 kg against anything. It is
+a number chosen to be convenient. Any demo intended to look plausible should pick a
+mass from a stated material, and say which.
+Revisit when: a case needs a defensible probe mass, or a demo profile is built.
