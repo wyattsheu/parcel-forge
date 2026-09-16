@@ -21,6 +21,16 @@ from parcel_forge.pngio import image_stats, write_rgb_png
 G = 9.81
 
 
+def _close(runtime) -> None:
+    """Close the app last. `SimulationApp.close()` terminates the process, so any
+    write placed after it silently never happens (that bug cost the first S1 run
+    its result file while physics and render had actually succeeded)."""
+    try:
+        runtime.close()
+    except Exception:
+        pass
+
+
 def parse_args(argv):
     p = argparse.ArgumentParser(description="S1 cube-drop smoke inside the Isaac runtime")
     p.add_argument("--out", required=True, help="run directory (already created by the host CLI)")
@@ -214,13 +224,8 @@ def main(argv) -> int:
         with open(os.path.join(out, "s1_result.json"), "w", encoding="utf-8") as fh:
             json.dump(result, fh, indent=2)
         print(f"[S1] FAILED: {exc.__class__.__name__}: {exc}", flush=True)
-        runtime.close()
+        _close(runtime)
         return EXIT_ENV_FAIL
-    finally:
-        try:
-            runtime.close()
-        except Exception:
-            pass
 
     graded = [c for c in result["checks"] if c["status"] in ("pass", "fail")]
     failed = [c for c in graded if c["status"] == "fail"]
@@ -236,6 +241,10 @@ def main(argv) -> int:
     for c in result["checks"]:
         print(f"[S1] {c['status']:<10} {c['id']}: {c['detail']}", flush=True)
     print(f"[S1] verdict={result['summary']['verdict']}", flush=True)
+
+    # Shut down only after every artefact is on disk: SimulationApp.close()
+    # tears the process down and never returns here.
+    _close(runtime)
     return EXIT_OK if not failed else EXIT_ASSET_FAIL
 
 
