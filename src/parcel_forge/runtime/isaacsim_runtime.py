@@ -170,6 +170,75 @@ class IsaacSimRuntime:
         UsdPhysics.MassAPI.Apply(prim).CreateMassAttr(mass)
         return {"path": path, "size_m": size, "spawn_position_m": list(position), "mass_kg": mass}
 
+    def add_static_box_group(self, root_path: str, world_position: tuple[float, float, float],
+                             plates: list[dict], color: tuple[float, float, float] = (0.72, 0.56, 0.36)) -> dict:
+        """Author a fixed multi-plate body: one Xform root, one collider Cube per plate.
+
+        Each plate is a `UsdGeom.Cube` with `size = 1` scaled to its full extents, so
+        the scale factor IS the dimension and nothing is scaled twice. Only
+        `CollisionAPI` is applied: at S2 the box is static, so the root carries no
+        `RigidBodyAPI` (a dynamic box is S4, and then exactly one rigid body goes on
+        the root, never on the children).
+        """
+        from pxr import Gf, UsdGeom, UsdPhysics
+
+        UsdGeom.Xform.Define(self.stage, "/World")
+        root = UsdGeom.Xform.Define(self.stage, root_path)
+        UsdGeom.XformCommonAPI(root).SetTranslate(Gf.Vec3d(*world_position))
+
+        authored = []
+        for plate in plates:
+            path = f"{root_path}/{plate['name']}"
+            cube = UsdGeom.Cube.Define(self.stage, path)
+            cube.CreateSizeAttr(1.0)
+            cube.CreateDisplayColorAttr([Gf.Vec3f(*color)])
+            api = UsdGeom.XformCommonAPI(cube)
+            api.SetTranslate(Gf.Vec3d(*plate["center_m"]))
+            api.SetScale(Gf.Vec3f(*[float(v) for v in plate["size_m"]]))
+            UsdPhysics.CollisionAPI.Apply(cube.GetPrim())
+            authored.append({"name": plate["name"], "path": path,
+                             "intended_size_m": list(plate["size_m"]),
+                             "intended_center_m": list(plate["center_m"])})
+        return {"root_path": root_path, "world_position_m": list(world_position),
+                "plates": authored, "rigid_body_on_root": False}
+
+    def world_bbox(self, prim_path: str) -> dict | None:
+        """World-space bounding box read back from the authored stage.
+
+        Read-back goes through the composed transform, so an accidental second
+        scale on an ancestor shows up here instead of being assumed away.
+        """
+        from pxr import Gf, Usd, UsdGeom
+
+        prim = self.stage.GetPrimAtPath(prim_path)
+        if not prim or not prim.IsValid():
+            return None
+        cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_, UsdGeom.Tokens.render])
+        box = cache.ComputeWorldBound(prim).ComputeAlignedRange()
+        if box.IsEmpty():
+            return None
+        lo, hi = box.GetMin(), box.GetMax()
+        return {
+            "min_m": [float(v) for v in lo],
+            "max_m": [float(v) for v in hi],
+            "size_m": [float(hi[i] - lo[i]) for i in range(3)],
+            "center_m": [float((hi[i] + lo[i]) / 2.0) for i in range(3)],
+        }
+
+    def world_to_local(self, root_path: str, world_point) -> list[float]:
+        """Express a world point in a prim's local frame (box local Z is what S2 judges)."""
+        from pxr import Gf, Usd, UsdGeom
+
+        xformable = UsdGeom.Xformable(self.stage.GetPrimAtPath(root_path))
+        to_world = xformable.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+        local = to_world.GetInverse().Transform(Gf.Vec3d(*[float(v) for v in world_point]))
+        return [float(v) for v in local]
+
+    def export_stage(self, path: str) -> str:
+        """Flatten and save the authored stage, so the run keeps the asset it simulated."""
+        self.stage.Export(path)
+        return path
+
     def add_dome_light(self, intensity: float = 1200.0, path: str = "/World/DomeLight") -> str:
         from pxr import UsdLux
 

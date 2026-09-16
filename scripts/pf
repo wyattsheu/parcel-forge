@@ -9,6 +9,7 @@ anything.
 Implemented now (S0/S1):
     pf doctor [--out DIR]
     pf smoke  [--profile FILE] [--device N] [--timeout SEC]
+    pf box    (--case <case-id> | --all) [--profile FILE] [--device N] [--timeout SEC]
     pf runs   [--last N]
 
 Specified in the handbook but NOT implemented yet (they exit 4, never pretend):
@@ -63,6 +64,9 @@ def main() -> int:
     if cmd == "smoke":
         from parcel_forge.smoke_host import main as smoke_main
         return smoke_main(argv)
+    if cmd == "box":
+        from parcel_forge.box_host import main as box_main
+        return box_main(argv)
     if cmd == "runs":
         return cmd_runs(argv)
     if cmd in NOT_IMPLEMENTED:

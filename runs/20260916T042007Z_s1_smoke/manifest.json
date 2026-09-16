@@ -1,0 +1,42 @@
+{
+  "schema": "parcel_forge.manifest/1",
+  "created_utc": "2026-09-16T04:20:22Z",
+  "run_id": "20260916T042007Z_s1_smoke",
+  "stage": "S1",
+  "case": "s1_cube_drop",
+  "seed": null,
+  "profile": "s1_smoke_v1.json",
+  "profile_sha256": "4a9631030709c6fbc43e4da2f4b6dab246989832849d2eeec5624285d49db7ff",
+  "backend": "isaacsim-standalone 6.0.1.0",
+  "device": "0",
+  "dt": 0.004166666666666667,
+  "command": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/smoke_s1.py --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T042007Z_s1_smoke --profile /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T042007Z_s1_smoke/profile.json",
+  "exit_code": 0,
+  "external_exit_code": 0,
+  "asset_path": null,
+  "asset_sha256": null,
+  "inputs_sha256": {
+    "profile": "4a9631030709c6fbc43e4da2f4b6dab246989832849d2eeec5624285d49db7ff",
+    "smoke_script": "f9b33119c488c782984b7a0293fde85f226ec51499107fdf17c2b75193e8833d"
+  },
+  "code_version": {
+    "commit": "fdbe91312ed8ce6df9c7dbbb60d38bdbff16b670",
+    "dirty": true,
+    "dirty_files": [
+      "?? runs/20260916T042007Z_s1_smoke/"
+    ],
+    "dirty_diff_sha256": null
+  },
+  "evidence": {
+    "environment": "environment.json",
+    "profile": "profile.json",
+    "log": "logs/isaac_runtime.log",
+    "result": "s1_result.json",
+    "trajectory": "trajectory.csv",
+    "render": "renders/scene_final.png"
+  },
+  "notes": [
+    "S1 authors the scene procedurally in-memory; no .usda asset is written yet (that starts at S2/S3).",
+    "livestream disabled; the pre-existing WebRTC session and its ports were not touched"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "parcel_forge.profile/1",
+  "profile_id": "s1_smoke_v1",
+  "stage": "S1",
+  "description": "Ground plane + rigid cube drop. Proves finite-step physics, state read-back and offline PNG render on this install.",
+  "provenance": {
+    "dt": "engineering_baseline_v1 (handbook section 9), not calibrated against hardware",
+    "tolerances": "engineering_baseline_v1; free-fall tolerance from handbook G0",
+    "lighting_and_camera": "evidence framing only, no physical meaning"
+  },
+  "simulation": {
+    "dt": 0.004166666666666667,
+    "steps": 600,
+    "device": "cuda:0",
+    "gravity_mps2": -9.81
+  },
+  "scene": {
+    "ground_size_m": 20.0,
+    "cube_size_m": 0.04,
+    "cube_spawn_m": [0.0, 0.0, 0.5],
+    "cube_mass_kg": 0.1,
+    "dome_light_intensity": 900.0,
+    "distant_light_intensity": 2500.0
+  },
+  "render": {
+    "width": 1280,
+    "height": 720,
+    "eye_m": [0.55, -0.55, 0.32],
+    "target_m": [0.0, 0.0, 0.05],
+    "focal_length_mm": 24.0,
+    "settle_frames": 48
+  },
+  "tolerances": {
+    "free_fall_check_t_s": 0.1,
+    "free_fall_m": 0.003,
+    "rest_height_m": 0.002,
+    "settle_speed_mps": 0.01
+  }
+}
