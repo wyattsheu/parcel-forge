@@ -418,3 +418,26 @@ confirming the port is bound and READY is logged.
 Evidence: `ss -lnt` showing `0.0.0.0:49100 LISTEN`, and `runs/viewer.log` reporting
 `READY - connect WebRTC to 140.113.203.85:49100`.
 Revisit when: the ports need to be configurable per session.
+
+## D022 - A tool that holds a resource must be able to release it
+
+Status: accepted
+Reason: `pf view` refused to start when the WebRTC ports were busy and told the user
+to run the *handoff project's* stop script. But the process holding the ports was a
+parcel-forge viewer that this agent had started in the background. That script writes
+and reads its own PID file, so it reported "no PID file" and stopped nothing. The
+user ran it four times in a row against a port that parcel-forge itself was holding.
+Two separate mistakes: leaving a long-running process behind without telling the user
+how to stop it, and printing a fixed remedy that assumed the blocker was someone
+else's.
+Consequence:
+  * `pf view` now identifies the actual port holder (pid and command line) via
+    `ss -lntp` and `/proc/<pid>/cmdline`, and branches on whether it is ours.
+  * Ours: `./scripts/pf view --stop`, or `--replace` to take over in one step.
+    Stopping our own process needs a SIGKILL fallback, since Kit routinely ignores
+    SIGTERM and would otherwise keep the port.
+  * Not ours: it still refuses and names the owning process, so the user can decide.
+    D003's rule stands -- parcel-forge never stops a process it did not start.
+Evidence: the `--stop`/`--replace` cycle exercised end to end; the message now prints
+the owning pid.
+Revisit when: more than one parcel-forge service can hold a port.

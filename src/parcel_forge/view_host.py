@@ -42,7 +42,82 @@ def latest_run(pattern: str = "*_s2_*") -> str | None:
     return runs[-1] if runs else None
 
 
+WEBRTC_PORTS = (49100, 47998)
+VIEWER_MARKER = os.path.join("parcel_forge", "view_scene.py")
+
+
+def port_owner() -> tuple[int, str] | None:
+    """Return (pid, cmdline) of whatever holds a WebRTC port, or None.
+
+    Knowing *who* holds the port is the whole point: an earlier version only
+    reported that a port was busy and pointed at another project's stop script,
+    which could not stop a parcel-forge process and left the user looping.
+    """
+    import re
+    import subprocess
+
+    try:
+        out = subprocess.run(["ss", "-lntp"], capture_output=True, text=True, timeout=15).stdout
+    except Exception:
+        return None
+    for line in out.splitlines():
+        if not any(f":{port} " in line for port in WEBRTC_PORTS):
+            continue
+        match = re.search(r"pid=(\d+)", line)
+        if not match:
+            return (-1, "unknown process (no pid reported by ss)")
+        pid = int(match.group(1))
+        try:
+            with open(f"/proc/{pid}/cmdline", "rb") as fh:
+                cmdline = fh.read().replace(b"\x00", b" ").decode(errors="replace").strip()
+        except OSError:
+            cmdline = "unknown"
+        return (pid, cmdline)
+    return None
+
+
+def is_our_viewer(cmdline: str) -> bool:
+    return VIEWER_MARKER in cmdline.replace("\\", "/")
+
+
+def stop_our_viewer(pid: int) -> bool:
+    """Stop a parcel-forge viewer. Kit ignores SIGTERM often enough that a
+    SIGKILL fallback is required, otherwise the port stays held."""
+    import signal
+    import time
+
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.kill(pid, sig)
+        except ProcessLookupError:
+            return True
+        except PermissionError:
+            print(f"no permission to stop pid {pid}")
+            return False
+        for _ in range(20):
+            time.sleep(0.5)
+            try:
+                os.kill(pid, 0)
+            except ProcessLookupError:
+                return True
+    return False
+
+
 def main(argv: list[str]) -> int:
+    if "--stop" in argv:
+        busy = port_owner()
+        if busy is None:
+            print("no WebRTC port is bound; nothing to stop")
+            return EXIT_OK
+        pid, cmdline = busy
+        if not is_our_viewer(cmdline):
+            print(f"pid {pid} is not a parcel-forge viewer; refusing to stop it:")
+            print(f"  {cmdline[:150]}")
+            return EXIT_ENV_FAIL
+        ok = stop_our_viewer(pid)
+        print(f"stopped parcel-forge viewer pid {pid}" if ok else f"could not stop pid {pid}")
+        return EXIT_OK if ok else EXIT_ENV_FAIL
+
     run = argv[argv.index("--run") + 1] if "--run" in argv else None
     scene_name = argv[argv.index("--scene") + 1] if "--scene" in argv else "asset.usda"
     hold = argv[argv.index("--hold-seconds") + 1] if "--hold-seconds" in argv else "20"
@@ -61,13 +136,29 @@ def main(argv: list[str]) -> int:
         print(f"could not find a scene for: {run}")
         return EXIT_ENV_FAIL
 
-    ports = envprobe.webrtc_ports()
-    if ports.get("status") == "ok" and any(ports["ports_in_use"].values()):
-        busy = [p for p, used in ports["ports_in_use"].items() if used]
-        print(f"WebRTC port(s) {busy} are already in use by another session.")
-        print("parcel-forge will not stop someone else's process. Free them first, e.g.:")
-        print("  bash ~/handoff/robot129_pro6000_sim_20260913/tools/stop_usd_webrtc.sh")
-        return EXIT_ENV_FAIL
+    busy = port_owner()
+    if busy is not None:
+        pid, cmdline = busy
+        if is_our_viewer(cmdline):
+            # Our own process. Telling the user to go find someone else's stop
+            # script for it -- which is what the old message did -- sends them in a
+            # circle, because that script cannot see a PID it never wrote.
+            if "--force" in argv or "--replace" in argv:
+                print(f"stopping the existing parcel-forge viewer (pid {pid})")
+                stop_our_viewer(pid)
+            else:
+                print(f"A parcel-forge viewer is already streaming (pid {pid}).")
+                print("It belongs to this project, so stop it with either of:")
+                print("  ./scripts/pf view --stop")
+                print(f"  ./scripts/pf view --replace --run {run if run else '<run-id>'}")
+                return EXIT_ENV_FAIL
+        else:
+            print(f"WebRTC ports are held by another program (pid {pid}):")
+            print(f"  {cmdline[:150]}")
+            print("parcel-forge will not stop a process it did not start. If that is the")
+            print("handoff viewer, its own stop command is:")
+            print("  bash ~/handoff/robot129_pro6000_sim_20260913/tools/stop_usd_webrtc.sh")
+            return EXIT_ENV_FAIL
 
     args = ["--usd", scene, "--hold-seconds", str(hold)]
     if public_ip:
