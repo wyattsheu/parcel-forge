@@ -383,3 +383,38 @@ killing anything.
 Its output is never acceptance evidence: only a human can report what they saw.
 Evidence: `omni/physxui/scripts/input.py` lines 67-73.
 Revisit when: a second viewer is needed, or the ports need to be configurable.
+
+## D021 - Livestream is enabled by Kit argv, not by a SimulationApp config key
+
+Status: accepted
+Reason: `pf view` was written with `SimulationApp({"livestream": 2})`. That key does
+not exist: `isaacsim/simulation_app.py` contains no reference to `livestream` at all,
+so the option was silently ignored, no stream server ever started, and no port was
+bound. The user connected to nothing and saw a grey screen -- an accurate picture of
+a stream that was never running. Setting `/exts/omni.kit.livestream.app/...` through
+`carb.settings` after construction is also too late; the extension reads its
+configuration at startup.
+The working mechanism, read from IsaacLab's `app_launcher.py` (used as an API
+reference only, not as a dependency -- D001 stands): append Kit command-line
+arguments to `sys.argv` **before** constructing `SimulationApp`:
+
+```
+--/exts/omni.kit.livestream.app/primaryStream/signalPort=49100
+--/exts/omni.kit.livestream.app/primaryStream/streamPort=47998
+--/exts/omni.kit.livestream.app/primaryStream/allowDynamicResize=false
+--/exts/omni.kit.livestream.app/primaryStream/streamType=webrtc
+--enable omni.kit.livestream.app
+```
+
+The port and `allowDynamicResize` settings are not optional: IsaacLab's own comment
+records that without them NVST fails to bind its server socket.
+Also missing and now fixed: `--enable omni.physx.ui`. Without that extension there is
+no mouse grab at all, however correctly the timeline is playing -- so D020's fix was
+incomplete on its own.
+Consequence: a silently-ignored config key produces a failure that looks exactly like
+a network problem. Anything that claims to start a service must be verified by
+observing the service, not by the absence of an error. `pf view` is now checked by
+confirming the port is bound and READY is logged.
+Evidence: `ss -lnt` showing `0.0.0.0:49100 LISTEN`, and `runs/viewer.log` reporting
+`READY - connect WebRTC to 140.113.203.85:49100`.
+Revisit when: the ports need to be configurable per session.

@@ -31,6 +31,8 @@ def parse_args(argv):
                    help="keep the probe frozen this long so you can connect before it drops")
     p.add_argument("--public-ip", default="140.113.203.85")
     p.add_argument("--signaling-port", type=int, default=49100)
+    p.add_argument("--stream-port", type=int, default=47998)
+    p.add_argument("--fps", type=int, default=30)
     p.add_argument("--probe-path", default="/World/Probe")
     p.add_argument("--dt", type=float, default=1 / 120.0)
     return p.parse_args(argv)
@@ -39,12 +41,33 @@ def parse_args(argv):
 def main(argv) -> int:
     args = parse_args(argv)
 
+    # Livestream is NOT a SimulationApp config key -- `isaacsim/simulation_app.py`
+    # has no such option, so passing {"livestream": 2} is silently ignored and
+    # nothing ever binds a port. It is enabled by Kit command-line arguments, which
+    # must be in sys.argv BEFORE SimulationApp is constructed. The port and
+    # allowDynamicResize settings are mandatory: without them NVST fails to bind
+    # (NVST_R_INTERNAL_ERROR).
+    sys.argv += [
+        f"--/exts/omni.kit.livestream.app/primaryStream/publicIp={args.public_ip}",
+        f"--/exts/omni.kit.livestream.app/primaryStream/signalPort={args.signaling_port}",
+        f"--/exts/omni.kit.livestream.app/primaryStream/streamPort={args.stream_port}",
+        "--/exts/omni.kit.livestream.app/primaryStream/allowDynamicResize=false",
+        "--/exts/omni.kit.livestream.app/primaryStream/streamType=webrtc",
+        f"--/exts/omni.kit.livestream.app/primaryStream/targetFps={args.fps}",
+        "--/app/window/width=1280",
+        "--/app/window/height=720",
+        "--/renderer/multiGpu/enabled=false",
+        "--enable", "omni.kit.livestream.app",
+        # Without this extension there is no mouse grab/push at all, whatever the
+        # timeline is doing.
+        "--enable", "omni.physx.ui",
+    ]
+
     from isaacsim import SimulationApp
 
     app = SimulationApp({
         "headless": True,
         "enable_cameras": True,
-        "livestream": 2,
         "width": 1280,
         "height": 720,
     })
@@ -55,8 +78,6 @@ def main(argv) -> int:
     from pxr import Gf, Usd, UsdGeom, UsdPhysics
 
     settings = carb.settings.get_settings()
-    settings.set("/exts/omni.kit.livestream.app/primaryStream/publicIp", args.public_ip)
-    settings.set("/exts/omni.kit.livestream.app/primaryStream/targetFps", 30)
     settings.set("/rtx/background/source/type", 2)
     settings.set("/rtx/background/source/color", (0.055, 0.065, 0.080))
 
