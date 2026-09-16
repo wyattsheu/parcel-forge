@@ -1,0 +1,6 @@
+# command: /mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/usd_tool.py build --case /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093535Z_s3_verify_open_box_thick_wall/request.json --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093535Z_s3_verify_open_box_thick_wall
+# cwd: /mnt/HDD4/wyattsheu/IsaacLab
+# CUDA_VISIBLE_DEVICES=0
+#
+[BUILD] wrote /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093535Z_s3_verify_open_box_thick_wall/asset.usda
+[BUILD] plates=5 body_mode=static interior=0.2600x0.1600x0.1300 m

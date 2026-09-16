@@ -127,11 +127,8 @@ def validate_asset(usd_path: str, expected: dict, tolerance_m: float = 0.0001) -
                          "every authored mass is finite and > 0" if not bad_mass else "; ".join(bad_mass),
                          bad_mass))
 
-    checks.append(_check(
-        "G1.official_isaac_asset_validation", BLOCKED,
-        "Isaac Sim 6.0's own asset-validation rule set has not been invoked by this tool yet "
-        "(planned work). These are parcel-forge's internal checks, and passing them is NOT a "
-        "SimReady certification."))
+    # The official NVIDIA rule set is appended by the caller (usd_tool), so that
+    # internal and official coverage stay separately identifiable in the report.
 
     graded = [c for c in checks if c["status"] in (PASS, FAIL)]
     failed = [c for c in graded if c["status"] == FAIL]

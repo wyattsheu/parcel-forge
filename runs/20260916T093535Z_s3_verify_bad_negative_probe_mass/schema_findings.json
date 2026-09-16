@@ -1,0 +1,16 @@
+{
+  "schema": "parcel_forge.schema_findings/1",
+  "case": "bad_negative_probe_mass",
+  "checked_utc": "2026-09-16T09:35:36Z",
+  "verdict": "rejected",
+  "error_classes": [
+    "value_out_of_range"
+  ],
+  "findings": [
+    {
+      "code": "value_out_of_range",
+      "path": "probe.mass_kg",
+      "message": "must be > 0.0, got -0.05"
+    }
+  ]
+}

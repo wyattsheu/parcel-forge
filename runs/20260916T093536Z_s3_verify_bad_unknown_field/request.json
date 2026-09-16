@@ -1,0 +1,51 @@
+{
+  "schema": "parcel_forge.case/1",
+  "case_id": "bad_unknown_field",
+  "asset_type": "open_box",
+  "intended_task": "place_object_inside",
+  "description": "carries a field the schema does not know; a typo must not be ignored",
+  "units": {
+    "length": "m",
+    "mass": "kg",
+    "time": "s"
+  },
+  "frame": {
+    "origin": "bottom_outer_center",
+    "up_axis": "Z"
+  },
+  "geometry": {
+    "outer_size_m": [
+      0.3,
+      0.2,
+      0.15
+    ],
+    "wall_thickness_m": 0.005,
+    "lid": "none",
+    "fault": "none"
+  },
+  "physics": {
+    "body_mode": "static",
+    "collider": "compound_boxes"
+  },
+  "placement": {
+    "box_outer_bottom_above_world_floor_m": 0.2
+  },
+  "probe": {
+    "shape": "cube",
+    "size_m": 0.04,
+    "mass_kg": 0.05,
+    "drop_offset_above_opening_m": 0.1,
+    "drop_xy_m": [
+      0.0,
+      0.0
+    ]
+  },
+  "expected_outcome": "spec_rejected",
+  "provenance": {
+    "dimensions": "engineering_example from IsaacSim_Asset_Workflow_Handbook.md section 7",
+    "masses": "uncalibrated_assumption",
+    "material": "uncalibrated_assumption"
+  },
+  "seed": 0,
+  "colour": "brown"
+}

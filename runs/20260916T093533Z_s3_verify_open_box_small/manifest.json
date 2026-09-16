@@ -1,0 +1,47 @@
+{
+  "schema": "parcel_forge.manifest/1",
+  "created_utc": "2026-09-16T09:35:34Z",
+  "run_id": "20260916T093533Z_s3_verify_open_box_small",
+  "stage": "S3",
+  "case": "open_box_small",
+  "seed": null,
+  "profile": "static_usd_v1.json",
+  "profile_sha256": "18b96a22811057fbd9c12b35ab09c59c8e99c00b35d171b6db05d7a650e1951d",
+  "backend": "pxr (OpenUSD) inside the Isaac venv; Kit not started",
+  "device": null,
+  "dt": null,
+  "command": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/usd_tool.py build --case /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093533Z_s3_verify_open_box_small/request.json --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093533Z_s3_verify_open_box_small",
+  "exit_code": 0,
+  "external_exit_code": 0,
+  "asset_path": "asset.usda",
+  "asset_sha256": "e77c39624aca7b90515cb064e3271526b5b41b751f6c76b0f879d62a30db475c",
+  "inputs_sha256": {
+    "case": "24727f1afbe67067b5a4de2e83f6b741a2a98a9fb599ceaa3711eed71b817a99",
+    "author": "5eae1842462cc281dbd832a8294e15350a46b0707af001eb06c8b42e5a6e14bb"
+  },
+  "code_version": {
+    "commit": "080b8cc5f858b5ff274acd02112f8d8d77793615",
+    "dirty": true,
+    "dirty_files": [
+      "M src/parcel_forge/usd_tool.py",
+      " M src/parcel_forge/validation/static_usd.py",
+      "?? runs/20260916T093523Z_s3_verify_open_box_normal/",
+      "?? runs/20260916T093532Z_s3_verify_open_box_no_bottom/",
+      "?? runs/20260916T093532Z_s3_verify_open_box_normal/",
+      "?? runs/20260916T093533Z_s3_verify_open_box_sealed/",
+      "?? runs/20260916T093533Z_s3_verify_open_box_small/",
+      "?? src/parcel_forge/validation/official_usd.py"
+    ],
+    "dirty_diff_sha256": "7139905ee6224b6f00359ff49545a3cc2969adcb0061b8fff63b3ad020b4e1ac"
+  },
+  "evidence": {
+    "request": "request.json",
+    "schema_findings": "schema_findings.json",
+    "asset": "asset.usda",
+    "build_manifest": "build_manifest.json",
+    "log": "logs/build.log",
+    "validation": "validation.json",
+    "validate_log": "logs/validate.log"
+  },
+  "notes": []
+}

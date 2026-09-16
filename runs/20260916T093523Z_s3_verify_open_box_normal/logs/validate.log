@@ -1,0 +1,22 @@
+# command: /mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/usd_tool.py validate --asset /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093523Z_s3_verify_open_box_normal/asset.usda --manifest /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093523Z_s3_verify_open_box_normal/build_manifest.json --profile /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093523Z_s3_verify_open_box_normal/static_profile.json --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T093523Z_s3_verify_open_box_normal
+# cwd: /mnt/HDD4/wyattsheu/IsaacLab
+# CUDA_VISIBLE_DEVICES=0
+#
+INFO:usd_validation_nvidia._plugins:Initializing Asset Validator plugin system
+INFO:usd_validation_nvidia._plugins:Discovered plugins: {'usd_validation_nvidia:DefaultPlugin'}
+INFO:usd_validation_nvidia._plugins:Loading omni.asset_validator entrypoint: 'usd_validation_nvidia:DefaultPlugin'
+INFO:usd_validation_nvidia._plugins:Calling 'usd_validation_nvidia:DefaultPlugin.on_startup()'
+INFO:usd_validation_nvidia._plugins:Plugin system initialized. Loaded plugins: {'usd_validation_nvidia:DefaultPlugin'}
+[VALIDATE] pass     G1.stage_opens: stage opened from the written file
+[VALIDATE] pass     G1.no_missing_references: 0 external dependency/ies, 0 unresolvable
+[VALIDATE] pass     G1.default_prim: defaultPrim is /OpenBox, expected /OpenBox
+[VALIDATE] pass     G1.stage_units_and_axis: metersPerUnit=1.0, kilogramsPerUnit=1.0, upAxis=Z; expected 1.0 / 1.0 / Z
+[VALIDATE] pass     G1.plate_dimensions: largest world size/centre error 0.0000000119 m on bottom (tolerance 0.0001 m), read back through the composed transform
+[VALIDATE] pass     G1.collider_count: 5 colliders, expected 5
+[VALIDATE] pass     G1.rigid_body_count: 0 rigid bodies, expected 0 for body_mode=static
+[VALIDATE] pass     G1.no_nested_rigid_bodies: no rigid body is nested inside another
+[VALIDATE] pass     G1.unique_prim_names: all prim names unique
+[VALIDATE] pass     G1.finite_positive_mass: every authored mass is finite and > 0
+[VALIDATE] pass     G7.official_validator_can_fail: the official engine reported 3 failure(s) on a deliberately broken asset: DefaultPrimChecker, PrimEncapsulationChecker, StageMetadataChecker
+[VALIDATE] pass     G1.official_isaac_asset_validation: omni.asset_validator (usd_validation_nvidia) 1.19.3: 41 rules ran, 0 failure(s), 0 warning(s). NVIDIA's generic USD rule set. It says nothing about whether this box can hold an object: cavity containment is proven by the S2 drop test, not by a clean validator report.
+[VALIDATE] verdict=pass failed=0 blocked=0

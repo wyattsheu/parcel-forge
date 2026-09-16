@@ -1,0 +1,17 @@
+{
+  "schema": "parcel_forge.profile/1",
+  "profile_id": "static_usd_v1",
+  "stage": "S3",
+  "description": "G1 static checks on the written USD asset: units, defaultPrim, dimensions read back from output geometry, collider and rigid-body hierarchy, finite mass.",
+  "provenance": {
+    "tolerances": "geometry tolerance 0.0001 m from IsaacSim_Asset_Workflow_Handbook.md section 10 G1"
+  },
+  "tolerances": {
+    "geometry_m": 0.0001
+  },
+  "coverage": {
+    "internal_rules": "parcel-forge's own G1 rules, listed in every validation.json",
+    "official_isaac_asset_validation": "not invoked; reported as blocked, never as a pass",
+    "note": "passing this profile is NOT a SimReady certification"
+  }
+}

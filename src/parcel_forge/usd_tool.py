@@ -48,6 +48,43 @@ def cmd_validate(args) -> int:
 
     report = validate_asset(args.asset, expected, profile["tolerances"]["geometry_m"])
     report["profile"] = profile["profile_id"]
+
+    # --- official NVIDIA rule set, reported as separate coverage ---------
+    from parcel_forge.validation.official_usd import run_official_validation, self_test
+
+    official = run_official_validation(args.asset)
+    report["official_validation"] = official
+    reliability = self_test(args.out)
+    report["validator_reliability"] = reliability
+
+    # G7 first: an engine that cannot fail makes its own clean verdict meaningless.
+    report["checks"].append({
+        "rule": "G7.official_validator_can_fail",
+        "status": reliability["status"],
+        "detail": reliability.get("detail", reliability.get("reason", "")),
+        "measured": reliability.get("failures"),
+    })
+    report["checks"].append({
+        "rule": "G1.official_isaac_asset_validation",
+        "status": official["status"],
+        "detail": (f"{official.get('validator')} {official.get('validator_version')}: "
+                   f"{official.get('rules_run_count')} rules ran, "
+                   f"{len(official.get('failures', []))} failure(s), "
+                   f"{len(official.get('warnings', []))} warning(s). {official['coverage']}")
+        if official["status"] != "blocked" else official["reason"],
+        "measured": official.get("failures"),
+    })
+
+    graded = [c for c in report["checks"] if c["status"] in ("pass", "fail")]
+    failed = [c for c in graded if c["status"] == "fail"]
+    report["summary"] = {"total": len(report["checks"]), "graded": len(graded),
+                         "failed": len(failed),
+                         "blocked": len([c for c in report["checks"] if c["status"] == "blocked"]),
+                         "verdict": "pass" if not failed else "fail"}
+    report["coverage_note"] = ("parcel-forge internal G1 rules and NVIDIA's official rule set are "
+                               "counted separately. Neither is a SimReady certification, and a clean "
+                               "static report never proves the box can hold an object.")
+
     with open(os.path.join(args.out, "validation.json"), "w", encoding="utf-8") as fh:
         json.dump(report, fh, indent=2)
 
