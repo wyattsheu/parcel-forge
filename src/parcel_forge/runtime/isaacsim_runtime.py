@@ -242,13 +242,32 @@ class IsaacSimRuntime:
         local = to_world.GetInverse().Transform(Gf.Vec3d(*[float(v) for v in world_point]))
         return [float(v) for v in local]
 
-    def set_prim_translate(self, prim_path: str, position) -> None:
-        """Write a pose into USD. Used only to rebuild a viewable scene, never to
-        produce render evidence: evidence is captured from the live final state."""
+    def set_prim_transform(self, prim_path: str, position, orientation_wxyz=None) -> None:
+        """Write a measured pose into USD as a single transform op.
+
+        PhysX publishes results through Fabric; it does not write them back to USD.
+        Anything that renders from USD -- including the human's WebRTC viewer, which
+        is launched with `useFabricSceneDelegate=0` -- therefore shows a body frozen
+        at its authored spawn pose no matter how long physics runs. Measured:
+        after 3 s the tensor API reported the probe at z=0.22500 while USD still
+        read 0.47000.
+
+        This writes the pose that was actually measured during the run, so a viewer
+        can show the verified end state. It is a record of a real result, not a
+        re-staged scene: the numbers come straight from trajectory.csv.
+        """
         from pxr import Gf, UsdGeom
 
         prim = self.stage.GetPrimAtPath(prim_path)
-        UsdGeom.XformCommonAPI(prim).SetTranslate(Gf.Vec3d(*[float(v) for v in position]))
+        matrix = Gf.Matrix4d(1.0)
+        if orientation_wxyz is not None:
+            w, x, y, z = (float(v) for v in orientation_wxyz)
+            matrix.SetRotate(Gf.Quatd(w, Gf.Vec3d(x, y, z)))
+        matrix.SetTranslateOnly(Gf.Vec3d(*[float(v) for v in position]))
+
+        xformable = UsdGeom.Xformable(prim)
+        xformable.ClearXformOpOrder()
+        xformable.AddTransformOp().Set(matrix)
 
     def export_stage(self, path: str, default_prim_path: str = "/World") -> str:
         """Flatten and save the authored stage, so the run keeps the asset it simulated.
@@ -259,14 +278,58 @@ class IsaacSimRuntime:
         the human's WebRTC viewer reporting "0 meshes, bbox 0x0x0, top-level prims =
         []" against a scene that in fact contained a full box+ground+probe setup.
         """
-        from pxr import Usd
+        from pxr import Sdf, Usd, UsdPhysics
 
         if not self.stage.HasDefaultPrim():
             root = self.stage.GetPrimAtPath(default_prim_path)
             if root and root.IsValid():
                 self.stage.SetDefaultPrim(root)
         self.stage.Export(path)
+        self._relocate_physics_scene(path)
         return path
+
+    @staticmethod
+    def _relocate_physics_scene(path: str) -> bool:
+        """Move the PhysicsScene under the default prim in the exported file.
+
+        Isaac authors the scene at root level (`/PhysicsScene`), a sibling of
+        `/World`. A USD reference only pulls in the default prim's subtree, so a
+        root-level scene is dropped and the referenced rigid bodies have nothing to
+        simulate against: they sit frozen in mid-air. Verified by loading the file
+        the way the human's viewer does -- the probe stayed at z=0.47000 for a full
+        three seconds of stepping, and the referencing stage reported zero physics
+        scenes. Creating a replacement scene after the fact does not rescue the
+        already-referenced bodies, so the file itself has to carry one.
+
+        This edits the exported layer only. The live simulation stage is untouched,
+        so adding a second scene can never disturb a run in progress.
+        """
+        from pxr import Sdf, Usd, UsdPhysics
+
+        layer = Sdf.Layer.FindOrOpen(path)
+        if layer is None:
+            return False
+        stage = Usd.Stage.Open(layer)
+        default_prim = stage.GetDefaultPrim()
+        if not default_prim or not default_prim.IsValid():
+            return False
+
+        root_path = default_prim.GetPath()
+        scenes = [prim.GetPath() for prim in stage.Traverse() if prim.IsA(UsdPhysics.Scene)]
+        if not scenes:
+            return False
+        if any(scene_path.HasPrefix(root_path) and scene_path != root_path for scene_path in scenes):
+            return False  # already reachable through the reference
+
+        source = scenes[0]
+        destination = root_path.AppendChild(source.name)
+        if not Sdf.CopySpec(layer, source, layer, destination):
+            return False
+        # Leave exactly one scene behind, or a direct open sees two.
+        if source.IsRootPrimPath():
+            del layer.rootPrims[source.name]
+        layer.Save()
+        return True
 
     def add_dome_light(self, intensity: float = 1200.0, path: str = "/World/DomeLight") -> str:
         from pxr import UsdLux

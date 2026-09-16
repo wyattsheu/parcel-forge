@@ -96,5 +96,79 @@ class TestDefaultPrimRequiredForReferences(unittest.TestCase):
             self.assertEqual(str(reopened.GetDefaultPrim().GetPath()), "/World")
 
 
+@unittest.skipUnless(HAVE_PXR, "pxr is only available under the Isaac venv interpreter (see D008)")
+class TestPhysicsSceneReachableThroughReference(unittest.TestCase):
+    """A root-level PhysicsScene is dropped by a reference, leaving rigid bodies
+    with nothing to simulate against.
+
+    Isaac authors its scene at `/PhysicsScene`, a sibling of `/World`. Since a
+    reference only pulls in the default prim's subtree, the scene vanished and the
+    probe sat frozen in mid-air. Measured before the fix: zero physics scenes in the
+    referencing stage, probe unchanged at z=0.47000 after 3 s of stepping.
+    """
+
+    def _scene_with_root_level_physics(self, path):
+        from pxr import UsdPhysics
+
+        stage = Usd.Stage.CreateNew(path)
+        UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.z)
+        world = UsdGeom.Xform.Define(stage, "/World")
+        UsdGeom.Cube.Define(stage, "/World/Probe")
+        UsdPhysics.Scene.Define(stage, "/PhysicsScene")  # sibling, not a child
+        stage.SetDefaultPrim(world.GetPrim())
+        stage.GetRootLayer().Save()
+
+    def _referenced_physics_scenes(self, path):
+        from pxr import UsdPhysics
+
+        host = Usd.Stage.CreateInMemory()
+        host.DefinePrim("/World/Model", "Xform").GetReferences().AddReference(path)
+        return [str(p.GetPath()) for p in host.Traverse() if p.IsA(UsdPhysics.Scene)]
+
+    def test_root_level_scene_is_lost_through_a_reference(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "root_scene.usda")
+            self._scene_with_root_level_physics(path)
+            self.assertEqual(self._referenced_physics_scenes(path), [],
+                             "a sibling PhysicsScene must not survive a reference "
+                             "(this is the frozen-probe bug)")
+
+    def test_relocation_makes_the_scene_reachable(self):
+        from parcel_forge.runtime.isaacsim_runtime import IsaacSimRuntime
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "root_scene.usda")
+            self._scene_with_root_level_physics(path)
+            self.assertTrue(IsaacSimRuntime._relocate_physics_scene(path))
+            self.assertEqual(self._referenced_physics_scenes(path),
+                             ["/World/Model/PhysicsScene"])
+
+    def test_relocation_leaves_exactly_one_scene(self):
+        from pxr import UsdPhysics
+        from parcel_forge.runtime.isaacsim_runtime import IsaacSimRuntime
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "root_scene.usda")
+            self._scene_with_root_level_physics(path)
+            IsaacSimRuntime._relocate_physics_scene(path)
+            opened = Usd.Stage.Open(path)
+            scenes = [str(p.GetPath()) for p in opened.Traverse() if p.IsA(UsdPhysics.Scene)]
+            self.assertEqual(scenes, ["/World/PhysicsScene"],
+                             "a direct open must not see two competing physics scenes")
+
+    def test_relocation_is_a_no_op_when_already_inside(self):
+        from pxr import UsdPhysics
+        from parcel_forge.runtime.isaacsim_runtime import IsaacSimRuntime
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "ok_scene.usda")
+            stage = Usd.Stage.CreateNew(path)
+            world = UsdGeom.Xform.Define(stage, "/World")
+            UsdPhysics.Scene.Define(stage, "/World/PhysicsScene")
+            stage.SetDefaultPrim(world.GetPrim())
+            stage.GetRootLayer().Save()
+            self.assertFalse(IsaacSimRuntime._relocate_physics_scene(path))
+
+
 if __name__ == "__main__":
     unittest.main()

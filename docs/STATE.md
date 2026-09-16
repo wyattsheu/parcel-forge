@@ -60,6 +60,25 @@ left open ("WebRTC viewing: not_tested" was true because nobody had tried it).
   \`runs/20260916T133552Z_s2_open_box_thick_wall_suite.md\`. \`pf verify --all\`
   (13 cases, unaffected since S3's \`usd_author.py\` always set defaultPrim) and the
   full offline suite (60 tests, 3 correctly skipped without pxr) both still pass.
+### Second round of the same investigation (user reported the cube did not fall)
+- With defaultPrim fixed the box rendered correctly, but the probe hung frozen in
+  mid-air. Two further causes, both found by measurement, not guesswork:
+  - The PhysicsScene lived at `/PhysicsScene`, a sibling of `/World`, so a
+    reference dropped it: the referencing stage reported zero physics scenes and
+    the probe never moved. Fixed by relocating it under the default prim (D015).
+  - PhysX never writes results back to USD. After 3 s the tensor API read the
+    probe at z=0.22500 while USD still read 0.47000, and the user's viewer renders
+    from USD. Each run now also writes `scene_final.usda` carrying the pose
+    measured in that run (D016).
+- Verified per case that `scene_final.usda` reads back the measured outcome in USD:
+  normal/tall 0.22500, small 0.22300, thick_wall 0.24000, sealed 0.37000 (on the
+  lid), no_bottom 0.02000 (world floor). All six match their recorded verdict.
+- **New open finding D017**: the S2 containment result is dt-dependent. At
+  dt = 1/60 the probe tunnels through the 5 mm bottom plate and lands on the world
+  floor instead of inside the box. It is correct at the project's 1/240. Carried
+  into docs/tasks/S4.md; raising dt to make it pass is explicitly not acceptable.
+- 64 offline tests pass (7 skipped without pxr, all 64 run under the Isaac venv).
+
 - **WebRTC human confirmation is still outstanding**: the fix is verified by USD
   composition semantics and by pf's own renders, not yet by the user actually
   seeing it stream. That is the literal next action.

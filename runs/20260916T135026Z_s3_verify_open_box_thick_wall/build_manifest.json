@@ -1,0 +1,172 @@
+{
+  "schema": "parcel_forge.box_geometry/1",
+  "outer_size_m": [
+    0.3,
+    0.2,
+    0.15
+  ],
+  "wall_thickness_m": 0.02,
+  "fault": "none",
+  "frame": {
+    "origin": "bottom_outer_center",
+    "up_axis": "Z",
+    "units": "m"
+  },
+  "plate_count": 5,
+  "plates": [
+    {
+      "name": "bottom",
+      "size_m": [
+        0.3,
+        0.2,
+        0.02
+      ],
+      "center_m": [
+        0.0,
+        0.0,
+        0.01
+      ]
+    },
+    {
+      "name": "wall_x_pos",
+      "size_m": [
+        0.02,
+        0.2,
+        0.13
+      ],
+      "center_m": [
+        0.13999999999999999,
+        0.0,
+        0.08499999999999999
+      ]
+    },
+    {
+      "name": "wall_x_neg",
+      "size_m": [
+        0.02,
+        0.2,
+        0.13
+      ],
+      "center_m": [
+        -0.13999999999999999,
+        0.0,
+        0.08499999999999999
+      ]
+    },
+    {
+      "name": "wall_y_pos",
+      "size_m": [
+        0.26,
+        0.02,
+        0.13
+      ],
+      "center_m": [
+        0.0,
+        0.09000000000000001,
+        0.08499999999999999
+      ]
+    },
+    {
+      "name": "wall_y_neg",
+      "size_m": [
+        0.26,
+        0.02,
+        0.13
+      ],
+      "center_m": [
+        0.0,
+        -0.09000000000000001,
+        0.08499999999999999
+      ]
+    }
+  ],
+  "plate_volume_m3": 0.003592,
+  "interior_length_m": 0.26,
+  "interior_width_m": 0.16,
+  "interior_height_m": 0.13,
+  "interior_floor_local_z_m": 0.02,
+  "opening_local_z_m": 0.15,
+  "asset_id": "open_box_thick_wall",
+  "usd_path": "asset.usda",
+  "default_prim": "/OpenBox",
+  "body_mode": "static",
+  "shell_mass_kg": null,
+  "stage_metadata": {
+    "metersPerUnit": 1.0,
+    "kilogramsPerUnit": 1.0,
+    "upAxis": "Z"
+  },
+  "authored_prims": [
+    {
+      "name": "bottom",
+      "path": "/OpenBox/bottom",
+      "size_m": [
+        0.3,
+        0.2,
+        0.02
+      ],
+      "center_m": [
+        0.0,
+        0.0,
+        0.01
+      ]
+    },
+    {
+      "name": "wall_x_pos",
+      "path": "/OpenBox/wall_x_pos",
+      "size_m": [
+        0.02,
+        0.2,
+        0.13
+      ],
+      "center_m": [
+        0.13999999999999999,
+        0.0,
+        0.08499999999999999
+      ]
+    },
+    {
+      "name": "wall_x_neg",
+      "path": "/OpenBox/wall_x_neg",
+      "size_m": [
+        0.02,
+        0.2,
+        0.13
+      ],
+      "center_m": [
+        -0.13999999999999999,
+        0.0,
+        0.08499999999999999
+      ]
+    },
+    {
+      "name": "wall_y_pos",
+      "path": "/OpenBox/wall_y_pos",
+      "size_m": [
+        0.26,
+        0.02,
+        0.13
+      ],
+      "center_m": [
+        0.0,
+        0.09000000000000001,
+        0.08499999999999999
+      ]
+    },
+    {
+      "name": "wall_y_neg",
+      "path": "/OpenBox/wall_y_neg",
+      "size_m": [
+        0.26,
+        0.02,
+        0.13
+      ],
+      "center_m": [
+        0.0,
+        -0.09000000000000001,
+        0.08499999999999999
+      ]
+    }
+  ],
+  "rigid_body_count_expected": 0
+}

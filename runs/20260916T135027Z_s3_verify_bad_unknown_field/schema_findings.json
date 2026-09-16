@@ -1,0 +1,16 @@
+{
+  "schema": "parcel_forge.schema_findings/1",
+  "case": "bad_unknown_field",
+  "checked_utc": "2026-09-16T13:50:27Z",
+  "verdict": "rejected",
+  "error_classes": [
+    "unknown_field"
+  ],
+  "findings": [
+    {
+      "code": "unknown_field",
+      "path": "colour",
+      "message": "field is not part of the schema; known fields: ['asset_type', 'case_id', 'description', 'expected_outcome', 'frame', 'geometry', 'intended_task', 'physics', 'placement', 'probe', 'provenance', 'schema', 'seed', 'units']"
+    }
+  ]
+}

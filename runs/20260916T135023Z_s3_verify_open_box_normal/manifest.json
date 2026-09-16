@@ -1,0 +1,54 @@
+{
+  "schema": "parcel_forge.manifest/1",
+  "created_utc": "2026-09-16T13:50:23Z",
+  "run_id": "20260916T135023Z_s3_verify_open_box_normal",
+  "stage": "S3",
+  "case": "open_box_normal",
+  "seed": null,
+  "profile": "static_usd_v1.json",
+  "profile_sha256": "18b96a22811057fbd9c12b35ab09c59c8e99c00b35d171b6db05d7a650e1951d",
+  "backend": "pxr (OpenUSD) inside the Isaac venv; Kit not started",
+  "device": null,
+  "dt": null,
+  "command": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/usd_tool.py build --case /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T135023Z_s3_verify_open_box_normal/request.json --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T135023Z_s3_verify_open_box_normal",
+  "exit_code": 0,
+  "external_exit_code": 0,
+  "asset_path": "asset.usda",
+  "asset_sha256": "1baf29246af60b521f591a3e7578cbdab730b69576b3c021e0dce9f47c192763",
+  "inputs_sha256": {
+    "case": "3d4dd3fde3179048b2ef733694e154e152e59551db988ae5faa38f0c7b3b5b24",
+    "author": "5eae1842462cc281dbd832a8294e15350a46b0707af001eb06c8b42e5a6e14bb"
+  },
+  "code_version": {
+    "commit": "11f92850e59cd5d70276836513bdcdff35f98475",
+    "dirty": true,
+    "dirty_files": [
+      "M docs/DECISIONS.md",
+      " M docs/tasks/S4.md",
+      " M src/parcel_forge/box_s2.py",
+      " M src/parcel_forge/runtime/isaacsim_runtime.py",
+      " M tests/test_export_defaultprim.py",
+      "?? runs/20260916T134801Z_s2_open_box_normal/",
+      "?? runs/20260916T134833Z_s2_open_box_no_bottom/",
+      "?? runs/20260916T134846Z_s2_open_box_normal/",
+      "?? runs/20260916T134900Z_s2_open_box_sealed/",
+      "?? runs/20260916T134912Z_s2_open_box_small/",
+      "?? runs/20260916T134925Z_s2_open_box_tall/",
+      "?? runs/20260916T134937Z_s2_open_box_thick_wall/",
+      "?? runs/20260916T134937Z_s2_open_box_thick_wall_suite.md",
+      "?? runs/20260916T135023Z_s3_verify_open_box_no_bottom/",
+      "?? runs/20260916T135023Z_s3_verify_open_box_normal/"
+    ],
+    "dirty_diff_sha256": "26c492c85eb62e3aa76dcf538f4a3d58614b87f05fc4c0c5a4958d486219b128"
+  },
+  "evidence": {
+    "request": "request.json",
+    "schema_findings": "schema_findings.json",
+    "asset": "asset.usda",
+    "build_manifest": "build_manifest.json",
+    "log": "logs/build.log",
+    "validation": "validation.json",
+    "validate_log": "logs/validate.log"
+  },
+  "notes": []
+}

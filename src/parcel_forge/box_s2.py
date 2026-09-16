@@ -183,7 +183,7 @@ def main(argv) -> int:
                 v, w = state["linear_velocity_mps"], state["angular_velocity_radps"]
                 fh.write(",".join([str(step), f"{t:.6f}"]
                                   + [f"{x:.9f}" for x in (*p, *q, *v, *w, *local)]) + "\n")
-                rows.append({"step": step, "t": t, "p": p, "v": v, "local": local})
+                rows.append({"step": step, "t": t, "p": p, "q": q, "v": v, "local": local})
 
         final = rows[-1]
         speed = math.sqrt(sum(v * v for v in final["v"]))
@@ -284,6 +284,23 @@ def main(argv) -> int:
                 f"{r['view']}={r.get('png_bytes', 0)} B mean_r={r.get('image_stats', {}).get('mean_r')}"
                 for r in renders) if not render_failures else "; ".join(render_failures),
         })
+
+        # A viewable copy of the VERIFIED END STATE. The evidence PNGs above come
+        # from the live simulation; this file exists because PhysX never writes its
+        # results back to USD, so any USD-reading viewer would otherwise show the
+        # probe frozen at its spawn pose. The pose written here is the measured one
+        # from trajectory.csv, not a re-staged guess.
+        runtime.set_prim_transform("/World/Probe", final["p"], final["q"])
+        final_scene = os.path.join(out, "scene_final.usda")
+        runtime.export_stage(final_scene)
+        result["scene_final"] = {
+            "path": "scene_final.usda",
+            "probe_pose_source": "measured final pose from trajectory.csv (last row)",
+            "probe_world_position_m": final["p"],
+            "probe_orientation_wxyz": final["q"],
+            "note": "open this without --physics to see the verified end state; "
+                    "asset.usda keeps the pre-simulation spawn pose",
+        }
 
         result["checks"].append({
             "id": "S2.webrtc_human_view", "status": "not_tested",

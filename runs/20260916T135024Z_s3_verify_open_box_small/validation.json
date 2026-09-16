@@ -1,0 +1,283 @@
+{
+  "schema": "parcel_forge.static_validation/1",
+  "asset": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T135024Z_s3_verify_open_box_small/asset.usda",
+  "tolerance_m": 0.0001,
+  "checks": [
+    {
+      "rule": "G1.stage_opens",
+      "status": "pass",
+      "detail": "stage opened from the written file",
+      "measured": null
+    },
+    {
+      "rule": "G1.no_missing_references",
+      "status": "pass",
+      "detail": "0 external dependency/ies, 0 unresolvable",
+      "measured": {
+        "dependencies": [],
+        "broken": [],
+        "invalid_prims": []
+      }
+    },
+    {
+      "rule": "G1.default_prim",
+      "status": "pass",
+      "detail": "defaultPrim is /OpenBox, expected /OpenBox",
+      "measured": null
+    },
+    {
+      "rule": "G1.stage_units_and_axis",
+      "status": "pass",
+      "detail": "metersPerUnit=1.0, kilogramsPerUnit=1.0, upAxis=Z; expected 1.0 / 1.0 / Z",
+      "measured": {
+        "metersPerUnit": 1.0,
+        "kilogramsPerUnit": 1.0,
+        "upAxis": "Z"
+      }
+    },
+    {
+      "rule": "G1.plate_dimensions",
+      "status": "pass",
+      "detail": "largest world size/centre error 0.0000000062 m on wall_y_pos (tolerance 0.0001 m), read back through the composed transform",
+      "measured": [
+        {
+          "name": "bottom",
+          "world_size_m": [
+            0.15000000596046448,
+            0.10000000149011612,
+            0.003000000026077032
+          ],
+          "world_center_m": [
+            0.0,
+            0.0,
+            0.0015
+          ],
+          "size_error_m": 5.960464483090178e-09,
+          "center_error_m": 0.0
+        },
+        {
+          "name": "wall_x_pos",
+          "world_size_m": [
+            0.003000000026077032,
+            0.10000000149011612,
+            0.07699999958276749
+          ],
+          "world_center_m": [
+            0.0735,
+            0.0,
+            0.04150000000000001
+          ],
+          "size_error_m": 1.4901161138336505e-09,
+          "center_error_m": 6.938893903907228e-18
+        },
+        {
+          "name": "wall_x_neg",
+          "world_size_m": [
+            0.003000000026077032,
+            0.10000000149011612,
+            0.07699999958276749
+          ],
+          "world_center_m": [
+            -0.0735,
+            0.0,
+            0.04150000000000001
+          ],
+          "size_error_m": 1.4901161138336505e-09,
+          "center_error_m": 6.938893903907228e-18
+        },
+        {
+          "name": "wall_y_pos",
+          "world_size_m": [
+            0.14399999380111694,
+            0.003000000026077032,
+            0.07699999958276749
+          ],
+          "world_center_m": [
+            0.0,
+            0.0485,
+            0.04150000000000001
+          ],
+          "size_error_m": 6.198883045760439e-09,
+          "center_error_m": 6.938893903907228e-18
+        },
+        {
+          "name": "wall_y_neg",
+          "world_size_m": [
+            0.14399999380111694,
+            0.003000000026077032,
+            0.07699999958276749
+          ],
+          "world_center_m": [
+            0.0,
+            -0.0485,
+            0.04150000000000001
+          ],
+          "size_error_m": 6.198883045760439e-09,
+          "center_error_m": 6.938893903907228e-18
+        }
+      ]
+    },
+    {
+      "rule": "G1.collider_count",
+      "status": "pass",
+      "detail": "5 colliders, expected 5",
+      "measured": [
+        "/OpenBox/bottom",
+        "/OpenBox/wall_x_pos",
+        "/OpenBox/wall_x_neg",
+        "/OpenBox/wall_y_pos",
+        "/OpenBox/wall_y_neg"
+      ]
+    },
+    {
+      "rule": "G1.rigid_body_count",
+      "status": "pass",
+      "detail": "0 rigid bodies, expected 0 for body_mode=static",
+      "measured": []
+    },
+    {
+      "rule": "G1.no_nested_rigid_bodies",
+      "status": "pass",
+      "detail": "no rigid body is nested inside another",
+      "measured": []
+    },
+    {
+      "rule": "G1.unique_prim_names",
+      "status": "pass",
+      "detail": "all prim names unique",
+      "measured": []
+    },
+    {
+      "rule": "G1.finite_positive_mass",
+      "status": "pass",
+      "detail": "every authored mass is finite and > 0",
+      "measured": []
+    },
+    {
+      "rule": "G7.official_validator_can_fail",
+      "status": "pass",
+      "detail": "the official engine reported 3 failure(s) on a deliberately broken asset: DefaultPrimChecker, PrimEncapsulationChecker, StageMetadataChecker",
+      "measured": [
+        {
+          "severity": "FAILURE",
+          "rule": "StageMetadataChecker",
+          "message": "Stage has missing or invalid defaultPrim.",
+          "at": null,
+          "suggestion": null
+        },
+        {
+          "severity": "FAILURE",
+          "rule": "PrimEncapsulationChecker",
+          "message": "Gprim </A/plate/nested> has an ancestor prim that is also a Gprim, which is not allowed.",
+          "at": "PrimId(stage_id=StageId(root_layer=LayerId(identifier='/mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T135024Z_s3_verify_open_box_small/validator_self_test_broken.usda')), path=/A/plate/nested)",
+          "suggestion": null
+        },
+        {
+          "severity": "FAILURE",
+          "rule": "DefaultPrimChecker",
+          "message": "Stage has missing or invalid defaultPrim.",
+          "at": "StageId(root_layer=LayerId(identifier='/mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T135024Z_s3_verify_open_box_small/validator_self_test_broken.usda'))",
+          "suggestion": "Suggestion(callable=update_default_prim, message='Updates the default prim', at=None)"
+        }
+      ]
+    },
+    {
+      "rule": "G1.official_isaac_asset_validation",
+      "status": "pass",
+      "detail": "omni.asset_validator (usd_validation_nvidia) 1.19.3: 41 rules ran, 0 failure(s), 0 warning(s). NVIDIA's generic USD rule set. It says nothing about whether this box can hold an object: cavity containment is proven by the S2 drop test, not by a clean validator report.",
+      "measured": []
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "graded": 12,
+    "failed": 0,
+    "blocked": 0,
+    "verdict": "pass"
+  },
+  "profile": "static_usd_v1",
+  "official_validation": {
+    "status": "pass",
+    "validator": "omni.asset_validator (usd_validation_nvidia)",
+    "validator_version": "1.19.3",
+    "rules_run_count": 41,
+    "rules_run": [
+      "ArticulationChecker",
+      "ByteAlignmentChecker",
+      "ColliderChecker",
+      "CompressionChecker",
+      "DanglingOverPrimChecker",
+      "DefaultPrimChecker",
+      "ExtentsChecker",
+      "IndexedPrimvarChecker",
+      "KindChecker",
+      "LayerSpecChecker",
+      "ManifoldChecker",
+      "MassChecker",
+      "MaterialOldMdlSchemaChecker",
+      "MaterialOutOfScopeChecker",
+      "MaterialPathChecker",
+      "MaterialUsdPreviewSurfaceChecker",
+      "MissingReferenceChecker",
+      "NormalMapTextureChecker",
+      "NormalsExistChecker",
+      "NormalsValidChecker",
+      "NormalsWindingsChecker",
+      "PhysicsJointChecker",
+      "PrimEncapsulationChecker",
+      "RigidBodyChecker",
+      "ShaderImplementationSourceChecker",
+      "SkelBindingAPIAppliedChecker",
+      "StageMetadataChecker",
+      "SubdivisionSchemeChecker",
+      "TextureChecker",
+      "TypeChecker",
+      "UnicodeNameChecker",
+      "UnusedMeshTopologyChecker",
+      "UnusedPrimvarChecker",
+      "UsdAsciiPerformanceChecker",
+      "UsdDanglingMaterialBinding",
+      "UsdGeomSubsetChecker",
+      "UsdLuxSchemaChecker",
+      "UsdMaterialBindingApi",
+      "ValidateTopologyChecker",
+      "WeldChecker",
+      "ZeroAreaFaceChecker"
+    ],
+    "issue_count": 0,
+    "failures": [],
+    "warnings": [],
+    "issues": [],
+    "coverage": "NVIDIA's generic USD rule set. It says nothing about whether this box can hold an object: cavity containment is proven by the S2 drop test, not by a clean validator report.",
+    "simready": "not claimed: no SimReady profile was requested or evaluated"
+  },
+  "validator_reliability": {
+    "status": "pass",
+    "detail": "the official engine reported 3 failure(s) on a deliberately broken asset: DefaultPrimChecker, PrimEncapsulationChecker, StageMetadataChecker",
+    "fixture": "validator_self_test_broken.usda",
+    "failures": [
+      {
+        "severity": "FAILURE",
+        "rule": "StageMetadataChecker",
+        "message": "Stage has missing or invalid defaultPrim.",
+        "at": null,
+        "suggestion": null
+      },
+      {
+        "severity": "FAILURE",
+        "rule": "PrimEncapsulationChecker",
+        "message": "Gprim </A/plate/nested> has an ancestor prim that is also a Gprim, which is not allowed.",
+        "at": "PrimId(stage_id=StageId(root_layer=LayerId(identifier='/mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T135024Z_s3_verify_open_box_small/validator_self_test_broken.usda')), path=/A/plate/nested)",
+        "suggestion": null
+      },
+      {
+        "severity": "FAILURE",
+        "rule": "DefaultPrimChecker",
+        "message": "Stage has missing or invalid defaultPrim.",
+        "at": "StageId(root_layer=LayerId(identifier='/mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T135024Z_s3_verify_open_box_small/validator_self_test_broken.usda'))",
+        "suggestion": "Suggestion(callable=update_default_prim, message='Updates the default prim', at=None)"
+      }
+    ]
+  },
+  "coverage_note": "parcel-forge internal G1 rules and NVIDIA's official rule set are counted separately. Neither is a SimReady certification, and a clean static report never proves the box can hold an object."
+}

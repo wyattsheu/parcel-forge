@@ -1,0 +1,55 @@
+{
+  "schema": "parcel_forge.manifest/1",
+  "created_utc": "2026-09-16T13:49:37Z",
+  "run_id": "20260916T134925Z_s2_open_box_tall",
+  "stage": "S2",
+  "case": "open_box_tall",
+  "seed": 0,
+  "profile": "open_box_v1.json",
+  "profile_sha256": "2b4eaf0ec4373b19eb7a83c0bcb6878ce898069acfde06363eca13c1ffc5a196",
+  "backend": "isaacsim-standalone 6.0.1.0",
+  "device": "0",
+  "dt": 0.004166666666666667,
+  "command": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/box_s2.py --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T134925Z_s2_open_box_tall --case /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T134925Z_s2_open_box_tall/request.json --profile /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T134925Z_s2_open_box_tall/profile.json",
+  "exit_code": 0,
+  "external_exit_code": 0,
+  "asset_path": "asset.usda",
+  "asset_sha256": "c06ee1d4d8c3e6bdf6da2a3255d8ae38d45e1636a4b861467a8afef5026e82ec",
+  "inputs_sha256": {
+    "case": "612d854b11134952f60d568ffe2649becadb55fdeac18424210632501f4f2801",
+    "profile": "2b4eaf0ec4373b19eb7a83c0bcb6878ce898069acfde06363eca13c1ffc5a196",
+    "box_script": "859556906dbb749ad681bf810442aca1dabdf040514cb9fffd9d1cd2e569cdf2"
+  },
+  "code_version": {
+    "commit": "11f92850e59cd5d70276836513bdcdff35f98475",
+    "dirty": true,
+    "dirty_files": [
+      "M docs/DECISIONS.md",
+      " M src/parcel_forge/box_s2.py",
+      " M src/parcel_forge/runtime/isaacsim_runtime.py",
+      " M tests/test_export_defaultprim.py",
+      "?? runs/20260916T134801Z_s2_open_box_normal/",
+      "?? runs/20260916T134833Z_s2_open_box_no_bottom/",
+      "?? runs/20260916T134846Z_s2_open_box_normal/",
+      "?? runs/20260916T134900Z_s2_open_box_sealed/",
+      "?? runs/20260916T134912Z_s2_open_box_small/",
+      "?? runs/20260916T134925Z_s2_open_box_tall/"
+    ],
+    "dirty_diff_sha256": "ccc0d990b479c7f6b7f2647b5bb693ec054fbfc04a02241b9ccb524c04787696"
+  },
+  "evidence": {
+    "environment": "environment.json",
+    "request": "request.json",
+    "profile": "profile.json",
+    "asset": "asset.usda",
+    "result": "s2_result.json",
+    "trajectory": "trajectory.csv",
+    "render": "renders/open_box_tall_interior_top.png",
+    "log": "logs/isaac_runtime.log"
+  },
+  "notes": [
+    "expected outcome: inside",
+    "outcome judged in the box local frame so world-floor support cannot pass as a box floor",
+    "livestream disabled; the pre-existing WebRTC session was not touched"
+  ]
+}

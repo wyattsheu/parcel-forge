@@ -233,3 +233,70 @@ Consequence: `add_ground_plane(..., visual_size=...)` decouples the two. S2 pass
 regardless of box size (see the small/tall/thick_wall cases in S3).
 Evidence: this session's regenerated renders and the fixed WebRTC report.
 Revisit when: a viewer needs the physics plane's true extent for some reason.
+
+## D015 - The exported scene carries its own PhysicsScene under the default prim
+
+Status: accepted
+Reason: Isaac authors its physics scene at `/PhysicsScene`, a sibling of `/World`.
+A USD reference pulls in only the default prim's subtree, so the scene was dropped
+and the referenced rigid bodies had no simulation context. Measured with a script
+that loads the file exactly as the human's viewer does: zero physics scenes in the
+referencing stage, and the probe unchanged at z=0.47000 after three seconds of
+stepping. The user's own mug asset did not hit this because its PhysicsScene sat
+inside the referenced subtree.
+Alternative: Relying on the viewer's fallback, which defines `/World/PhysicsScene`
+when it sees none. Measured: it does create one, and the probe still does not move,
+because the bodies were already referenced in without a scene to attach to. A file
+that only simulates inside its author's process is not a deliverable.
+Consequence: `export_stage()` post-processes the written layer, copying the scene
+under the default prim and removing the root-level original so a direct open never
+sees two competing scenes. The live simulation stage is untouched.
+Evidence: `tests/test_export_defaultprim.py::TestPhysicsSceneReachableThroughReference`;
+the reference-load script reporting `['/World/Model/PhysicsScene']` after the fix.
+Revisit when: Isaac changes where it authors the scene.
+
+## D016 - Runs export a viewable final state, because PhysX never writes back to USD
+
+Status: accepted
+Reason: PhysX publishes results through Fabric and the tensor API; it does not
+write transforms back to USD. Anything that renders from USD therefore shows a body
+frozen at its authored spawn pose no matter how long physics runs. Measured in one
+run: after three seconds the tensor API reported the probe at z=0.22500 while USD
+still read z=0.47000. The human's viewer is launched with
+`useFabricSceneDelegate=0` and `readTransformsFromFabricInRenderDelegate=0`, so it
+reads USD and showed a cube hanging motionless above the box -- which is exactly
+what the user reported.
+Alternative: Asking the user to relaunch their viewer with fabric enabled.
+Rejected: parcel-forge should not require someone to reconfigure their working tool
+to see our results, and that route still only shows live motion, never the verified
+end state.
+Consequence: each S2 run writes `scene_final.usda` in addition to `asset.usda`.
+`asset.usda` keeps the pre-simulation spawn pose (open it with `--physics` to watch
+the drop); `scene_final.usda` carries the probe at the pose **measured in that run**,
+taken from the last row of `trajectory.csv`. This is a record of a real result, not
+a re-staged scene, and `s2_result.json` names the source explicitly. Render evidence
+under `renders/` still comes from the live final state, never from this file.
+Evidence: `scene_final.usda` reads z=0.22500 in USD against `asset.usda`'s 0.47000,
+in the same run.
+Revisit when: A USD-writeback path is enabled, which would make this redundant for
+motion but not for archiving the end state.
+
+## D017 - Finding: the S2 pass is dt-dependent, and thin plates can be tunnelled
+
+Status: open finding, not yet addressed
+Reason: While reproducing the viewer's load path, the same scene was stepped at
+dt = 1/60 instead of the project's 1/240. The probe passed straight through the
+5 mm bottom plate and came to rest on the world floor at z = 0.02000 instead of
+inside the box at z = 0.22500. At 1/240 it lands correctly. The probe reaches
+roughly 2.2 m/s before contact, which is about 3.7 cm per step at 1/60 against a
+5 mm plate -- classic tunnelling.
+Why this matters: every S2 "pass" so far is conditional on dt = 1/240. The profile
+records that dt, so the runs are honest, but the asset is not yet robust, and
+nothing in the suite would currently catch a regression here.
+Consequence: recorded now rather than quietly left in place. S4 owns the fix, since
+its acceptance already includes "does not fall through" and its scope covers contact
+settings: it should either enable CCD for the probe, or add a dt-sweep case that
+asserts the box still contains the probe at coarser timesteps, or both. Raising dt
+until it passes is not an acceptable resolution.
+Evidence: reproduction script output at both timesteps, quoted above.
+Revisit when: S4 implements contact/CCD work; this decision then gains its result.
