@@ -1,0 +1,6 @@
+{
+  "aborted_utc": "2026-09-16T05:32:00Z",
+  "reason": "I stopped my own suite run mid-flight to switch the evidence render from one view to two. No verdict was produced.",
+  "status": "aborted, not evidence",
+  "note": "parcel-forge stopped only its own process; no foreign process was signalled."
+}

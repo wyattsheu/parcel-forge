@@ -234,38 +234,51 @@ def main(argv) -> int:
                           "a fault classified as 'inside' would mean the check is blind",
             })
 
-        # --- render ----------------------------------------------------
-        eye = [cam_cfg["eye_offset_m"][0], cam_cfg["eye_offset_m"][1], box_z + cam_cfg["eye_offset_m"][2]]
-        target = [cam_cfg["target_offset_m"][0], cam_cfg["target_offset_m"][1],
-                  box_z + cam_cfg["target_offset_m"][2]]
-        camera = runtime.add_camera("/World/EvidenceCam", tuple(eye), tuple(target),
-                                    focal_length=cam_cfg["focal_length_mm"])
-        try:
-            frame = runtime.capture_rgb("/World/EvidenceCam", cam_cfg["width"], cam_cfg["height"],
-                                        settle_frames=cam_cfg["settle_frames"])
-        except Exception as exc:
-            frame = {"ok": False, "reason": f"{exc.__class__.__name__}: {exc}"}
-            result["errors"].append(traceback.format_exc())
+        # --- render (two views; every expected resting place must be visible) ---
+        renders, render_failures = [], []
+        for view in cam_cfg["views"]:
+            eye = [view["eye_offset_m"][0], view["eye_offset_m"][1], box_z + view["eye_offset_m"][2]]
+            target = [view["target_offset_m"][0], view["target_offset_m"][1],
+                      box_z + view["target_offset_m"][2]]
+            cam_path = f"/World/EvidenceCam_{view['name']}"
+            camera = runtime.add_camera(cam_path, tuple(eye), tuple(target),
+                                        focal_length=cam_cfg["focal_length_mm"])
+            try:
+                frame = runtime.capture_rgb(cam_path, cam_cfg["width"], cam_cfg["height"],
+                                            settle_frames=cam_cfg["settle_frames"])
+            except Exception as exc:
+                frame = {"ok": False, "reason": f"{exc.__class__.__name__}: {exc}"}
+                result["errors"].append(traceback.format_exc())
 
-        if frame.get("ok"):
-            png_rel = os.path.join("renders", f"{case['case_id']}_final.png")
-            png_path = os.path.join(out, png_rel)
-            write_rgb_png(png_path, frame["width"], frame["height"], frame["pixels"], 3)
-            stats = image_stats(frame["width"], frame["height"], frame["pixels"], 3)
-            result["render"] = {"status": "ok" if not stats["looks_blank"] else "blank",
-                                "png": png_rel, "png_bytes": os.path.getsize(png_path),
-                                "image_stats": stats, "camera": camera,
-                                "captured_after": "final physics step (no scene rebuild)"}
-            result["checks"].append({
-                "id": "S2.render_png_not_blank",
-                "status": "pass" if not stats["looks_blank"] else "fail",
-                "detail": f"{frame['width']}x{frame['height']} png, {os.path.getsize(png_path)} bytes, "
-                          f"mean_r={stats['mean_r']}, distinct_r={stats['distinct_r']}",
-            })
-        else:
-            result["render"] = {"status": "failed", "reason": frame.get("reason"), "camera": camera}
-            result["checks"].append({"id": "S2.render_png_not_blank", "status": "fail",
-                                     "detail": f"no image captured: {frame.get('reason')}"})
+            entry = {"view": view["name"], "purpose": view["purpose"], "camera": camera}
+            if frame.get("ok"):
+                png_rel = os.path.join("renders", f"{case['case_id']}_{view['name']}.png")
+                png_path = os.path.join(out, png_rel)
+                write_rgb_png(png_path, frame["width"], frame["height"], frame["pixels"], 3)
+                stats = image_stats(frame["width"], frame["height"], frame["pixels"], 3)
+                entry.update({"status": "ok" if not stats["looks_blank"] else "blank",
+                              "png": png_rel, "png_bytes": os.path.getsize(png_path),
+                              "image_stats": stats})
+                if stats["looks_blank"]:
+                    render_failures.append(f"{view['name']} is a flat frame")
+            else:
+                entry.update({"status": "failed", "reason": frame.get("reason")})
+                render_failures.append(f"{view['name']}: {frame.get('reason')}")
+            renders.append(entry)
+
+        result["render"] = {
+            "status": "ok" if not render_failures else "failed",
+            "captured_after": "final physics step (no scene rebuild)",
+            "views": renders,
+            "png": renders[0].get("png") if renders else None,
+        }
+        result["checks"].append({
+            "id": "S2.render_png_not_blank",
+            "status": "pass" if not render_failures else "fail",
+            "detail": "; ".join(
+                f"{r['view']}={r.get('png_bytes', 0)} B mean_r={r.get('image_stats', {}).get('mean_r')}"
+                for r in renders) if not render_failures else "; ".join(render_failures),
+        })
 
         result["checks"].append({
             "id": "S2.webrtc_human_view", "status": "not_tested",

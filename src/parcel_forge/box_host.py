@@ -55,7 +55,7 @@ def _summary_md(run_dir, case, result, launch, exit_code) -> str:
             f"| USD asset written | {'pass' if result.get('asset') else 'fail'} | asset.usda |",
             f"| physics execution | {phys.get('status')} | trajectory.csv, {phys.get('steps_executed')} steps |",
             f"| local-frame outcome judgement | {outcome.get('outcome')} | {outcome.get('judged_in')} |",
-            f"| offline PNG render | {rend.get('status')} | {rend.get('png', 'none')} |",
+            f"| offline PNG render | {rend.get("status")} | {", ".join(v.get("png", "none") for v in rend.get("views", []))} |",
             "| WebRTC human view | not_tested | no agent evidence possible |",
             "",
             "## Measured positions",
