@@ -300,3 +300,40 @@ asserts the box still contains the probe at coarser timesteps, or both. Raising 
 until it passes is not an acceptable resolution.
 Evidence: reproduction script output at both timesteps, quoted above.
 Revisit when: S4 implements contact/CCD work; this decision then gains its result.
+
+## D018 - Correction to D016: the human's viewer DOES write physics back to USD
+
+Status: accepted, corrects D016
+Reason: D016 claimed "PhysX never writes results back to USD" and generalised that
+to the human's WebRTC viewer. The measurement behind it was real but the
+generalisation was wrong. Two different code paths exist:
+  * `SimulationManager.step()` (what parcel-forge uses) publishes through Fabric and
+    the tensor API, and does NOT update USD. Measured: tensor 0.22500 vs USD 0.47000.
+  * `omni.physx`'s `get_physx_simulation_interface().simulate()` + `fetch_results()`
+    (what `view_usd_webrtc.py` uses) DOES write transforms back to USD.
+The viewer therefore shows live physics correctly. The original symptom -- a probe
+frozen in mid-air -- was caused solely by the missing PhysicsScene (D015), not by
+any writeback issue.
+Consequence: `scene_final.usda` keeps its value as an archived, directly viewable
+record of the measured end state, and as a file that needs no physics at all to
+display. But it is no longer justified by "the viewer cannot show physics", and the
+S2 code comment claiming that has been corrected.
+Evidence: `view_usd_webrtc.py` lines 327-360; the user reporting the probe had
+already fallen by the time they connected.
+Revisit when: never; this is a factual correction.
+
+## D019 - Finding: the drop finishes before a human can connect
+
+Status: open finding
+Reason: The viewer runs physics on every render tick, and executes roughly 277 ticks
+(2 + 200 warmup + 15 + up to 60 for the screenshot) at dt = 1/60 -- about 4.6 s of
+simulated time -- before it prints READY. The probe's fall from z=0.47 to its resting
+pose covers 0.245 m, which takes sqrt(2*0.245/9.81) = 0.22 s, or about 13 ticks. By
+the time a human connects, the interesting part has been over for four seconds.
+Consequence: a human-facing view is a different artefact from a test scene, and the
+project has been conflating them. Recorded now; a `pf demo` scene tuned for watching
+(probe released late, larger and higher, optionally repeating) belongs to the
+human-evidence work, not to the S2 acceptance cases, whose geometry must not drift
+to make a demo look better.
+Evidence: `view_usd_webrtc.py` step() call sites; the user's report.
+Revisit when: the demo scene is built.

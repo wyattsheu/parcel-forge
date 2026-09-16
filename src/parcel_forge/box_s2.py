@@ -285,11 +285,11 @@ def main(argv) -> int:
                 for r in renders) if not render_failures else "; ".join(render_failures),
         })
 
-        # A viewable copy of the VERIFIED END STATE. The evidence PNGs above come
-        # from the live simulation; this file exists because PhysX never writes its
-        # results back to USD, so any USD-reading viewer would otherwise show the
-        # probe frozen at its spawn pose. The pose written here is the measured one
-        # from trajectory.csv, not a re-staged guess.
+        # A viewable copy of the VERIFIED END STATE, so the run archives a file that
+        # shows its own result with no physics engine involved at all. (An earlier
+        # comment here claimed viewers cannot show physics results; that was wrong
+        # for the omni.physx simulate()/fetch_results() path and is corrected in
+        # D018.) The pose written here is the measured one from trajectory.csv.
         runtime.set_prim_transform("/World/Probe", final["p"], final["q"])
         final_scene = os.path.join(out, "scene_final.usda")
         runtime.export_stage(final_scene)

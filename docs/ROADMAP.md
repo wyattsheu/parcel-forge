@@ -24,6 +24,17 @@ Do not start S4 until both suites reproduce on fresh runs:
 `./scripts/pf verify --all` (13 cases, ~4 s, no GPU) and
 `./scripts/pf box --all` (6 cases, ~2.5 min, GPU).
 
+## Extensions beyond S0-S7
+
+| card | scope | gate |
+| --- | --- | --- |
+| docs/tasks/EXT1_cardboard_flaps.md | RSC flaps, crease lines, elastic-then-plastic fold behaviour | after S4, and after D017 is resolved |
+
+Background research with sources: `docs/research/CARDBOARD_MECHANICS.md`.
+The current asset is a rigid open tub with a real cavity -- a valid fixture for
+"can a robot place an object inside a box", and not a cardboard box. No report may
+imply otherwise.
+
 ## Explicitly out of scope right now
 
 Isaac Lab, MCP, ROS, databases, Blender, CadQuery, Pydantic schemas, LLM/VLM
