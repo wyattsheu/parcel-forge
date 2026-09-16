@@ -479,3 +479,35 @@ only the result matters.
 Evidence: 3 editor UI extensions loaded and `hideUi = false` in the .kit file;
 verified by a run reaching READY with the port bound.
 Revisit when: a purpose-built layout is wanted rather than the stock editor.
+
+## D025 - `hide_ui=False` is required on top of the full experience
+
+Status: accepted, completes D024
+Reason: Selecting `isaacsim.exp.full.streaming.kit` was not enough: the stream still
+showed a bare viewport. `SimulationApp`'s own documentation explains why --
+"`hide_ui` (bool): Hide UI when running to improve performance, **when headless is
+set to true, the UI is hidden, set to false to override this behavior when live
+streaming**". We pass `headless=True` (there is no display), so the UI was hidden
+regardless of which experience was loaded.
+Consequence: `pf view --ui` sets `hide_ui: False` in the launch config as well as
+selecting the experience. Verified by the resulting Kit command line containing
+`--/app/window/hideUi=False`, and by `omni.kit.window.stage`, `window.property`,
+`window.toolbar` and `content_browser` all starting.
+Lesson worth keeping: two independent switches had to agree before anything visible
+changed, and neither reported a problem on its own. "I set the option" is not
+evidence; "the service shows the effect" is.
+Revisit when: never expected; this is how the API is documented to work.
+
+## D026 - The evidence camera frames the subject, not the scene furniture
+
+Status: accepted
+Reason: The viewer opened with the camera metres away from a 30 cm box. The framing
+code took the bounding box of `/World`, which includes the ground slab -- several
+times wider than the box by design -- so the computed radius was the floor's, not
+the subject's.
+Consequence: framing now unions only the children of `/World` whose names do not
+look like infrastructure (ground plane, floor, light, physics scene, render, camera),
+and logs what it framed on: `framing on ['Box', 'Probe'], extent 0.300 m`. The
+user's own viewer solved this the same way, with a name-marker exclusion list; the
+approach is borrowed deliberately.
+Revisit when: an asset legitimately contains a prim whose name matches a marker.

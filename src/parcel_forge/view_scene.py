@@ -84,12 +84,20 @@ def main(argv) -> int:
                                    "apps", "isaacsim.exp.full.streaming.kit")
         print(f"[VIEW] full editor experience: {experience}", flush=True)
 
-    app = SimulationApp({
+    launch_config = {
         "headless": True,
         "enable_cameras": True,
         "width": 1280,
         "height": 720,
-    }, experience=experience)
+    }
+    if args.ui:
+        # Documented in simulation_app.py: "when headless is set to true, the UI is
+        # hidden, set to false to override this behavior when live streaming".
+        # Without this, choosing the full experience changes nothing a viewer can
+        # see: headless still suppresses the UI and you get a bare viewport.
+        launch_config["hide_ui"] = False
+
+    app = SimulationApp(launch_config, experience=experience)
 
     import carb
     import omni.timeline
@@ -141,14 +149,36 @@ def main(argv) -> int:
         from omni.kit.viewport.utility.camera_state import ViewportCameraState
 
         viewport = get_active_viewport()
-        world = stage.GetPrimAtPath("/World")
-        rng = bbox.ComputeWorldBound(world).ComputeAlignedRange()
-        centre = [(rng.GetMin()[i] + rng.GetMax()[i]) / 2 for i in range(3)]
-        radius = max(0.05, max(rng.GetMax()[i] - rng.GetMin()[i] for i in range(3)))
+
+        # Frame on the objects under test, not on the scene furniture. A ground
+        # slab several times wider than the box dominates a world-space bounding
+        # box and parks the camera metres away from a 30 cm object -- which is
+        # what "it starts very far away" was. Ground planes, lights and the
+        # physics scene are infrastructure, not the subject.
+        infra = ("groundplane", "floor", "light", "physicsscene", "render", "camera")
+        subjects = [child for child in stage.GetPrimAtPath("/World").GetChildren()
+                    if not any(marker in child.GetName().lower() for marker in infra)]
+        if not subjects:
+            subjects = [stage.GetPrimAtPath("/World")]
+
+        lo = [float("inf")] * 3
+        hi = [float("-inf")] * 3
+        for subject in subjects:
+            subject_range = bbox.ComputeWorldBound(subject).ComputeAlignedRange()
+            if subject_range.IsEmpty():
+                continue
+            for i in range(3):
+                lo[i] = min(lo[i], subject_range.GetMin()[i])
+                hi[i] = max(hi[i], subject_range.GetMax()[i])
+
+        centre = [(lo[i] + hi[i]) / 2 for i in range(3)]
+        radius = max(0.05, max(hi[i] - lo[i] for i in range(3)))
+        print(f"[VIEW] framing on {[p.GetName() for p in subjects]}, "
+              f"extent {radius:.3f} m", flush=True)
         state = ViewportCameraState(viewport.get_active_camera() or "/OmniverseKit_Persp", viewport)
-        state.set_position_world(Gf.Vec3d(centre[0] + radius * 0.9,
-                                          centre[1] - radius * 0.9,
-                                          centre[2] + radius * 0.7), False)
+        state.set_position_world(Gf.Vec3d(centre[0] + radius * 1.1,
+                                          centre[1] - radius * 1.1,
+                                          centre[2] + radius * 0.8), False)
         state.set_target_world(Gf.Vec3d(*centre), True)
         print(f"[VIEW] camera framed on {[round(c, 3) for c in centre]}", flush=True)
     except Exception as exc:  # pragma: no cover - viewport is optional

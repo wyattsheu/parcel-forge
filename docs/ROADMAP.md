@@ -28,9 +28,11 @@ Do not start S4 until both suites reproduce on fresh runs:
 
 | card | scope | gate |
 | --- | --- | --- |
-| docs/tasks/EXT1_cardboard_flaps.md | RSC flaps, crease lines, elastic-then-plastic fold behaviour | after S4, and after D017 is resolved |
+| docs/tasks/EXT1_cardboard_flaps.md | RSC flaps, crease lines, elastic-then-plastic fold behaviour | after S4 (D017 now resolved) |
+| docs/tasks/EXT2_task_keyed_validation.md | checks selected by `intended_task`, so a non-box asset reuses them | after S4 |
 
-Background research with sources: `docs/research/CARDBOARD_MECHANICS.md`.
+Background: `docs/research/CARDBOARD_MECHANICS.md` (sources) and
+`docs/VALIDATION_ARCHITECTURE.md` (how checks generalise beyond one asset).
 The current asset is a rigid open tub with a real cavity -- a valid fixture for
 "can a robot place an object inside a box", and not a cardboard box. No report may
 imply otherwise.
