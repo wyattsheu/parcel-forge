@@ -35,6 +35,8 @@ def parse_args(argv):
     p.add_argument("--out", required=True)
     p.add_argument("--case", required=True)
     p.add_argument("--profile", required=True)
+    p.add_argument("--dt", type=float, default=None,
+                   help="override the profile dt, for the D017 timestep sweep")
     return p.parse_args(argv)
 
 
@@ -93,6 +95,11 @@ def main(argv) -> int:
         profile = json.load(fh)
 
     sim_cfg, tol = profile["simulation"], profile["tolerances"]
+    if args.dt is not None:
+        # Keep the simulated duration fixed while the timestep changes, so a
+        # sweep compares like with like instead of also shortening the run.
+        duration_s = sim_cfg["steps"] * sim_cfg["dt"]
+        sim_cfg = dict(sim_cfg, dt=args.dt, steps=int(round(duration_s / args.dt)))
     scene_cfg, cam_cfg = profile["scene"], profile["render"]
     g_cfg, probe_cfg = case["geometry"], case["probe"]
 

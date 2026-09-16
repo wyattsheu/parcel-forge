@@ -1,0 +1,62 @@
+{
+  "schema": "parcel_forge.manifest/1",
+  "created_utc": "2026-09-16T14:14:38Z",
+  "run_id": "20260916T141425Z_s2_open_box_small",
+  "stage": "S2",
+  "case": "open_box_small",
+  "seed": 0,
+  "profile": "open_box_v1.json",
+  "profile_sha256": "2b4eaf0ec4373b19eb7a83c0bcb6878ce898069acfde06363eca13c1ffc5a196",
+  "backend": "isaacsim-standalone 6.0.1.0",
+  "device": "0",
+  "dt": 0.004166666666666667,
+  "command": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/box_s2.py --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T141425Z_s2_open_box_small --case /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T141425Z_s2_open_box_small/request.json --profile /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T141425Z_s2_open_box_small/profile.json",
+  "exit_code": 0,
+  "external_exit_code": 0,
+  "asset_path": "asset.usda",
+  "asset_sha256": "76f027f1097603613425cee388a0bedf079e0c236fb1bc5b13a609011e876830",
+  "inputs_sha256": {
+    "case": "24727f1afbe67067b5a4de2e83f6b741a2a98a9fb599ceaa3711eed71b817a99",
+    "profile": "2b4eaf0ec4373b19eb7a83c0bcb6878ce898069acfde06363eca13c1ffc5a196",
+    "box_script": "0472b01bfc8c00ec8a420bb8b4768720972266dac3511cc1dceadd5c39ad216a"
+  },
+  "code_version": {
+    "commit": "d5749c850ad9fda17de6cbb4996c6443ba308615",
+    "dirty": true,
+    "dirty_files": [
+      "M docs/DECISIONS.md",
+      " M scripts/pf",
+      " M src/parcel_forge/box_host.py",
+      " M src/parcel_forge/box_s2.py",
+      " M src/parcel_forge/runtime/isaacsim_runtime.py",
+      "?? runs/20260916T141233Z_s2_open_box_normal/",
+      "?? runs/20260916T141245Z_s2_open_box_normal/",
+      "?? runs/20260916T141258Z_s2_open_box_normal/",
+      "?? runs/20260916T141258Z_s2_open_box_normal_dt_sweep.md",
+      "?? runs/20260916T141343Z_s2_open_box_no_bottom/",
+      "?? runs/20260916T141357Z_s2_open_box_normal/",
+      "?? runs/20260916T141411Z_s2_open_box_sealed/",
+      "?? runs/20260916T141425Z_s2_open_box_small/",
+      "?? src/parcel_forge/mass_properties.py",
+      "?? src/parcel_forge/view_host.py",
+      "?? src/parcel_forge/view_scene.py",
+      "?? tests/test_mass_properties.py"
+    ],
+    "dirty_diff_sha256": "557a514ba9ff976b7fa9db6ac930a7e420a46278c795c1eeeb9deb673a043bd0"
+  },
+  "evidence": {
+    "environment": "environment.json",
+    "request": "request.json",
+    "profile": "profile.json",
+    "asset": "asset.usda",
+    "result": "s2_result.json",
+    "trajectory": "trajectory.csv",
+    "render": "renders/open_box_small_interior_top.png",
+    "log": "logs/isaac_runtime.log"
+  },
+  "notes": [
+    "expected outcome: inside",
+    "outcome judged in the box local frame so world-floor support cannot pass as a box floor",
+    "livestream disabled; the pre-existing WebRTC session was not touched"
+  ]
+}

@@ -85,7 +85,8 @@ def _summary_md(run_dir, case, result, launch, exit_code) -> str:
     return "\n".join(lines) + "\n"
 
 
-def run_case(case_id: str, profile: str, device: str | None, timeout: int) -> tuple[int, str, dict | None]:
+def run_case(case_id: str, profile: str, device: str | None, timeout: int,
+             dt: float | None = None) -> tuple[int, str, dict | None]:
     path = case_path(case_id)
     if not os.path.isfile(path):
         print(f"case not found: {case_id} (looked in {CASES_DIR})")
@@ -123,10 +124,11 @@ def run_case(case_id: str, profile: str, device: str | None, timeout: int) -> tu
             print(f"BLOCKED: only {free} MiB free VRAM. Evidence: {run_dir}/blocked.json")
             return EXIT_ENV_FAIL, run_dir, None
 
+    extra_args = ["--dt", repr(dt)] if dt is not None else []
     launch = IsaacLauncher(device_index=device).run(
         IN_RUNTIME_SCRIPT,
         ["--out", run_dir, "--case", os.path.join(run_dir, "request.json"),
-         "--profile", os.path.join(run_dir, "profile.json")],
+         "--profile", os.path.join(run_dir, "profile.json"), *extra_args],
         log_path=os.path.join(run_dir, "logs", "isaac_runtime.log"),
         timeout=timeout,
     )
@@ -173,8 +175,54 @@ def run_case(case_id: str, profile: str, device: str | None, timeout: int) -> tu
     return exit_code, run_dir, result
 
 
+SWEEP_TIMESTEPS = (1 / 60.0, 1 / 120.0, 1 / 240.0)
+
+
+def dt_sweep(argv: list[str], profile: str, device: str | None, timeout: int) -> int:
+    """D017 regression: containment must not depend on the timestep.
+
+    Before CCD, the probe tunnelled through the 5 mm bottom plate at dt = 1/60 and
+    landed on the world floor, while passing at 1/240. A result that only holds at
+    one timestep is not a property of the asset. Raising dt until it passes is
+    explicitly not an acceptable resolution.
+    """
+    case_id = argv[argv.index("--case") + 1] if "--case" in argv else "open_box_normal"
+    rows, worst = [], EXIT_OK
+    for dt in SWEEP_TIMESTEPS:
+        code, run_dir, result = run_case(case_id, profile, device, timeout, dt)
+        observed = (result or {}).get("summary", {}).get("observed_outcome", "none")
+        expected = (result or {}).get("expected_outcome", "?")
+        ok = observed == expected
+        local_z = (result or {}).get("physics", {}).get("final_box_local_position_m", [None] * 3)[2]
+        rows.append((dt, expected, observed, local_z, ok, run_dir))
+        print(f"dt=1/{round(1/dt):<4d} expected={expected} observed={observed} "
+              f"local_z={local_z} {'pass' if ok else 'FAIL'}")
+        if not ok:
+            worst = EXIT_ASSET_FAIL
+
+    table = ["# D017 timestep sweep", "", f"Case: {case_id}", f"Generated: {utc_now()}", "",
+             "| dt | expected | observed | box-local z | verdict | run |",
+             "| --- | --- | --- | --- | --- | --- |"]
+    for dt, expected, observed, local_z, ok, run_dir in rows:
+        z = f"{local_z:.5f}" if isinstance(local_z, (int, float)) else str(local_z)
+        table.append(f"| 1/{round(1/dt)} | {expected} | {observed} | {z} | "
+                     f"{'pass' if ok else 'FAIL'} | `{os.path.relpath(run_dir, REPO_ROOT)}` |")
+    table += ["", "Containment must hold at every timestep. A result that depends on dt is a "
+              "property of the solver settings, not of the asset.", ""]
+    out = os.path.join(REPO_ROOT, "runs", f"{os.path.basename(rows[-1][5])}_dt_sweep.md")
+    with open(out, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(table))
+    print("\n".join(table[4:]))
+    print(f"sweep table: {out}")
+    return worst
+
+
 def main(argv: list[str]) -> int:
-    profile, device, timeout = DEFAULT_PROFILE, None, 1800
+    profile, device, timeout, dt = DEFAULT_PROFILE, None, 1800, None
+    if "--dt" in argv:
+        dt = float(argv[argv.index("--dt") + 1])
+    if "--dt-sweep" in argv:
+        return dt_sweep(argv, profile, device, timeout)
     if "--profile" in argv:
         profile = argv[argv.index("--profile") + 1]
     if "--device" in argv:
@@ -197,7 +245,7 @@ def main(argv: list[str]) -> int:
 
     rows, worst = [], EXIT_OK
     for case_id in case_ids:
-        code, run_dir, result = run_case(case_id, profile, device, timeout)
+        code, run_dir, result = run_case(case_id, profile, device, timeout, dt)
         observed = (result or {}).get("summary", {}).get("observed_outcome", "none")
         expected = (result or {}).get("expected_outcome", "?")
         verdict = (result or {}).get("summary", {}).get("verdict", "no-evidence")

@@ -78,7 +78,7 @@ class IsaacSimRuntime:
             info["isaacsim_version"] = f"unknown ({exc.__class__.__name__})"
         return info
 
-    def configure_physics(self, gravity: float = -9.81) -> dict:
+    def configure_physics(self, gravity: float = -9.81, enable_ccd: bool = True) -> dict:
         """Create/patch the PhysX scene and report the values actually read back."""
         from pxr import Gf, PhysxSchema, UsdPhysics
 
@@ -97,6 +97,8 @@ class IsaacSimRuntime:
         scene.CreateGravityMagnitudeAttr().Set(abs(gravity))
 
         physx = PhysxSchema.PhysxSceneAPI.Apply(scene_prim)
+        # Per-body CCD does nothing unless the scene enables it too.
+        physx.CreateEnableCCDAttr(bool(enable_ccd))
         read_back = {
             "physics_scene_path": str(scene_prim.GetPath()),
             "gravity_direction": list(scene.GetGravityDirectionAttr().Get()),
@@ -105,6 +107,7 @@ class IsaacSimRuntime:
             "device_readback": str(self._sim.get_device()),
             "solver_type": physx.GetSolverTypeAttr().Get(),
             "gpu_dynamics": physx.GetEnableGPUDynamicsAttr().Get(),
+            "ccd_enabled": physx.GetEnableCCDAttr().Get(),
             "time_steps_per_second": physx.GetTimeStepsPerSecondAttr().Get(),
         }
         return {k: (str(v) if v is not None and not isinstance(v, (int, float, list, str, bool)) else v)
@@ -165,8 +168,19 @@ class IsaacSimRuntime:
         return path
 
     def add_rigid_cube(self, path: str, size: float, position: tuple[float, float, float],
-                       mass: float, color: tuple[float, float, float] = (0.85, 0.45, 0.12)) -> dict:
-        from pxr import Gf, UsdGeom, UsdPhysics
+                       mass: float, color: tuple[float, float, float] = (0.85, 0.45, 0.12),
+                       enable_ccd: bool = True) -> dict:
+        """A dynamic cube. CCD is on by default, and that is a correctness fix.
+
+        Discrete collision only samples position once per substep. The probe reaches
+        about 2.2 m/s before contact, which is 3.7 cm of travel per step at
+        dt = 1/60, against a 5 mm bottom plate: it passes straight through and lands
+        on the world floor. Measured at 1/60 (z = 0.02000, tunnelled) versus 1/240
+        (z = 0.22500, correct) -- see D017. Continuous collision detection sweeps the
+        swept volume instead of sampling, so thin plates stop the probe regardless
+        of timestep.
+        """
+        from pxr import Gf, PhysxSchema, UsdGeom, UsdPhysics
 
         cube = UsdGeom.Cube.Define(self.stage, path)
         cube.CreateSizeAttr(size)
@@ -176,7 +190,12 @@ class IsaacSimRuntime:
         UsdPhysics.CollisionAPI.Apply(prim)
         UsdPhysics.RigidBodyAPI.Apply(prim)
         UsdPhysics.MassAPI.Apply(prim).CreateMassAttr(mass)
-        return {"path": path, "size_m": size, "spawn_position_m": list(position), "mass_kg": mass}
+
+        physx_body = PhysxSchema.PhysxRigidBodyAPI.Apply(prim)
+        physx_body.CreateEnableCCDAttr(bool(enable_ccd))
+
+        return {"path": path, "size_m": size, "spawn_position_m": list(position),
+                "mass_kg": mass, "ccd_enabled": bool(enable_ccd)}
 
     def add_static_box_group(self, root_path: str, world_position: tuple[float, float, float],
                              plates: list[dict], color: tuple[float, float, float] = (0.72, 0.56, 0.36)) -> dict:

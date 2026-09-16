@@ -1,0 +1,36 @@
+{
+  "schema": "parcel_forge.case/1",
+  "case_id": "open_box_no_bottom",
+  "asset_type": "open_box",
+  "intended_task": "place_object_inside",
+  "description": "deliberate fault: the bottom plate is missing; the probe must fall through to the world floor",
+  "units": {"length": "m", "mass": "kg", "time": "s"},
+  "frame": {"origin": "bottom_outer_center", "up_axis": "Z"},
+  "geometry": {
+    "outer_size_m": [0.30, 0.20, 0.15],
+    "wall_thickness_m": 0.005,
+    "lid": "none",
+    "fault": "missing_bottom"
+  },
+  "physics": {
+    "body_mode": "static",
+    "collider": "compound_boxes"
+  },
+  "placement": {
+    "box_outer_bottom_above_world_floor_m": 0.20
+  },
+  "probe": {
+    "shape": "cube",
+    "size_m": 0.04,
+    "mass_kg": 0.05,
+    "drop_offset_above_opening_m": 0.10,
+    "drop_xy_m": [0.0, 0.0]
+  },
+  "expected_outcome": "fell_through",
+  "provenance": {
+    "dimensions": "engineering_example from IsaacSim_Asset_Workflow_Handbook.md section 7",
+    "masses": "uncalibrated_assumption",
+    "material": "uncalibrated_assumption"
+  },
+  "seed": 0
+}

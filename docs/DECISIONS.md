@@ -283,7 +283,7 @@ motion but not for archiving the end state.
 
 ## D017 - Finding: the S2 pass is dt-dependent, and thin plates can be tunnelled
 
-Status: open finding, not yet addressed
+Status: RESOLVED 2026-09-16 by enabling CCD (see resolution at the end of this entry)
 Reason: While reproducing the viewer's load path, the same scene was stepped at
 dt = 1/60 instead of the project's 1/240. The probe passed straight through the
 5 mm bottom plate and came to rest on the world floor at z = 0.02000 instead of
@@ -337,3 +337,49 @@ human-evidence work, not to the S2 acceptance cases, whose geometry must not dri
 to make a demo look better.
 Evidence: `view_usd_webrtc.py` step() call sites; the user's report.
 Revisit when: the demo scene is built.
+
+
+### D017 resolution
+
+Fixed by enabling continuous collision detection, on both the probe
+(`PhysxRigidBodyAPI.enableCCD`) and the physics scene (`PhysxSceneAPI.enableCCD`) --
+per-body CCD does nothing unless the scene enables it too.
+
+Discrete collision samples position once per substep; CCD sweeps the volume the body
+travelled through, so a 5 mm plate stops the probe regardless of how far it moved
+that step.
+
+Verified by `./scripts/pf box --dt-sweep`, which is now a permanent regression:
+
+| dt | box-local z | verdict |
+| --- | --- | --- |
+| 1/60 | 0.02500 | pass |
+| 1/120 | 0.02500 | pass |
+| 1/240 | 0.02500 | pass |
+
+Before the fix, 1/60 gave 0.02000 -- the probe on the world floor, having passed
+through the box. All three timesteps now agree to five decimal places, so
+containment is a property of the asset rather than of the solver settings.
+The resolution was not "raise dt until it passes", which the original entry ruled out.
+Evidence: `runs/20260916T141258Z_s2_open_box_normal_dt_sweep.md`.
+
+## D020 - `pf view`: a human-facing viewer that plays the timeline
+
+Status: accepted
+Reason: The user could not drag the probe in their own viewer. Cause found in
+`omni/physxui/scripts/input.py`: the physics grab/push input actions are registered
+only on a timeline PLAY event (`use_actions(True)` under `TimelineEventType.PLAY`)
+and unregistered on STOP/PAUSE. A viewer that drives physics by calling
+`get_physx_simulation_interface().simulate()` directly never fires that event, so
+mouse interaction can never engage however live the simulation is. This is a
+property of that script, not of our asset: the probe is an ordinary dynamic body.
+Alternative: Editing the user's `view_usd_webrtc.py` to add `timeline.play()`. That
+file belongs to a different project which this one must not modify.
+Consequence: `pf view` opens a run's scene, plays the timeline (arming interaction),
+and holds the probe kinematic for a configurable period so the drop happens *after*
+a human has connected -- which also addresses D019. It refuses to start when the
+WebRTC ports are occupied and prints the owner's own stop command rather than
+killing anything.
+Its output is never acceptance evidence: only a human can report what they saw.
+Evidence: `omni/physxui/scripts/input.py` lines 67-73.
+Revisit when: a second viewer is needed, or the ports need to be configurable.

@@ -9,9 +9,10 @@ anything.
 Implemented now (S0/S1):
     pf doctor [--out DIR]
     pf smoke  [--profile FILE] [--device N] [--timeout SEC]
-    pf box    (--case <case-id> | --all) [--profile FILE] [--device N] [--timeout SEC]
+    pf box    (--case <case-id> | --all | --dt-sweep) [--profile FILE] [--device N] [--timeout SEC]
     pf build  --case <case-id>            schema check, then author asset.usda
     pf verify (--case <case-id> | --all)  build + static USD validation (no GPU)
+    pf view   [--run <run-id>] [--scene asset.usda|scene_final.usda] [--hold-seconds N]
     pf runs   [--last N]
 
 Specified in the handbook but NOT implemented yet (they exit 4, never pretend):
@@ -79,6 +80,9 @@ def main() -> int:
     if cmd == "box":
         from parcel_forge.box_host import main as box_main
         return box_main(argv)
+    if cmd == "view":
+        from parcel_forge.view_host import main as view_main
+        return view_main(argv)
     if cmd == "runs":
         return cmd_runs(argv)
     if cmd in NOT_IMPLEMENTED:

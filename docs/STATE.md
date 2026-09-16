@@ -83,6 +83,28 @@ left open ("WebRTC viewing: not_tested" was true because nobody had tried it).
   composition semantics and by pf's own renders, not yet by the user actually
   seeing it stream. That is the literal next action.
 
+## S4 progress and D017 resolution (2026-09-16, latest)
+
+- **Mass properties done and verified.** `src/parcel_forge/mass_properties.py`
+  reproduces every value in handbook section 19 to 10 decimal places: plate volume
+  0.0010105000, bottom 0.0593765463 kg, x-wall 0.0286986640, y-wall 0.0416130628,
+  COM z 0.0552337952, Ixx/Iyy/Izz 0.0016619320 / 0.0027588147 / 0.0034580587.
+  Density is over plate volume, never the outer envelope. 25 offline unit tests.
+- Adopted from Scalable Real2Sim: confidence tiers (nothing claims `measured`) and
+  the pseudo-inertia feasibility check (positive definite + triangle inequalities),
+  with tests proving it rejects an impossible tensor.
+- **D017 RESOLVED.** CCD enabled on the probe and on the physics scene. The sweep
+  `./scripts/pf box --dt-sweep` gives box-local z = 0.02500 at 1/60, 1/120 and
+  1/240; 1/60 previously gave 0.02000 (tunnelled to the floor). This is now a
+  permanent regression command.
+- All 6 S2 cases re-verified with CCD on:
+  `runs/20260916T141450Z_s2_open_box_thick_wall_suite.md`.
+- **`pf view` added** (D020). The user could not drag the probe; cause was that
+  `omni.physx.ui` arms its grab actions only on a timeline PLAY event, which their
+  viewer never fires. `pf view` plays the timeline and holds the probe kinematic
+  until a human has connected. Its output is never acceptance evidence.
+- 89 offline tests pass (7 skipped without pxr).
+
 ## Not verified / not tested
 - **Isaac Sim's official asset-validation rule set: still not invoked.** Every
   validation.json reports `G1.official_isaac_asset_validation` as `blocked` and
