@@ -1,0 +1,16 @@
+{
+  "schema": "parcel_forge.schema_findings/1",
+  "case": "bad_units_cm",
+  "checked_utc": "2026-09-16T13:34:47Z",
+  "verdict": "rejected",
+  "error_classes": [
+    "unit_mismatch"
+  ],
+  "findings": [
+    {
+      "code": "unit_mismatch",
+      "path": "units.length",
+      "message": "this project works in SI only: expected 'm', got 'cm'"
+    }
+  ]
+}

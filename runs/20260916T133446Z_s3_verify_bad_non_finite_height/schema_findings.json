@@ -1,0 +1,16 @@
+{
+  "schema": "parcel_forge.schema_findings/1",
+  "case": "bad_non_finite_height",
+  "checked_utc": "2026-09-16T13:34:46Z",
+  "verdict": "rejected",
+  "error_classes": [
+    "value_not_finite"
+  ],
+  "findings": [
+    {
+      "code": "value_not_finite",
+      "path": "geometry.outer_size_m[2]",
+      "message": "value must be finite, got inf"
+    }
+  ]
+}

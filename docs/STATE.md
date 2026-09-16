@@ -38,6 +38,32 @@ Every line is backed by a saved run under runs/. Nothing is inferred from source
 - S1 `./scripts/pf smoke`: reproduced identically (`runs/20260916T042007Z_s1_smoke/`).
 - S2 fault detection: unchanged, both faults still caught.
 
+## Fixed this session (2026-09-16, later)
+
+**Bug found by the user actually trying WebRTC viewing**, exactly the gap S1-S3
+left open ("WebRTC viewing: not_tested" was true because nobody had tried it).
+
+- S2's exported \`asset.usda\` never set \`defaultPrim\`. The user's known-good
+  WebRTC viewer loads files by USD *reference*, which resolves through
+  \`defaultPrim\`; without it the reference resolved to nothing. The viewer's own
+  report proved it: \`bbox size = 0.0000 x 0.0000 x 0.0000, top-level prims = []\`.
+  Fixed in \`IsaacSimRuntime.export_stage()\` (D013); regression test in
+  \`tests/test_export_defaultprim.py\` first reproduces the failure with pxr
+  directly, then proves the fix, then proves our method call fixes it too.
+- The ground plane's *visible* slab was sized off the 20 m physics collider, so
+  any viewer auto-framing on world bounds showed a wall of grey next to a 0.3 m
+  box. Now sized off the box itself (D014).
+- Verified without Kit: referencing the regenerated
+  \`runs/20260916T133357Z_s2_open_box_normal/asset.usda\` the same way the viewer
+  does resolves 13 prims including all five box colliders (previously 0).
+- All 6 S2 cases regenerated with the fix, all pass: table in
+  \`runs/20260916T133552Z_s2_open_box_thick_wall_suite.md\`. \`pf verify --all\`
+  (13 cases, unaffected since S3's \`usd_author.py\` always set defaultPrim) and the
+  full offline suite (60 tests, 3 correctly skipped without pxr) both still pass.
+- **WebRTC human confirmation is still outstanding**: the fix is verified by USD
+  composition semantics and by pf's own renders, not yet by the user actually
+  seeing it stream. That is the literal next action.
+
 ## Not verified / not tested
 - **Isaac Sim's official asset-validation rule set: still not invoked.** Every
   validation.json reports `G1.official_isaac_asset_validation` as `blocked` and

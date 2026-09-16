@@ -135,7 +135,14 @@ class IsaacSimRuntime:
 
     # ---- authoring ------------------------------------------------------
     def add_ground_plane(self, path: str = "/World/GroundPlane", size: float = 20.0,
-                         z: float = 0.0) -> str:
+                         z: float = 0.0, visual_size: float | None = None) -> str:
+        """Infinite physics plane plus a proportionate visible slab.
+
+        `size` drives the collider; `visual_size` drives what a camera sees. They
+        are separate because the collision plane may as well be large, while an
+        oversized visual slab swallows the frame in any viewer that auto-frames on
+        the model (a 20 m slab next to a 0.3 m box fills the screen with grey).
+        """
         from pxr import Gf, UsdGeom, UsdPhysics
 
         UsdGeom.Xform.Define(self.stage, "/World")
@@ -149,10 +156,11 @@ class IsaacSimRuntime:
 
         # A visible slab so the render shows a floor (UsdGeomPlane is infinite
         # for physics but has no renderable surface of its own).
+        extent = float(visual_size if visual_size is not None else size)
         visual = UsdGeom.Cube.Define(self.stage, path + "_visual")
         visual.CreateSizeAttr(1.0)
-        UsdGeom.XformCommonAPI(visual).SetTranslate(Gf.Vec3d(0.0, 0.0, z - 0.05))
-        UsdGeom.XformCommonAPI(visual).SetScale(Gf.Vec3f(size, size, 0.1))
+        UsdGeom.XformCommonAPI(visual).SetTranslate(Gf.Vec3d(0.0, 0.0, z - 0.005))
+        UsdGeom.XformCommonAPI(visual).SetScale(Gf.Vec3f(extent, extent, 0.01))
         visual.CreateDisplayColorAttr([Gf.Vec3f(0.35, 0.36, 0.40)])
         return path
 
@@ -234,8 +242,29 @@ class IsaacSimRuntime:
         local = to_world.GetInverse().Transform(Gf.Vec3d(*[float(v) for v in world_point]))
         return [float(v) for v in local]
 
-    def export_stage(self, path: str) -> str:
-        """Flatten and save the authored stage, so the run keeps the asset it simulated."""
+    def set_prim_translate(self, prim_path: str, position) -> None:
+        """Write a pose into USD. Used only to rebuild a viewable scene, never to
+        produce render evidence: evidence is captured from the live final state."""
+        from pxr import Gf, UsdGeom
+
+        prim = self.stage.GetPrimAtPath(prim_path)
+        UsdGeom.XformCommonAPI(prim).SetTranslate(Gf.Vec3d(*[float(v) for v in position]))
+
+    def export_stage(self, path: str, default_prim_path: str = "/World") -> str:
+        """Flatten and save the authored stage, so the run keeps the asset it simulated.
+
+        `Stage.Export()` does not set defaultPrim on its own. Any external tool that
+        loads this file via a USD *reference* (rather than opening it directly) needs
+        defaultPrim set, or the reference resolves to nothing -- this was found by
+        the human's WebRTC viewer reporting "0 meshes, bbox 0x0x0, top-level prims =
+        []" against a scene that in fact contained a full box+ground+probe setup.
+        """
+        from pxr import Usd
+
+        if not self.stage.HasDefaultPrim():
+            root = self.stage.GetPrimAtPath(default_prim_path)
+            if root and root.IsValid():
+                self.stage.SetDefaultPrim(root)
         self.stage.Export(path)
         return path
 

@@ -184,3 +184,52 @@ repair or downgrade a deterministic pass to "needs human review". It can never t
 fail into a pass. A wrong critic then costs a wasted iteration, never a wrong result.
 Evidence: to be produced at S5/S6; recorded here in advance so the design cannot drift.
 Revisit when: There is measured evidence about critic precision on this task.
+
+## D013 - export_stage() must set defaultPrim before Export()
+
+Status: accepted
+Reason: The human's known-good WebRTC viewer (`view_usd_webrtc.py`) loads any file
+by *referencing* it under a fresh prim (`GetReferences().AddReference(path)`), not
+by opening it directly. USD composition resolves an unqualified reference through
+the target layer's `defaultPrim`; `Stage.Export()` does not set one on its own. Our
+S2 scene export (ground + box + probe, built live in Kit) never called
+`SetDefaultPrim`, so referencing it resolved to nothing. The viewer's own diagnostic
+made this unambiguous: "1 prims, 0 meshes, bbox size 0.0000 x 0.0000 x 0.0000,
+top-level prims = []" -- and USD itself logs
+"Unresolved reference prim path ... <defaultPrim>" when this happens.
+The user saw only the viewer's own placeholder floor and correctly reported
+"there's nothing there". `usd_author.py` (S3) was never affected: it explicitly
+sets `stage.SetDefaultPrim(root)` before saving.
+Alternative: Telling users to always open S2 assets directly instead of by
+reference. Rejected: the referencing viewer is the user's actual known-good tool,
+and a library should not require callers to route around a missing default.
+Consequence: `IsaacSimRuntime.export_stage()` now sets `defaultPrim` to the given
+root (default `/World`) whenever the stage does not already have one, before
+calling `Export()`. Covered by `tests/test_export_defaultprim.py`, which first
+reproduces the failure with pxr directly (no export_stage involved, so the bug is
+proven independent of our fix) and then proves the fix. That test needs `pxr` and
+is skipped under the plain system Python that runs the rest of the suite; run it
+under the Isaac venv interpreter to execute it.
+Evidence: `runs/20260916T101212Z_s2_open_box_normal/asset.usda` (broken, kept as
+evidence) vs the regenerated run in this session's summary (fixed).
+Revisit when: never expected to reopen; this is a correctness fix, not a tradeoff.
+
+## D014 - Ground-plane visual slab is sized off the object, not the physics collider
+
+Status: accepted
+Reason: The physics collision plane can reasonably stay large (20 m), but the
+*visible* slab inherited that size. Any viewer that auto-frames on world-space
+bounding box then shows a 20 m grey wall next to a 0.3 m box -- which is exactly
+the screenshot the user reported ("只看到一個地板而已"). `view_usd_webrtc.py`
+excludes prims whose name contains "groundplane"/"floor"/"physicsscene" from its
+own auto-frame, but only in its OWN scene construction; our exported floor still
+dominates the bounding box for anyone who computes it differently (e.g. `pf verify`
+G1 checks, or a future viewer).
+Alternative: Shrinking the physics plane too. Rejected: `UsdGeomPlane` is treated
+as infinite by PhysX regardless of its authored width/length, so shrinking it buys
+nothing physically and only risks an edge case at extreme drop offsets.
+Consequence: `add_ground_plane(..., visual_size=...)` decouples the two. S2 passes
+`visual_size = max(L, W) * 4` so the visible floor stays proportionate to the box
+regardless of box size (see the small/tall/thick_wall cases in S3).
+Evidence: this session's regenerated renders and the fixed WebRTC report.
+Revisit when: a viewer needs the physics plane's true extent for some reason.

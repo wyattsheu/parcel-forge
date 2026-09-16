@@ -1,0 +1,145 @@
+{
+  "schema": "parcel_forge.box_geometry/1",
+  "outer_size_m": [
+    0.3,
+    0.2,
+    0.15
+  ],
+  "wall_thickness_m": 0.005,
+  "fault": "missing_bottom",
+  "frame": {
+    "origin": "bottom_outer_center",
+    "up_axis": "Z",
+    "units": "m"
+  },
+  "plate_count": 4,
+  "plates": [
+    {
+      "name": "wall_x_pos",
+      "size_m": [
+        0.005,
+        0.2,
+        0.145
+      ],
+      "center_m": [
+        0.1475,
+        0.0,
+        0.0775
+      ]
+    },
+    {
+      "name": "wall_x_neg",
+      "size_m": [
+        0.005,
+        0.2,
+        0.145
+      ],
+      "center_m": [
+        -0.1475,
+        0.0,
+        0.0775
+      ]
+    },
+    {
+      "name": "wall_y_pos",
+      "size_m": [
+        0.29,
+        0.005,
+        0.145
+      ],
+      "center_m": [
+        0.0,
+        0.0975,
+        0.0775
+      ]
+    },
+    {
+      "name": "wall_y_neg",
+      "size_m": [
+        0.29,
+        0.005,
+        0.145
+      ],
+      "center_m": [
+        0.0,
+        -0.0975,
+        0.0775
+      ]
+    }
+  ],
+  "plate_volume_m3": 0.0007105,
+  "interior_length_m": 0.29,
+  "interior_width_m": 0.19,
+  "interior_height_m": 0.145,
+  "interior_floor_local_z_m": 0.005,
+  "opening_local_z_m": 0.15,
+  "asset_id": "open_box_no_bottom",
+  "usd_path": "asset.usda",
+  "default_prim": "/OpenBox",
+  "body_mode": "static",
+  "shell_mass_kg": null,
+  "stage_metadata": {
+    "metersPerUnit": 1.0,
+    "kilogramsPerUnit": 1.0,
+    "upAxis": "Z"
+  },
+  "authored_prims": [
+    {
+      "name": "wall_x_pos",
+      "path": "/OpenBox/wall_x_pos",
+      "size_m": [
+        0.005,
+        0.2,
+        0.145
+      ],
+      "center_m": [
+        0.1475,
+        0.0,
+        0.0775
+      ]
+    },
+    {
+      "name": "wall_x_neg",
+      "path": "/OpenBox/wall_x_neg",
+      "size_m": [
+        0.005,
+        0.2,
+        0.145
+      ],
+      "center_m": [
+        -0.1475,
+        0.0,
+        0.0775
+      ]
+    },
+    {
+      "name": "wall_y_pos",
+      "path": "/OpenBox/wall_y_pos",
+      "size_m": [
+        0.29,
+        0.005,
+        0.145
+      ],
+      "center_m": [
+        0.0,
+        0.0975,
+        0.0775
+      ]
+    },
+    {
+      "name": "wall_y_neg",
+      "path": "/OpenBox/wall_y_neg",
+      "size_m": [
+        0.29,
+        0.005,
+        0.145
+      ],
+      "center_m": [
+        0.0,
+        -0.0975,
+        0.0775
+      ]
+    }
+  ],
+  "rigid_body_count_expected": 0
+}

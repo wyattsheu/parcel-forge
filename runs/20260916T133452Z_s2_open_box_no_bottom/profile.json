@@ -1,0 +1,67 @@
+{
+  "schema": "parcel_forge.profile/1",
+  "profile_id": "open_box_v1",
+  "stage": "S2",
+  "description": "Fixed open box with a centre-drop probe. Outcome is judged in the BOX LOCAL frame so that support by the world floor can never be mistaken for a valid box floor.",
+  "provenance": {
+    "dt_and_contact": "engineering_baseline_v1 (handbook section 9), not calibrated against hardware",
+    "tolerances": "engineering_baseline_v1; geometry tolerance from handbook G1",
+    "lighting_and_camera": "evidence framing only, no physical meaning; two views so every expected resting place is visible"
+  },
+  "simulation": {
+    "dt": 0.004166666666666667,
+    "steps": 900,
+    "device": "cuda:0",
+    "gravity_mps2": -9.81
+  },
+  "scene": {
+    "ground_size_m": 20.0,
+    "dome_light_intensity": 900.0,
+    "distant_light_intensity": 2500.0
+  },
+  "render": {
+    "width": 1280,
+    "height": 720,
+    "focal_length_mm": 24.0,
+    "settle_frames": 48,
+    "views": [
+      {
+        "name": "interior_top",
+        "eye_offset_m": [
+          0.22,
+          -0.26,
+          0.62
+        ],
+        "target_offset_m": [
+          0.0,
+          0.0,
+          0.02
+        ],
+        "purpose": "look down into the cavity: shows a probe resting on the interior floor, or a lid sealing the opening"
+      },
+      {
+        "name": "side_low",
+        "eye_offset_m": [
+          0.78,
+          -0.85,
+          -0.13
+        ],
+        "target_offset_m": [
+          0.0,
+          0.0,
+          -0.12
+        ],
+        "purpose": "eye below the box's outer bottom: shows the 0.20 m gap under the box and anything that fell through to the world floor"
+      }
+    ],
+    "note": "z offsets are relative to the box's outer bottom height; x/y are world offsets from the box centre"
+  },
+  "tolerances": {
+    "geometry_m": 0.0001,
+    "rest_local_z_m": 0.002,
+    "settle_speed_mps": 0.02,
+    "inside_xy_margin_m": 0.001,
+    "fell_through_below_local_z_m": -0.01,
+    "at_mouth_min_local_z_m": 0.14
+  }
+}

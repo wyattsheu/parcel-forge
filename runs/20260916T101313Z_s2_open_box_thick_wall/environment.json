@@ -1,0 +1,119 @@
+{
+  "captured_utc": "2026-09-16T10:13:13Z",
+  "host": "acm-803-1",
+  "os": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "python_executable": "/usr/bin/python3",
+  "repo_root": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge",
+  "code_version": {
+    "commit": "dd1a346406dd5f5eefa177017cdaea64ce0bb1cc",
+    "dirty": true,
+    "dirty_files": [
+      "?? runs/20260916T101157Z_s2_open_box_no_bottom/",
+      "?? runs/20260916T101212Z_s2_open_box_normal/",
+      "?? runs/20260916T101227Z_s2_open_box_sealed/",
+      "?? runs/20260916T101242Z_s2_open_box_small/",
+      "?? runs/20260916T101258Z_s2_open_box_tall/"
+    ],
+    "dirty_diff_sha256": null
+  },
+  "inventory": {
+    "schema": "parcel_forge.env_inventory/1",
+    "captured_utc": "2026-09-16T10:13:13Z",
+    "host": {
+      "user": "wyattsheu",
+      "hostname": "acm-803-1",
+      "os": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "kernel": "6.14.0-37-generic",
+      "system_python": "3.12.3",
+      "cwd": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge"
+    },
+    "git": {
+      "repo_root": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge",
+      "is_git_repo": true,
+      "branch": "master",
+      "commit": "dd1a346406dd5f5eefa177017cdaea64ce0bb1cc",
+      "working_tree_clean": false,
+      "changed_entries": 5
+    },
+    "gpu": {
+      "status": "ok",
+      "driver_version": "580.126.09",
+      "gpus": [
+        {
+          "index": 0,
+          "name": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+          "memory_total_mib": 97887,
+          "memory_used_mib": 6870,
+          "utilization_pct": 40,
+          "memory_free_mib": 91017
+        },
+        {
+          "index": 1,
+          "name": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+          "memory_total_mib": 97887,
+          "memory_used_mib": 32617,
+          "utilization_pct": 98,
+          "memory_free_mib": 65270
+        }
+      ],
+      "pre_existing_compute_processes": [
+        {
+          "pid": 2430488,
+          "used_mib": 6814
+        },
+        {
+          "pid": 2021288,
+          "used_mib": 32532
+        }
+      ]
+    },
+    "isaac": {
+      "status": "ok",
+      "isaac_python": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3",
+      "python": "3.12.14",
+      "isaacsim_version_file": "6.0.1-rc.7+release.42383.32955d8d.gl",
+      "packages": {
+        "isaacsim": "6.0.1.0",
+        "isaacsim-kernel": "6.0.1.0",
+        "isaacsim-core": "6.0.1.0",
+        "isaacsim-app": "6.0.1.0",
+        "isaaclab": "16.4.0",
+        "torch": "2.11.0+cu128",
+        "numpy": "2.5.1",
+        "usd-core": null,
+        "pydantic": "2.14.0a1",
+        "warp-lang": "1.16.0"
+      }
+    },
+    "isaac_env_config": {
+      "schema": "parcel_forge.isaac_env/1",
+      "discovered_utc": "2026-09-16T03:40:00Z",
+      "discovery_method": "read-only inspection of running processes and site-packages; nothing installed or modified",
+      "install_kind": "pip-in-venv",
+      "isaac_python": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3",
+      "isaac_cwd": "/mnt/HDD4/wyattsheu/IsaacLab",
+      "site_packages": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/lib/python3.12/site-packages",
+      "ld_preload": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+      "env": {
+        "OMNI_KIT_ACCEPT_EULA": "Y",
+        "OMP_NUM_THREADS": "4",
+        "ISAAC_LAB_ENABLE_ISAAC_RTX_PER_ENV_SCENE_PARTITION": "0"
+      },
+      "default_cuda_visible_devices": "0",
+      "do_not_touch": {
+        "webrtc_signaling_port": 49100,
+        "webrtc_stream_port": 47998,
+        "reason": "an existing user WebRTC viewer session owns these ports; parcel-forge never enables livestream"
+      }
+    },
+    "webrtc": {
+      "status": "ok",
+      "ports_in_use": {
+        "49100": true,
+        "47998": true
+      },
+      "interpretation": "at least one WebRTC port is bound: an existing viewer session is assumed live and untouched"
+    }
+  }
+}

@@ -1,0 +1,461 @@
+{
+  "schema": "parcel_forge.s2_result/1",
+  "case_id": "open_box_tall",
+  "fault": "none",
+  "expected_outcome": "inside",
+  "profile": "profile.json",
+  "runtime": {
+    "backend": "isaacsim-standalone",
+    "adapter": "parcel_forge.runtime.isaacsim_runtime",
+    "python": "3.12.14",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "headless": true,
+    "enable_cameras": true,
+    "livestream": false,
+    "requested_dt": 0.004166666666666667,
+    "requested_device": "cuda:0",
+    "isaacsim_version": "6.0.1",
+    "physics_scene": {
+      "physics_scene_path": "/PhysicsScene",
+      "gravity_direction": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "gravity_magnitude": 9.8100004196167,
+      "dt_readback": 0.004166666666666667,
+      "device_readback": "cuda:0",
+      "solver_type": "TGS",
+      "gpu_dynamics": true,
+      "time_steps_per_second": 240
+    }
+  },
+  "geometry": {
+    "schema": "parcel_forge.box_geometry/1",
+    "outer_size_m": [
+      0.2,
+      0.2,
+      0.3
+    ],
+    "wall_thickness_m": 0.005,
+    "fault": "none",
+    "frame": {
+      "origin": "bottom_outer_center",
+      "up_axis": "Z",
+      "units": "m"
+    },
+    "plate_count": 5,
+    "plates": [
+      {
+        "name": "bottom",
+        "size_m": [
+          0.2,
+          0.2,
+          0.005
+        ],
+        "center_m": [
+          0.0,
+          0.0,
+          0.0025
+        ]
+      },
+      {
+        "name": "wall_x_pos",
+        "size_m": [
+          0.005,
+          0.2,
+          0.295
+        ],
+        "center_m": [
+          0.0975,
+          0.0,
+          0.1525
+        ]
+      },
+      {
+        "name": "wall_x_neg",
+        "size_m": [
+          0.005,
+          0.2,
+          0.295
+        ],
+        "center_m": [
+          -0.0975,
+          0.0,
+          0.1525
+        ]
+      },
+      {
+        "name": "wall_y_pos",
+        "size_m": [
+          0.19,
+          0.005,
+          0.295
+        ],
+        "center_m": [
+          0.0,
+          0.0975,
+          0.1525
+        ]
+      },
+      {
+        "name": "wall_y_neg",
+        "size_m": [
+          0.19,
+          0.005,
+          0.295
+        ],
+        "center_m": [
+          0.0,
+          -0.0975,
+          0.1525
+        ]
+      }
+    ],
+    "plate_volume_m3": 0.0013505000000000001,
+    "interior_length_m": 0.19,
+    "interior_width_m": 0.19,
+    "interior_height_m": 0.295,
+    "interior_floor_local_z_m": 0.005,
+    "opening_local_z_m": 0.3
+  },
+  "physics": {
+    "status": "ran",
+    "steps_requested": 900,
+    "steps_executed": 900,
+    "dt_s": 0.004166666666666667,
+    "sim_time_end_s": 3.775,
+    "final_world_position_m": [
+      -0.00030042900471016765,
+      -0.0003635906323324889,
+      0.22499999403953552
+    ],
+    "final_box_local_position_m": [
+      -0.00030042900471016765,
+      -0.0003635906323324889,
+      0.02499999403953551
+    ],
+    "final_speed_mps": 6.148369435139906e-05,
+    "min_box_local_z_m": 0.020446974039077748,
+    "trajectory_csv": "trajectory.csv"
+  },
+  "outcome": {
+    "outcome": "inside",
+    "reason": "probe rests on the interior floor at box-local z=0.02500 m (expected 0.02500 m) and inside the cavity footprint",
+    "evidence": {
+      "final_local_m": [
+        -0.00030042900471016765,
+        -0.0003635906323324889,
+        0.02499999403953551
+      ],
+      "final_speed_mps": 6.148369435139906e-05,
+      "min_local_z_m": 0.020446974039077748,
+      "expected_rest_local_z_m": 0.025,
+      "rest_error_m": 5.9604644900290715e-09,
+      "within_interior_xy": true
+    },
+    "judged_in": "box local frame (origin = outer bottom face centre)",
+    "world_final_z_m": 0.22499999403953552
+  },
+  "render": {
+    "status": "ok",
+    "captured_after": "final physics step (no scene rebuild)",
+    "views": [
+      {
+        "view": "interior_top",
+        "purpose": "look down into the cavity: shows a probe resting on the interior floor, or a lid sealing the opening",
+        "camera": {
+          "camera_path": "/World/EvidenceCam_interior_top",
+          "eye_m": [
+            0.22,
+            -0.26,
+            0.8200000000000001
+          ],
+          "target_m": [
+            0.0,
+            0.0,
+            0.22
+          ],
+          "up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "focal_length_mm": 24.0,
+          "convention": "USD camera looks down -Z with +Y up in camera space"
+        },
+        "status": "ok",
+        "png": "renders/open_box_tall_interior_top.png",
+        "png_bytes": 335269,
+        "image_stats": {
+          "width": 1280,
+          "height": 720,
+          "mean_r": 213.268,
+          "distinct_r": 176,
+          "looks_blank": false
+        }
+      },
+      {
+        "view": "side_low",
+        "purpose": "eye below the box's outer bottom: shows the 0.20 m gap under the box and anything that fell through to the world floor",
+        "camera": {
+          "camera_path": "/World/EvidenceCam_side_low",
+          "eye_m": [
+            0.78,
+            -0.85,
+            0.07
+          ],
+          "target_m": [
+            0.0,
+            0.0,
+            0.08000000000000002
+          ],
+          "up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "focal_length_mm": 24.0,
+          "convention": "USD camera looks down -Z with +Y up in camera space"
+        },
+        "status": "ok",
+        "png": "renders/open_box_tall_side_low.png",
+        "png_bytes": 78602,
+        "image_stats": {
+          "width": 1280,
+          "height": 720,
+          "mean_r": 222.0446,
+          "distinct_r": 61,
+          "looks_blank": false
+        }
+      }
+    ],
+    "png": "renders/open_box_tall_interior_top.png"
+  },
+  "checks": [
+    {
+      "id": "S2.plate_dimensions_match_spec",
+      "status": "pass",
+      "detail": "largest world-size error 0.00000001 m on wall_x_pos (tolerance 0.0001 m), read back through the composed transform"
+    },
+    {
+      "id": "S2.plate_count",
+      "status": "pass",
+      "detail": "5 colliders authored, spec says 5"
+    },
+    {
+      "id": "S2.no_rigid_body_on_fixed_box",
+      "status": "pass",
+      "detail": "the S2 box is static: no RigidBodyAPI on the root, five separate box colliders instead of one convex hull"
+    },
+    {
+      "id": "S2.no_nan",
+      "status": "pass",
+      "detail": "all probe samples finite"
+    },
+    {
+      "id": "S2.finite_steps",
+      "status": "pass",
+      "detail": "executed 900/900 steps, ended at t=3.7750s"
+    },
+    {
+      "id": "S2.outcome_matches_expectation",
+      "status": "pass",
+      "detail": "expected 'inside', observed 'inside'. probe rests on the interior floor at box-local z=0.02500 m (expected 0.02500 m) and inside the cavity footprint"
+    },
+    {
+      "id": "S2.render_png_not_blank",
+      "status": "pass",
+      "detail": "interior_top=335269 B mean_r=213.268; side_low=78602 B mean_r=222.0446"
+    },
+    {
+      "id": "S2.webrtc_human_view",
+      "status": "not_tested",
+      "detail": "livestream never enabled; only a human can confirm a WebRTC view"
+    }
+  ],
+  "errors": [],
+  "scene": {
+    "box": {
+      "root_path": "/World/Box",
+      "world_position_m": [
+        0.0,
+        0.0,
+        0.2
+      ],
+      "plates": [
+        {
+          "name": "bottom",
+          "path": "/World/Box/bottom",
+          "intended_size_m": [
+            0.2,
+            0.2,
+            0.005
+          ],
+          "intended_center_m": [
+            0.0,
+            0.0,
+            0.0025
+          ]
+        },
+        {
+          "name": "wall_x_pos",
+          "path": "/World/Box/wall_x_pos",
+          "intended_size_m": [
+            0.005,
+            0.2,
+            0.295
+          ],
+          "intended_center_m": [
+            0.0975,
+            0.0,
+            0.1525
+          ]
+        },
+        {
+          "name": "wall_x_neg",
+          "path": "/World/Box/wall_x_neg",
+          "intended_size_m": [
+            0.005,
+            0.2,
+            0.295
+          ],
+          "intended_center_m": [
+            -0.0975,
+            0.0,
+            0.1525
+          ]
+        },
+        {
+          "name": "wall_y_pos",
+          "path": "/World/Box/wall_y_pos",
+          "intended_size_m": [
+            0.19,
+            0.005,
+            0.295
+          ],
+          "intended_center_m": [
+            0.0,
+            0.0975,
+            0.1525
+          ]
+        },
+        {
+          "name": "wall_y_neg",
+          "path": "/World/Box/wall_y_neg",
+          "intended_size_m": [
+            0.19,
+            0.005,
+            0.295
+          ],
+          "intended_center_m": [
+            0.0,
+            -0.0975,
+            0.1525
+          ]
+        }
+      ],
+      "rigid_body_on_root": false
+    },
+    "probe": {
+      "path": "/World/Probe",
+      "size_m": 0.04,
+      "spawn_position_m": [
+        0.0,
+        0.0,
+        0.62
+      ],
+      "mass_kg": 0.05
+    },
+    "box_outer_bottom_world_z_m": 0.2,
+    "opening_world_z_m": 0.5
+  },
+  "geometry_readback": [
+    {
+      "name": "bottom",
+      "world_size_m": [
+        0.20000000298023224,
+        0.20000000298023224,
+        0.004999999888241291
+      ],
+      "world_center_m": [
+        0.0,
+        0.0,
+        0.2025
+      ],
+      "size_error_m": 2.980232227667301e-09,
+      "center_error_m": 0.0
+    },
+    {
+      "name": "wall_x_pos",
+      "world_size_m": [
+        0.004999999888241291,
+        0.20000000298023224,
+        0.29499998688697815
+      ],
+      "world_center_m": [
+        0.0975,
+        0.0,
+        0.35250000000000004
+      ],
+      "size_error_m": 1.3113021835042815e-08,
+      "center_error_m": 0.0
+    },
+    {
+      "name": "wall_x_neg",
+      "world_size_m": [
+        0.004999999888241291,
+        0.20000000298023224,
+        0.29499998688697815
+      ],
+      "world_center_m": [
+        -0.0975,
+        0.0,
+        0.35250000000000004
+      ],
+      "size_error_m": 1.3113021835042815e-08,
+      "center_error_m": 0.0
+    },
+    {
+      "name": "wall_y_pos",
+      "world_size_m": [
+        0.1899999976158142,
+        0.004999999888241291,
+        0.29499998688697815
+      ],
+      "world_center_m": [
+        0.0,
+        0.0975,
+        0.35250000000000004
+      ],
+      "size_error_m": 1.3113021835042815e-08,
+      "center_error_m": 0.0
+    },
+    {
+      "name": "wall_y_neg",
+      "world_size_m": [
+        0.1899999976158142,
+        0.004999999888241291,
+        0.29499998688697815
+      ],
+      "world_center_m": [
+        0.0,
+        -0.0975,
+        0.35250000000000004
+      ],
+      "size_error_m": 1.3113021835042815e-08,
+      "center_error_m": 0.0
+    }
+  ],
+  "asset": {
+    "path": "asset.usda",
+    "note": "flattened stage as simulated"
+  },
+  "summary": {
+    "checks_total": 8,
+    "checks_graded": 7,
+    "checks_failed": 0,
+    "observed_outcome": "inside",
+    "verdict": "pass"
+  }
+}

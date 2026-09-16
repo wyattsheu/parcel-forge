@@ -1,0 +1,57 @@
+{
+  "schema": "parcel_forge.manifest/1",
+  "created_utc": "2026-09-16T13:34:46Z",
+  "run_id": "20260916T133445Z_s3_verify_open_box_thick_wall",
+  "stage": "S3",
+  "case": "open_box_thick_wall",
+  "seed": null,
+  "profile": "static_usd_v1.json",
+  "profile_sha256": "18b96a22811057fbd9c12b35ab09c59c8e99c00b35d171b6db05d7a650e1951d",
+  "backend": "pxr (OpenUSD) inside the Isaac venv; Kit not started",
+  "device": null,
+  "dt": null,
+  "command": "/mnt/HDD4/wyattsheu/IsaacLab/.venv/bin/python3 /mnt/HDD4/wyattsheu/ITRI/parcel-forge/src/parcel_forge/usd_tool.py build --case /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T133445Z_s3_verify_open_box_thick_wall/request.json --out /mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260916T133445Z_s3_verify_open_box_thick_wall",
+  "exit_code": 0,
+  "external_exit_code": 0,
+  "asset_path": "asset.usda",
+  "asset_sha256": "f2f211063299739f993279a95901aa608670dffd0787f8d294049ae366f0ffa9",
+  "inputs_sha256": {
+    "case": "20c171c43a7e301a50189dc33660fce3f0c227c42830ba623451da28dc2e34aa",
+    "author": "5eae1842462cc281dbd832a8294e15350a46b0707af001eb06c8b42e5a6e14bb"
+  },
+  "code_version": {
+    "commit": "dd1a346406dd5f5eefa177017cdaea64ce0bb1cc",
+    "dirty": true,
+    "dirty_files": [
+      "M docs/DECISIONS.md",
+      " M src/parcel_forge/box_s2.py",
+      " M src/parcel_forge/runtime/isaacsim_runtime.py",
+      "?? runs/20260916T101157Z_s2_open_box_no_bottom/",
+      "?? runs/20260916T101212Z_s2_open_box_normal/",
+      "?? runs/20260916T101227Z_s2_open_box_sealed/",
+      "?? runs/20260916T101242Z_s2_open_box_small/",
+      "?? runs/20260916T101258Z_s2_open_box_tall/",
+      "?? runs/20260916T101313Z_s2_open_box_thick_wall/",
+      "?? runs/20260916T101313Z_s2_open_box_thick_wall_suite.md",
+      "?? runs/20260916T133357Z_s2_open_box_normal/",
+      "?? runs/20260916T133442Z_s3_verify_open_box_no_bottom/",
+      "?? runs/20260916T133443Z_s3_verify_open_box_normal/",
+      "?? runs/20260916T133443Z_s3_verify_open_box_sealed/",
+      "?? runs/20260916T133444Z_s3_verify_open_box_small/",
+      "?? runs/20260916T133445Z_s3_verify_open_box_tall/",
+      "?? runs/20260916T133445Z_s3_verify_open_box_thick_wall/",
+      "?? tests/test_export_defaultprim.py"
+    ],
+    "dirty_diff_sha256": "4350a8651596f160b66b741db5486624b20583dcb3f73fe348be0ae0e7db01d6"
+  },
+  "evidence": {
+    "request": "request.json",
+    "schema_findings": "schema_findings.json",
+    "asset": "asset.usda",
+    "build_manifest": "build_manifest.json",
+    "log": "logs/build.log",
+    "validation": "validation.json",
+    "validate_log": "logs/validate.log"
+  },
+  "notes": []
+}

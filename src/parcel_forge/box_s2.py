@@ -136,7 +136,12 @@ def main(argv) -> int:
         result["runtime"] = runtime.start()
         result["runtime"]["physics_scene"] = runtime.configure_physics(gravity=-G)
 
-        runtime.add_ground_plane(size=scene_cfg["ground_size_m"], z=0.0)
+        # Physics collider stays large; the visible slab is sized off the box
+        # itself, or a 20 m ground plane swallows a 30 cm box in any viewer that
+        # auto-frames on world-space bounds (this is what the human WebRTC viewer
+        # showed as a full-screen grey wall).
+        visual_ground = max(geom["outer_size_m"][0], geom["outer_size_m"][1]) * 4.0
+        runtime.add_ground_plane(size=scene_cfg["ground_size_m"], z=0.0, visual_size=visual_ground)
         runtime.add_dome_light(intensity=scene_cfg["dome_light_intensity"])
         runtime.add_distant_light(intensity=scene_cfg["distant_light_intensity"])
         authored = runtime.add_static_box_group("/World/Box", (0.0, 0.0, box_z), geom["plates"])
