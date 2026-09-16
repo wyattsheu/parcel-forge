@@ -134,3 +134,53 @@ that must fire. `pf box --all` globs `cases/*.json` and so never tries to simula
 an invalid spec; `pf verify --all` covers both directories.
 Evidence: `runs/*_s3_verify_bad_*/schema_findings.json` and the S3 suite table.
 Revisit when: A case needs to assert several error classes at once.
+
+## D010 - Run NVIDIA's official USD validator, and prove it can fail
+
+Status: accepted
+Reason: `IsaacSim_Asset_Workflow_Handbook.md` section 3 points at NVIDIA USD Content
+Agents for a validation entry point. That project is not installable here, but the
+validator it wraps, `omni.asset_validator.core` 1.19.3, ships inside this Isaac Sim
+install and imports without Kit, so it fits the fast pxr-only path (D008). Our own
+G1 rules were written by the same agent that wrote the generator, which is exactly
+the situation an external rule set exists to correct.
+Alternative: Continuing to report the check as `blocked`. Rejected once the validator
+was found to be present and runnable.
+Consequence: `pf verify` runs 41 official rules on every built asset. Official and
+internal coverage are reported separately in `validation.json`; neither is described
+as a SimReady certification, because no SimReady profile was requested. A companion
+check, `G7.official_validator_can_fail`, runs the engine against a deliberately broken
+fixture (no defaultPrim, Gprim nested inside a Gprim) and fails the run if the engine
+reports it clean — a validator that cannot fail makes its own clean verdict worthless.
+Evidence: `runs/20260916T0935*_s3_verify_*/validation.json`; the self-test reports
+DefaultPrimChecker, PrimEncapsulationChecker and StageMetadataChecker firing.
+Revisit when: A SimReady profile is genuinely required, or the install changes.
+
+## D011 - Version-matched API lookup becomes a tool, not a habit
+
+Status: accepted, not yet implemented
+Reason: LL3M reports that retrieval over *version-specific* API documentation cut
+error rates by 26%. This project hit the same problem on day one: Isaac Sim 6.0.1
+removed `isaacsim.core.api`, so every 4.x tutorial and every recalled example is
+wrong here. That was solved by reading local `site-packages`, but only because the
+agent happened to check.
+Alternative: Trusting model recall or web tutorials. Demonstrably wrong on this install.
+Consequence: A small local lookup tool over the installed `isaacsim` source and its
+extension docs, so any future session resolves an API against *this* version before
+writing code. Until it exists, `docs/ENVIRONMENT.md` carries the API shape explicitly.
+Evidence: D002, and the S1 adapter written from local source.
+Revisit when: The tool exists; then this decision records its scope.
+
+## D012 - A model-based critic may never upgrade a verdict
+
+Status: accepted, binding on S5 and S6
+Reason: Articulate-Anything reports that its critic's dominant error is the **false
+positive** — declaring an incorrect articulation correct, on "difficult-to-notice
+errors". A pipeline whose gate is a model opinion inherits that failure directly.
+Alternative: Using a critic rating as the acceptance signal, as the paper does with a
+0-10 realism score and a threshold of 5. Rejected as a gate; acceptable as triage.
+Consequence: Deterministic measurements own pass/fail. A critic may only propose a
+repair or downgrade a deterministic pass to "needs human review". It can never turn a
+fail into a pass. A wrong critic then costs a wasted iteration, never a wrong result.
+Evidence: to be produced at S5/S6; recorded here in advance so the design cannot drift.
+Revisit when: There is measured evidence about critic precision on this task.
