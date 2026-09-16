@@ -5,7 +5,7 @@ zero on 2026-09-16 against the Isaac Sim 6.0.1.0 install already present on this
 machine. This repository does not reuse the earlier Task 1 code and never
 modifies, reinstalls or upgrades the simulator, the driver or the shared venv.
 
-**Current stage: S2 complete. S3 (schema + static USD validation) not started.**
+**Current stage: S3 complete. S4 (mass properties and coverage) not started.**
 Read `docs/STATE.md` for the verified state and the single next action, and
 `docs/ROADMAP.md` for the S0-S7 plan.
 
@@ -22,8 +22,11 @@ Read `docs/STATE.md` for the verified state and the single next action, and
 | Five-plate open box built from the handbook geometry | verified | S2 runs; plate sizes read back to 1e-8 m |
 | Probe drop judged in the box local frame | verified | S2 suite table: inside / at_mouth / fell_through |
 | Two deliberate faults detected (sealed lid, missing bottom) | verified | both fault cases classified correctly, neither passed as `inside` |
-| USD asset written per run | partial | `asset.usda` is a flattened Kit stage; a clean asset layer is S3 |
-| Input schema, batch driver, repair loop, VLM review | **not implemented** | planned for S3-S7 |
+| Clean USD asset authored per case | verified | `pf verify`: defaultPrim, SI units, upAxis=Z, 71-line layer |
+| Illegal specs rejected before any launch | verified | 7 invalid cases, each with its own error class |
+| Static USD checks read back from the output file | verified | 10 G1 rules; dimension error ~1e-8 m |
+| Official Isaac asset-validation rules | **blocked** | not invoked; reported as `blocked`, never as a pass |
+| Mass properties, batch driver, repair loop, VLM review | **not implemented** | planned for S4-S7 |
 
 Nothing above is claimed from reading code. Each "verified" row points at a run
 directory containing the command, exit code, log and outputs.
@@ -41,7 +44,9 @@ anything that needs Kit. Paths live in `config/isaac_env.json`.
 ./scripts/pf smoke             # S1 cube drop -> runs/<id>/{trajectory.csv,renders/,summary.md}
 ./scripts/pf smoke --device 1  # pick a different GPU
 ./scripts/pf box --case open_box_normal   # one S2 case -> runs/<id>/
-./scripts/pf box --all                    # all three S2 cases + a suite table
+./scripts/pf box --all                    # all six legal cases + a suite table (GPU)
+./scripts/pf verify --all                 # 13 cases: schema -> USD -> static checks (~4 s, no GPU)
+./scripts/pf build --case open_box_small  # schema check, then author asset.usda
 ./scripts/pf runs --last 5     # list recent runs with stage and exit code
 ```
 
@@ -96,10 +101,15 @@ src/parcel_forge/geometry.py    open-box plate table and spec rejection (pure ma
 src/parcel_forge/validation/    outcome classification in the box local frame
 src/parcel_forge/box_s2.py      S2 box + probe scene and checks (runs inside Isaac)
 src/parcel_forge/box_host.py    S2 host driver: per-case runs and the suite table
+src/parcel_forge/schema.py      case-file validation with named error classes (stdlib)
+src/parcel_forge/usd_author.py  writes the open-box asset as a clean USD layer
+src/parcel_forge/usd_tool.py    in-runtime build/validate entry point (pxr only, no Kit)
+src/parcel_forge/build_host.py  S3 host driver: schema first, then build and validate
 profiles/                       versioned acceptance thresholds
 docs/                           STATE, ROADMAP, ENVIRONMENT, DECISIONS, tasks/, sessions/
 runs/                           append-only evidence
-cases/                          one JSON per test case, including deliberate faults
+cases/                          legal cases, including deliberate geometry faults
+cases/invalid/                  specs that must be rejected, plus their expected error classes
 tests/                          offline regressions: geometry, outcome rule, PNG
 ```
 

@@ -103,3 +103,34 @@ Consequence: `profiles/open_box_v1.json` carries a `views` list (`interior_top`,
 acceptance tolerance was touched, and verdicts are unaffected by camera placement.
 Evidence: `renders/*_interior_top.png` and `renders/*_side_low.png` in each S2 run.
 Revisit when: S6 adds multi-view VLM review, which will need a named view set.
+
+## D008 - Build and validate run on pxr alone, without starting Kit
+
+Status: accepted
+Reason: Measured on this install: `from pxr import Usd` inside the Isaac venv costs
+about 2.6 s and no GPU, while `SimulationApp` costs 15-190 s and a GPU context.
+Authoring a USD file and re-reading it needs only OpenUSD.
+Alternative: Routing every subcommand through `SimulationApp`, as S1/S2 do.
+Rejected: it would make the 13-case schema/geometry suite take ten minutes and
+compete with the user's WebRTC session for the GPU.
+Consequence: `pf build`, `pf validate` and `pf verify` use the Isaac interpreter but
+never construct `SimulationApp`; the whole 13-case suite runs in ~4 s. Only
+`pf smoke` and `pf box` need the simulator. A static pass therefore says nothing
+about PhysX cooking, which is exactly why `pf box` still exists.
+Evidence: `runs/*_s3_verify_*/logs/build.log` (no Kit banner) and the 4.2 s wall
+time of `./scripts/pf verify --all`.
+Revisit when: A check genuinely needs PhysX, for example collider cooking or
+read-back of solver-resolved mass properties (S4).
+
+## D009 - Invalid case files live in cases/invalid/ with a sidecar expectation file
+
+Status: accepted
+Reason: The invalid specifications must stay exactly as invalid as they claim, so
+they cannot carry an `expected_error` field: the schema would reject that field as
+unknown, and the case would then be rejected for the wrong reason.
+Alternative: An `expected_error` key inside each file. Rejected for the reason above.
+Consequence: `cases/invalid/expected_errors.json` maps case id to the error class
+that must fire. `pf box --all` globs `cases/*.json` and so never tries to simulate
+an invalid spec; `pf verify --all` covers both directories.
+Evidence: `runs/*_s3_verify_bad_*/schema_findings.json` and the S3 suite table.
+Revisit when: A case needs to assert several error classes at once.
