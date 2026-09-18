@@ -1,0 +1,88 @@
+{
+  "cold_run": "20260918T063026Z_image_drill_cold",
+  "authoring_run": "20260918T063016Z_image_drill_usd",
+  "cold_result": {
+    "status": "pass",
+    "cold_live_execution": "pass",
+    "physics_execution": "pass",
+    "state_readback": "pass",
+    "render": "not_tested",
+    "human_webrtc": "not_tested",
+    "runtime": {
+      "physics_scene_path": "/PhysicsScene",
+      "gravity_direction": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "gravity_magnitude": 9.8100004196167,
+      "dt_readback": 0.004166666666666667,
+      "device_readback": "cpu",
+      "solver_type": "TGS",
+      "gpu_dynamics": false,
+      "ccd_enabled": true,
+      "time_steps_per_second": 240
+    },
+    "checks": {
+      "cold_rigid_present": true,
+      "finite_states": true,
+      "moves_under_external_force": true,
+      "lands_above_ground": true,
+      "settles_before_push": true
+    },
+    "before": {
+      "position_m": [
+        0.08222237229347229,
+        -0.06676545739173889,
+        0.041387200355529785
+      ],
+      "orientation_wxyz": [
+        0.8264115452766418,
+        0.30179956555366516,
+        0.4645021855831146,
+        -0.10098934173583984
+      ],
+      "linear_velocity_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "angular_velocity_radps": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "after": {
+      "position_m": [
+        0.19475385546684265,
+        -0.06486327946186066,
+        0.042682044208049774
+      ],
+      "orientation_wxyz": [
+        0.819624125957489,
+        0.30373263359069824,
+        0.46637019515037537,
+        -0.13587404787540436
+      ],
+      "linear_velocity_mps": [
+        1.117305040359497,
+        0.010503478348255157,
+        0.0008380701183341444
+      ],
+      "angular_velocity_radps": [
+        0.0006947852671146393,
+        -0.0024999771267175674,
+        -0.4642382562160492
+      ]
+    },
+    "horizontal_displacement_m": 0.11254755877439303,
+    "mass_readback": [
+      [
+        1.5
+      ]
+    ]
+  },
+  "human_webrtc": "not_tested",
+  "render": "not_tested"
+}

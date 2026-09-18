@@ -56,6 +56,7 @@ def main(argv=None):
     i.add_argument('--license-note', required=True)
     i.add_argument('--execute', action='store_true')
     i.add_argument('--name')
+    i.add_argument('--component-policy', choices=['keep', 'largest'], default='keep')
     a = p.parse_args(argv)
     out = Path(make_unique_run_dir('workflow'))
     stages, code = [], 1
@@ -93,7 +94,7 @@ def main(argv=None):
             result.update(status='prepared', intake_run=source.name)
             code = 0
             if a.execute:
-                source, _ = execute_stage(out, stages, 'generate', 'pf-image-generate', source, 'generation')
+                source, _ = execute_stage(out, stages, 'generate', 'pf-image-generate', source, 'generation', extra=('--component-policy', a.component_policy))
                 result['generation'] = 'pass'
                 source, _ = execute_stage(out, stages, 'usd_physics', 'pf-image-usd', source, 'status')
                 result['physics'] = 'pass'

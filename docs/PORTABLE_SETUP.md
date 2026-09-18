@@ -97,3 +97,11 @@ exec(compile(p.read_text(), str(p), 'exec'), globals())
 在該機跑過 keyboard-package 後才有本機 runs 可載入。圖片則換成 `scripts/image_drill_editor.py`。選物體按 F，Stop 時旋轉；Play 後以 native force drag 操作。跨機 WebRTC launcher/連線仍由該機既有安裝提供，本專案不自動佔用 ports。
 
 也可直接開 Git 中 `exports/image_drill_v1/scene.usda` 檢查既有交付；紙箱需隨附 crease controller，USD 本身不保存 Python per-step 塑性控制器，詳見 `exports/carton_v1/` 說明。不可只開 USD 就宣稱相同塑性行為。
+
+### 家目錄快速啟動
+
+來源機已建立 `~/start_webrtc.sh` → 專案 `scripts/pf-webrtc`。執行 `~/start_webrtc.sh` 在背景啟動完整編輯器，預設載入圖片電鑽，timeline Stop；`--check` 只做檢查。輸出run/runtime.log，等待 `[VIEW] READY` 再以WebRTC client連到140.113.203.85，signaling49100/stream47998。啟動PID不等於stream就緒或人工已確認。
+
+另機可自行建立相同symlink，使用 `--public-ip 當機可達IP`；若已有同名script，保留不覆寫。這不修改共享環境，不接管已有WebRTC服務。
+
+圖片碎塊修正：`pf-workflow image ... --component-policy largest --execute --name NEW_NAME` 顯式保留最大拓撲連通區塊，raw/removed_components另存。預設keep；合法分離零件不得自動刪。去背中仍可能有碎片，外觀需人工驗證；不把物理pass當外觀pass。新家目錄啟動器預設image_drill_appearance_v2，既有WebRTC不重啟，用Script Editor載入新版即可。

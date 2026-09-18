@@ -1,0 +1,4 @@
+# 圖片外觀修正同例運行
+總run20260918T062948Z_workflow。generation20260918T062948Z_image_generation→physics20260918T063016Z_image_drill_usd→cold20260918T063026Z_image_drill_cold→export20260918T063035Z_image_export，全部exit0/pass。
+出口exports/image_drill_appearance_v2。原raw與232faces移除件留在generation/provider/raw。
+人工外觀/render/校準not_tested；等待用戶重看。

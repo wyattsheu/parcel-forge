@@ -1,0 +1,12 @@
+{
+  "path": "input/drill.png",
+  "sha256": "8e8e63f400b912a648b7b252b23ef4c7388cf9dc5043b24b97ca3f171538913c",
+  "reference": "https://commons.wikimedia.org/wiki/File:Panasonic_Cordless_Drill_%26_Driver_EY1DD2,_Ottobrunn_(20250410-P1046293).jpg",
+  "license_declaration": "Matti Blume (MB-one), CC BY-SA 4.0; segmentation and reconstructed colors",
+  "license_review": "not_tested",
+  "width": 3888,
+  "height": 5184,
+  "channels": 3,
+  "container_and_scanline_validation": "pass",
+  "visual_quality": "not_tested"
+}

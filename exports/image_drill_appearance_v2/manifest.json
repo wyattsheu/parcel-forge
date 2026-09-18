@@ -1,0 +1,16 @@
+{
+  "schema": "parcel_forge.image_export/1",
+  "cold_run": "20260918T063026Z_image_drill_cold",
+  "files_sha256": {
+    "validation.json": "d2f62474eaf2dbf34fc4ef2e97a9f1078c471d4804c75d74ec72dc5dc9565225",
+    "load_in_isaacsim.py": "7104bf0f4095c747c668337b3cc60995930f6045aa3f094af47b1e8f629a76f5",
+    "README.md": "a411c15d35015ae22c25df77f7159e3d7c432f2681bc2ee47b7d8bed98c097f3",
+    "scene.usda": "9c426008cb2c7726bfe9f3580b3cc92399118f67765f568921e48fe62aa2e609",
+    "LICENSE_SOURCES.md": "bc4ac55ad935285740548f5225cfc8ae4b958a8d72eb30976c7fbc4d279d715e",
+    "config.json": "572599c7b1e8de6a84ab5fd93b018aac1e0e55c475926dc98d2d471203d9d968",
+    "asset.usda": "414ecc7325db1be8d82fdb4385ba70dd20d825b2168aa2c9ebf9bd51e8c4bfab",
+    "image_source.json": "f82d75a4ea2fe995331281767867a72259cf13afd41708306809e885a257ce70"
+  },
+  "geometry_fidelity": "not_tested",
+  "calibration": "not_tested"
+}

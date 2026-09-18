@@ -13,3 +13,5 @@ Read AGENTS.md and its required current-state documents. Preserve existing work.
 - Keep build reports in `reports/development/`, execution evidence under fresh `runs/`, and runtime reports in `reports/runtime/`. Never change shared runtimes/drivers or terminate another session. Check available VRAM before runtime launch.
 
 The image baseline is a whole-object rigid mesh; articulation, wrapping/deformation, shape fidelity and calibrated material properties do not follow from geometry generation.
+
+If a human identifies loose fragments in a single connected rigid asset, use image `--component-policy largest` explicitly after considering legitimate detached parts; default `keep` preserves all parts. Raw mesh and removed components remain in the generation run. Component cleanup does not prove shape correctness; require human review. Image colors are image-derived, not calibrated albedo; authoring uses linearized vertex colors and an explicit PreviewSurface with assumed roughness.

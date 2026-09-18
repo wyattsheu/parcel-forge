@@ -1,0 +1,21 @@
+{
+  "output_components": 1,
+  "vertices": 7065,
+  "faces": 14070,
+  "color_roundtrip_max_error": 3.341205612183984e-08,
+  "explicit_preview_surface": true,
+  "explicit_primvar_reader": true,
+  "quality_source_hashes_unchanged": true,
+  "cleanup": {
+    "policy": "largest",
+    "raw_component_face_counts": [
+      14070,
+      232
+    ],
+    "removed_face_count": 232,
+    "human_removed_part_review": "not_tested"
+  },
+  "appearance_human": "not_tested",
+  "render": "not_tested",
+  "method": "OBJ topology and serialized USD color/shader data; not a render check"
+}

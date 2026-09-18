@@ -1,0 +1,60 @@
+{
+  "stages": [
+    {
+      "stage": "preflight",
+      "status": "ready_for_planning"
+    },
+    {
+      "stage": "image_intake",
+      "run": "20260918T062948Z_image_intake",
+      "status": "prepared"
+    },
+    {
+      "stage": "generate",
+      "status": "pass",
+      "source_run": "20260918T062948Z_image_intake",
+      "exit_code": 0,
+      "run": "20260918T062948Z_image_generation",
+      "result_sha256": "9304fed183a4bbeb403cdc878ac8dc1aa323979a3ef7970168e55555e02e5f58"
+    },
+    {
+      "stage": "usd_physics",
+      "status": "pass",
+      "source_run": "20260918T062948Z_image_generation",
+      "exit_code": 0,
+      "run": "20260918T063016Z_image_drill_usd",
+      "result_sha256": "59ae393e1cb87dbf13c7142658c3136d12320664aa287c0346bcac2c577ac6da"
+    },
+    {
+      "stage": "cold_load",
+      "status": "pass",
+      "source_run": "20260918T063016Z_image_drill_usd",
+      "exit_code": 0,
+      "run": "20260918T063026Z_image_drill_cold",
+      "result_sha256": "0d6c722a97871eeb77f4fb18a7bba4b37bb8d9e00269a685e2b1196228bc0a23"
+    },
+    {
+      "stage": "export",
+      "status": "pass",
+      "source_run": "20260918T063026Z_image_drill_cold",
+      "exit_code": 0,
+      "run": "20260918T063035Z_image_export",
+      "result_sha256": "0d3c39c01f9f20bd0df5c353133b633293206f9cde9d1de895f7f4b35d8d863b"
+    }
+  ],
+  "result": {
+    "status": "pass",
+    "mode": "image",
+    "generation": "pass",
+    "physics": "pass",
+    "cold_load": "pass",
+    "render": "not_tested",
+    "human_webrtc": "not_tested",
+    "nvidia_validation": "not_tested",
+    "preflight": "ready_for_planning",
+    "intake_run": "20260918T062948Z_image_intake",
+    "export_run": "20260918T063035Z_image_export",
+    "export_folder": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge/exports/image_drill_appearance_v2",
+    "exit_code": 0
+  }
+}
