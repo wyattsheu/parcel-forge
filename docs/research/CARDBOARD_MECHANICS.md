@@ -1,3 +1,8 @@
+> 2026-09-17 評估更新：以下為早期方案，非材料驗收結果。折痕不一定有固定屈服峰；
+> 需量測載入／卸載／循環 M–angle 曲線。四點彎曲不能單獨校正折痕；deformable
+> 能力限制尚未依本機版本驗證。最新順序與測試規格見
+> reports/development/2026-09-17_flaps_keyboard_assessment.md。
+
 # Corrugated board: what a real box does, and what we can actually simulate
 
 Written 2026-09-16 after the user pointed out that our box "doesn't look like a

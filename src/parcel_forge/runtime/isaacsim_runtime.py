@@ -365,6 +365,74 @@ class IsaacSimRuntime:
         UsdGeom.XformCommonAPI(light).SetRotate(Gf.Vec3f(-40.0, 0.0, 35.0))
         return path
 
+    def configure_contact_settings(self, collider_paths: list[str], settings: dict,
+                                   material_path: str = "/World/PhysicsMaterials/Baseline") -> dict:
+        """Explicitly author and composed-read-back contact geometry and material values.
+
+        PhysX 6 exposes contact/rest offsets through PhysxCollisionAPI. Friction and
+        restitution are standard UsdPhysics.MaterialAPI values bound with material
+        purpose ``physics``. This read-back proves composition, not tensor-level
+        introspection; runtime warnings and behavioral tests remain separate evidence.
+        """
+        from pxr import PhysxSchema, UsdGeom, UsdPhysics, UsdShade
+        from parcel_forge.contact_settings import validate_contact_settings
+
+        errors = validate_contact_settings(settings)
+        if errors:
+            raise ValueError("invalid contact settings: " + "; ".join(errors))
+
+        parent_path = material_path.rsplit("/", 1)[0]
+        UsdGeom.Scope.Define(self.stage, parent_path)
+        material = UsdShade.Material.Define(self.stage, material_path)
+        material_api = UsdPhysics.MaterialAPI.Apply(material.GetPrim())
+        material_api.CreateStaticFrictionAttr(float(settings["static_friction"]))
+        material_api.CreateDynamicFrictionAttr(float(settings["dynamic_friction"]))
+        material_api.CreateRestitutionAttr(float(settings["restitution"]))
+
+        for path in collider_paths:
+            prim = self.stage.GetPrimAtPath(path)
+            if not prim or not prim.IsValid() or not prim.HasAPI(UsdPhysics.CollisionAPI):
+                raise ValueError(f"contact target is not a collider: {path}")
+            physx_collision = PhysxSchema.PhysxCollisionAPI.Apply(prim)
+            physx_collision.CreateContactOffsetAttr(float(settings["contact_offset_m"]))
+            physx_collision.CreateRestOffsetAttr(float(settings["rest_offset_m"]))
+            binding = (UsdShade.MaterialBindingAPI(prim) if prim.HasAPI(UsdShade.MaterialBindingAPI)
+                       else UsdShade.MaterialBindingAPI.Apply(prim))
+            binding.Bind(material, bindingStrength=UsdShade.Tokens.strongerThanDescendants,
+                         materialPurpose="physics")
+        return self.read_contact_settings(collider_paths, material_path)
+
+    def read_contact_settings(self, collider_paths: list[str], material_path: str) -> dict:
+        """Read authored values through the composed live stage."""
+        from pxr import PhysxSchema, UsdPhysics, UsdShade
+
+        material_prim = self.stage.GetPrimAtPath(material_path)
+        material_api = UsdPhysics.MaterialAPI(material_prim)
+        material_values = {
+            "static_friction": float(material_api.GetStaticFrictionAttr().Get()),
+            "dynamic_friction": float(material_api.GetDynamicFrictionAttr().Get()),
+            "restitution": float(material_api.GetRestitutionAttr().Get()),
+        }
+        colliders = []
+        for path in collider_paths:
+            prim = self.stage.GetPrimAtPath(path)
+            collision = PhysxSchema.PhysxCollisionAPI(prim)
+            binding = UsdShade.MaterialBindingAPI(prim)
+            bound, _relationship = binding.ComputeBoundMaterial(materialPurpose="physics")
+            colliders.append({
+                "path": path,
+                "contact_offset_m": float(collision.GetContactOffsetAttr().Get()),
+                "rest_offset_m": float(collision.GetRestOffsetAttr().Get()),
+                "bound_physics_material": str(bound.GetPath()) if bound else None,
+            })
+        return {
+            "readback_layer": "composed USD stage",
+            "tensor_level_getter_available": False,
+            "material_path": material_path,
+            "material": material_values,
+            "colliders": colliders,
+        }
+
     # ---- read-back ------------------------------------------------------
     def rigid_view(self, path: str):
         from isaacsim.core.experimental.prims import RigidPrim

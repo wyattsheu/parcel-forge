@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""Create append-only review folder and SVG from actual carton evidence."""
+import argparse,csv,html,json,math,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_run_dir,sha256_file
+p=argparse.ArgumentParser();p.add_argument('--run',required=True);a=p.parse_args()
+source=(ROOT/'runs'/a.run).resolve()
+if source.parent!=ROOT/'runs':p.error('run must be a direct runs child')
+config=json.loads((source/'config.json').read_text());result=json.loads((source/'carton_result.json').read_text())
+rows=list(csv.DictReader((source/'trajectory.csv').open()))
+for attempt in range(100):
+ try:
+  out=Path(make_run_dir('ext1_carton_review'+(f'_{attempt}' if attempt else '')));break
+ except FileExistsError:continue
+else:raise RuntimeError('could not allocate fresh review directory')
+colors=['#0072b2','#d55e00','#009e73','#cc79a7'];names=result['dof_names']
+def x(t):return 70+850*float(t)/config['duration_s']
+def y(rad):return 330-270*math.degrees(float(rad))/110
+svg=['<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420"><rect width="1000" height="420" fill="white"/><text x="70" y="24" font-size="18">Measured flap angle (solid) / plastic reference (dashed)</text>']
+for deg in [0,30,60,90]:
+ py=y(math.radians(deg));svg.append(f'<path d="M70 {py}H920" stroke="#ddd"/><text x="25" y="{py}">{deg}°</text>')
+for i,name in enumerate(names):
+ data=[r for r in rows if r['joint']==name][::8]
+ for key,dash in [('angle_rad',''),('plastic_target_rad',' stroke-dasharray="5 4"')]:
+  points=' '.join(f"{x(r['time_s']):.3f},{y(r[key]):.3f}" for r in data)
+  svg.append(f'<polyline points="{points}" fill="none" stroke="{colors[i]}" stroke-width="1.5"{dash}/>')
+ svg.append(f'<text x="{70+i*220}" y="385" font-size="13" fill="{colors[i]}">{html.escape(name)}</text>')
+svg.append('<text x="430" y="350">Simulation time (seconds)</text>')
+for t in [0,3,6,config['duration_s']]:svg.append(f'<text x="{x(t)}" y="370">{t:g}</text>')
+svg.append('</svg>');(out/'angles.svg').write_text(''.join(svg))
+summary={'source_run':source.name,'legacy_status':result['status'],'opening_status':result.get('opening_diagnostic_status','not_tested'),'coupon_status':result.get('coupon_diagnostic_status','not_tested'),'source_sha256':{f:sha256_file(str(source/f)) for f in ['config.json','carton_result.json','trajectory.csv']},'render':'not_tested','webrtc_human_view':'not_tested','svg_scope':'plot of measured joint CSV, not camera rendering','flaps':result.get('flaps',[])}
+(out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+(out/'README.md').write_text(f"# Carton review\n\nSource: `{source.name}`. Legacy status: {result['status']}; opening diagnostic: {result.get('opening_diagnostic_status','not_tested')}; coupon diagnostic: {result.get('coupon_diagnostic_status','not_tested')}; cyclic diagnostic: {result.get('cyclic_diagnostic_status','not_tested')}.\n\n[Measured angle curves](angles.svg). SVG is data, not a rendered scene.\n\nFor WebRTC Script Editor (save current stage first):\n```python\nimport omni.usd\nomni.usd.get_context().open_stage({str(source/'recording.usda')!r})\n```\n\nSelect `/World/Carton`, press F, rewind timeline and Play. This is recorded measured motion with physics disabled only in the replay; it does not run the plastic controller. Human view remains not_tested.\n")
+print(out)

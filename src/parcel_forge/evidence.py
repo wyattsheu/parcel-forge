@@ -136,3 +136,13 @@ class Timer:
     def __exit__(self, *exc):
         self.seconds = round(time.time() - self.t0, 3)
         return False
+
+
+def make_unique_run_dir(label: str) -> str:
+    """Allocate a fresh run without overwriting same-second evidence."""
+    for attempt in range(100):
+        try:
+            return make_run_dir(label + (f"_{attempt}" if attempt else ""))
+        except FileExistsError:
+            continue
+    raise RuntimeError("could not allocate fresh run directory")

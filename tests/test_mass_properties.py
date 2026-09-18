@@ -14,6 +14,8 @@ from parcel_forge.geometry import plates  # noqa: E402
 from parcel_forge.mass_properties import (DERIVED_EXACT, ESTIMATED,  # noqa: E402
                                           center_of_mass, inertia_tensor_about,
                                           is_physically_feasible, mass_manifest,
+                                          principal_decomposition, principal_moments,
+                                          rotation_matrix_to_quaternion_wxyz,
                                           plate_masses, shell_density)
 
 DEMO = ([0.30, 0.20, 0.15], 0.005)
@@ -150,6 +152,54 @@ class TestPhysicalFeasibility(unittest.TestCase):
     def test_a_boundary_case_is_accepted(self):
         """A flat plate sits exactly on the triangle equality; it must pass."""
         self.assertTrue(is_physically_feasible([[1.0, 0, 0], [0, 1.0, 0], [0, 0, 2.0]])["feasible"])
+
+    def test_rotated_impossible_tensor_is_rejected(self):
+        # Eigenvalues are (1, 1, 4), although every diagonal entry looks harmless.
+        bad = [[2.5, 1.5, 0.0], [1.5, 2.5, 0.0], [0.0, 0.0, 1.0]]
+        result = is_physically_feasible(bad)
+        self.assertFalse(result["feasible"])
+        self.assertTrue(any("triangle inequality" in reason for reason in result["reasons"]))
+
+    def test_small_valid_tensor_is_not_rejected_by_absolute_determinant(self):
+        small = [[1e-5, 0.0, 0.0], [0.0, 1e-5, 0.0], [0.0, 0.0, 1e-5]]
+        self.assertTrue(is_physically_feasible(small)["feasible"])
+
+    def test_feasibility_is_scale_invariant(self):
+        base = [[1.5, -0.5, 0.0], [-0.5, 1.5, 0.0], [0.0, 0.0, 2.5]]
+        for factor in (1e-12, 1.0, 1e12):
+            scaled = [[factor * value for value in row] for row in base]
+            self.assertTrue(is_physically_feasible(scaled)["feasible"], factor)
+
+    def test_principal_moments_are_rotation_invariant(self):
+        rotated = [[1.5, -0.5, 0.0], [-0.5, 1.5, 0.0], [0.0, 0.0, 2.5]]
+        actual = principal_moments(rotated)
+        for observed, expected in zip(actual, (1.0, 2.0, 2.5)):
+            self.assertAlmostEqual(observed, expected, places=12)
+
+    def test_principal_axes_reconstruct_a_rotated_tensor(self):
+        tensor = [[1.5, -0.5, 0.0], [-0.5, 1.5, 0.0], [0.0, 0.0, 2.5]]
+        moments, axes = principal_decomposition(tensor)
+        reconstructed = [[sum(axes[i][k] * moments[k] * axes[j][k] for k in range(3))
+                          for j in range(3)] for i in range(3)]
+        for i in range(3):
+            for j in range(3):
+                self.assertAlmostEqual(reconstructed[i][j], tensor[i][j], places=12)
+
+    def test_principal_axis_basis_is_right_handed(self):
+        _, axes = principal_decomposition([[1.5, -0.5, 0.0],
+                                           [-0.5, 1.5, 0.0],
+                                           [0.0, 0.0, 2.5]])
+        determinant = (axes[0][0] * (axes[1][1] * axes[2][2] - axes[1][2] * axes[2][1])
+                       - axes[0][1] * (axes[1][0] * axes[2][2] - axes[1][2] * axes[2][0])
+                       + axes[0][2] * (axes[1][0] * axes[2][1] - axes[1][1] * axes[2][0]))
+        self.assertAlmostEqual(determinant, 1.0, places=12)
+
+    def test_axis_quaternion_is_normalized(self):
+        manifest = mass_manifest(*DEMO, SHELL_MASS)
+        quaternion = manifest["principal_axes_quaternion_wxyz"]
+        self.assertAlmostEqual(sum(value * value for value in quaternion), 1.0, places=12)
+        self.assertEqual(tuple(quaternion), rotation_matrix_to_quaternion_wxyz(
+            manifest["principal_axes_matrix"]))
 
 
 class TestProvenanceHonesty(unittest.TestCase):

@@ -36,6 +36,7 @@ def parse_args(argv):
     p.add_argument("--ui", action="store_true",
                    help="stream the full Isaac Sim editor (stage tree, property panel, "
                         "toolbar) instead of a bare viewport")
+    p.add_argument("--paused", action="store_true", help="start with timeline stopped; do not hold or release the probe")
     p.add_argument("--probe-path", default="/World/Probe")
     p.add_argument("--dt", type=float, default=1 / 120.0)
     return p.parse_args(argv)
@@ -121,7 +122,7 @@ def main(argv) -> int:
         probe = None
 
     held = False
-    if probe is not None and probe.HasAPI(UsdPhysics.RigidBodyAPI):
+    if not args.paused and probe is not None and probe.HasAPI(UsdPhysics.RigidBodyAPI):
         # Hold by switching gravity off, NOT by making the body kinematic. PhysX
         # rejects that combination outright:
         #   "kinematic bodies with CCD enabled are not supported! CCD will be ignored"
@@ -136,8 +137,12 @@ def main(argv) -> int:
     timeline = omni.timeline.get_timeline_interface()
     timeline.set_target_framerate(1.0 / args.dt)
     timeline.set_looping(False)
-    timeline.play()   # <-- this is what enables mouse grab/push
-    print("[VIEW] timeline playing: physics interaction (Shift + left-drag) is armed", flush=True)
+    if args.paused:
+        timeline.stop()
+        print("[VIEW] timeline stopped: inspect saved pose before manually pressing Play", flush=True)
+    else:
+        timeline.play()   # enables mouse grab/push
+        print("[VIEW] timeline playing: physics interaction (Shift + left-drag) is armed", flush=True)
 
     for _ in range(90):
         app.update()
@@ -156,10 +161,15 @@ def main(argv) -> int:
         # what "it starts very far away" was. Ground planes, lights and the
         # physics scene are infrastructure, not the subject.
         infra = ("groundplane", "floor", "light", "physicsscene", "render", "camera")
-        subjects = [child for child in stage.GetPrimAtPath("/World").GetChildren()
+        subject_root = stage.GetPrimAtPath("/World")
+        if not subject_root or not subject_root.IsValid():
+            subject_root = stage.GetDefaultPrim()
+        if not subject_root or not subject_root.IsValid():
+            subject_root = stage.GetPseudoRoot()
+        subjects = [child for child in subject_root.GetChildren()
                     if not any(marker in child.GetName().lower() for marker in infra)]
         if not subjects:
-            subjects = [stage.GetPrimAtPath("/World")]
+            subjects = [subject_root]
 
         lo = [float("inf")] * 3
         hi = [float("-inf")] * 3

@@ -1,0 +1,13 @@
+{
+  "schema": "parcel_forge.repair_proposal/2",
+  "changes": [
+    {
+      "path": "/geometry/fault",
+      "from": "sealed_lid",
+      "to": "none"
+    }
+  ],
+  "source_run": "20260917T000106Z_s2_open_box_sealed",
+  "source_spec_sha256": "8ec39b9b6dd9691a99e57c305d3d62d76e04a4f27f20dea6f4b8106d93d2641e",
+  "attempt": 1
+}

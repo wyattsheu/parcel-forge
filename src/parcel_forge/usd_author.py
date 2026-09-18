@@ -12,6 +12,7 @@ dropped into many different tests (handbook section 7).
 from __future__ import annotations
 
 from .geometry import geometry_manifest
+from .mass_properties import mass_manifest
 
 ASSET_ROOT = "/OpenBox"
 
@@ -36,12 +37,20 @@ def author_open_box(usd_path: str, outer_size_m, wall_thickness_m, fault: str = 
     root.GetPrim().SetAssetInfoByKey("name", asset_id)
     Usd.ModelAPI(root.GetPrim()).SetKind("component")
 
+    mass = None
     if body_mode == "dynamic":
         # Exactly one rigid body, on the root. The plates stay plain colliders:
         # a rigid body per plate would turn one box into five loose sheets.
         UsdPhysics.RigidBodyAPI.Apply(root.GetPrim())
-        if shell_mass_kg is not None:
-            UsdPhysics.MassAPI.Apply(root.GetPrim()).CreateMassAttr(float(shell_mass_kg))
+        if shell_mass_kg is None:
+            raise ValueError("dynamic body requires shell_mass_kg")
+        mass = mass_manifest(outer_size_m, wall_thickness_m, shell_mass_kg, fault)
+        mass_api = UsdPhysics.MassAPI.Apply(root.GetPrim())
+        mass_api.CreateMassAttr(float(mass["total_mass_kg"]))
+        mass_api.CreateCenterOfMassAttr(Gf.Vec3f(*mass["center_of_mass_local_m"]))
+        mass_api.CreateDiagonalInertiaAttr(Gf.Vec3f(*mass["principal_moments_kg_m2"]))
+        qw, qx, qy, qz = mass["principal_axes_quaternion_wxyz"]
+        mass_api.CreatePrincipalAxesAttr(Gf.Quatf(qw, Gf.Vec3f(qx, qy, qz)))
 
     authored = []
     for plate in geom["plates"]:
@@ -70,5 +79,6 @@ def author_open_box(usd_path: str, outer_size_m, wall_thickness_m, fault: str = 
         "stage_metadata": {"metersPerUnit": 1.0, "kilogramsPerUnit": 1.0, "upAxis": "Z"},
         "authored_prims": authored,
         "rigid_body_count_expected": 1 if body_mode == "dynamic" else 0,
+        "mass_properties": mass,
     })
     return manifest

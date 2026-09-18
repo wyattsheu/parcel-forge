@@ -1,0 +1,72 @@
+{
+  "schema": "parcel_forge.workflow_bundle/1",
+  "asset_id": "irregular_rigid",
+  "task_brief": {
+    "intended_task": "move",
+    "initial_state": "unconfirmed",
+    "base_mode": "free",
+    "success_observations": [
+      "task_completed_by_contact"
+    ],
+    "required_behaviors": [
+      "rigid_contact"
+    ]
+  },
+  "assembly_graph": {
+    "parts": [
+      {
+        "id": "target",
+        "frame": "local",
+        "material": "unknown"
+      }
+    ],
+    "interfaces": []
+  },
+  "parameter_cards": [
+    {
+      "id": "size_reference",
+      "value": null,
+      "unit": "m",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    },
+    {
+      "id": "mass",
+      "value": null,
+      "unit": "kg",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    }
+  ],
+  "asset_contract": {
+    "passive": true,
+    "forbidden_simplifications": [
+      "commanded_pose",
+      "disable_required_collision",
+      "remove_required_behavior",
+      "closed_shell_for_unwrap"
+    ],
+    "runtime_requirements": [],
+    "approximation_scope": "requires_review"
+  },
+  "capability_report": {
+    "status": "not_evaluated"
+  },
+  "validation_plan": {
+    "required_checks": [
+      "structure.units",
+      "structure.references",
+      "behavior.rigid_contact",
+      "structure.mobility"
+    ],
+    "check_status": "planned"
+  }
+}

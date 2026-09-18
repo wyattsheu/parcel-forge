@@ -108,7 +108,8 @@ def main(argv: list[str]) -> int:
 
     launch = IsaacLauncher(device_index=device).run(
         IN_RUNTIME_SCRIPT,
-        ["--out", run_dir, "--profile", os.path.join(run_dir, "profile.json")],
+        ["--out", run_dir, "--profile", os.path.join(run_dir, "profile.json")]
+        + (["--skip-render"] if "--physics-only" in argv else []),
         log_path=os.path.join(run_dir, "logs", "isaac_runtime.log"),
         timeout=timeout,
     )
@@ -120,6 +121,8 @@ def main(argv: list[str]) -> int:
             result = json.load(fh)
 
     if result is None:
+        exit_code = EXIT_INSUFFICIENT_EVIDENCE
+    elif launch["external_exit_code"] != 0:
         exit_code = EXIT_INSUFFICIENT_EVIDENCE
     elif result.get("summary", {}).get("verdict") == "pass":
         exit_code = EXIT_OK
@@ -142,8 +145,8 @@ def main(argv: list[str]) -> int:
         command=launch["command_str"],
         exit_code=exit_code,
         external_exit_code=launch["external_exit_code"],
-        asset_path=None,
-        asset_sha256=None,
+        asset_path="scene_final.usda" if os.path.isfile(os.path.join(run_dir, "scene_final.usda")) else None,
+        asset_sha256=sha256_file(os.path.join(run_dir, "scene_final.usda")),
         inputs_sha256={"profile": sha256_file(profile),
                        "smoke_script": sha256_file(IN_RUNTIME_SCRIPT)},
         evidence={
@@ -153,9 +156,10 @@ def main(argv: list[str]) -> int:
             "result": "s1_result.json" if result else None,
             "trajectory": "trajectory.csv" if os.path.isfile(os.path.join(run_dir, "trajectory.csv")) else None,
             "render": png_rel,
+            "scene_final": "scene_final.usda" if os.path.isfile(os.path.join(run_dir, "scene_final.usda")) else None,
         },
         notes=[
-            "S1 authors the scene procedurally in-memory; no .usda asset is written yet (that starts at S2/S3).",
+            "S1 exports the tensor-measured final pose for human inspection; this is not trajectory replay.",
             "livestream disabled; the pre-existing WebRTC session and its ports were not touched",
         ],
     )

@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/NVIDIA-Omniverse/usd-content-agents",
+  "commit": "a96faf9cb2f5c1f655fe0d60c0ccf57e3477b1aa",
+  "version": "0.6.0",
+  "checkout": "external/usd-content-agents",
+  "environment": ".venvs/usd-content-agents",
+  "source_file_sha256": {
+    "LICENSE": "ef19b519dfed322eb3eb05a77c764c0caf9a7fad1189d0f0a30aedca95f0dc76",
+    "THIRD_PARTY_NOTICE.md": "aecaa23193f08628360387d29b98b06dca4ba2c5a765dab95d8b8b550169737c",
+    "VERSION.md": "97a5d6e540a6120d09c39ddb667e0e8e2bac7fcc2ffef813b82e08fd60365bce",
+    "pyproject.toml": "641148d29ee8231ccb081b63ebed9d2ada1e87680ad2645c6bfb9f0da4449917",
+    "apps/validation_agent/pyproject.toml": "fabdb23f75fb061eafc0cace1b127774cdaa24e1d5367f386334cb56a435a891"
+  },
+  "upstream_modified": false,
+  "execution_mode": "fixed-pipeline validation-agent-cli"
+}

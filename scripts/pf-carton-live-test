@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Fresh headless live-controller test, leaves the existing viewer untouched."""
+import json,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir,write_json,sha256_file
+from parcel_forge.repair_execute import available_gpu
+from parcel_forge.runtime.launcher import IsaacLauncher
+out=Path(make_unique_run_dir('ext1_live_callback_test'));inv,ready=available_gpu(0);write_json(str(out/'gpu_inventory.json'),{'free_mib':inv,'selected':0})
+if not ready:write_json(str(out/'blocked.json'),{'reason':'GPU0 requires 8000MiB free'});print(out);sys.exit(4)
+script=ROOT/'src/parcel_forge/carton_live_test.py'
+write_json(str(out/'code_hashes.json'),{str(p.relative_to(ROOT)):sha256_file(str(p)) for p in [script,ROOT/'src/parcel_forge/carton_live.py',Path(__file__)]})
+res=IsaacLauncher().run(str(script),['--out',str(out)],str(out/'runtime.log'),timeout=300);write_json(str(out/'launch.json'),res);print(out)
+if not (out/'result.json').exists():print('result missing: inspect runtime.log');sys.exit(1)
+report=json.loads((out/'result.json').read_text());print(json.dumps(report,indent=2));sys.exit(0 if res['external_exit_code']==0 and report['status']=='pass' else 1)

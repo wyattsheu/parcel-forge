@@ -127,6 +127,55 @@ def validate_asset(usd_path: str, expected: dict, tolerance_m: float = 0.0001) -
                          "every authored mass is finite and > 0" if not bad_mass else "; ".join(bad_mass),
                          bad_mass))
 
+    if expected["body_mode"] == "dynamic":
+        root_prim = stage.GetPrimAtPath(expected["default_prim"])
+        mass_api = UsdPhysics.MassAPI(root_prim)
+        authored_mass = mass_api.GetMassAttr().Get()
+        authored_com = mass_api.GetCenterOfMassAttr().Get()
+        authored_inertia = mass_api.GetDiagonalInertiaAttr().Get()
+        authored_axes = mass_api.GetPrincipalAxesAttr().Get()
+        want = expected["mass_properties"]
+        measured_mass = float(authored_mass) if authored_mass is not None else None
+        measured_com = [float(authored_com[i]) for i in range(3)] if authored_com is not None else None
+        measured_inertia = ([float(authored_inertia[i]) for i in range(3)]
+                            if authored_inertia is not None else None)
+        measured_axes = ([float(authored_axes.GetReal()),
+                          *[float(v) for v in authored_axes.GetImaginary()]]
+                         if authored_axes is not None else None)
+
+        def max_error(observed, target):
+            return max(abs(a - b) for a, b in zip(observed, target))
+
+        mass_error = (abs(measured_mass - want["total_mass_kg"])
+                      if measured_mass is not None else math.inf)
+        com_error = (max_error(measured_com, want["center_of_mass_local_m"])
+                     if measured_com is not None else math.inf)
+        inertia_error = (max_error(measured_inertia, want["principal_moments_kg_m2"])
+                         if measured_inertia is not None else math.inf)
+        # q and -q encode the same rotation.
+        axes_error = math.inf
+        if measured_axes is not None:
+            target_axes = want["principal_axes_quaternion_wxyz"]
+            axes_error = min(max_error(measured_axes, target_axes),
+                             max_error(measured_axes, [-value for value in target_axes]))
+        limits = {"mass_kg": 1e-7, "com_m": 1e-7,
+                  "inertia_kg_m2": 1e-9, "quaternion": 1e-6}
+        errors = {"mass_kg": mass_error, "com_m": com_error,
+                  "inertia_kg_m2": inertia_error, "quaternion": axes_error}
+        ok = all(errors[key] <= limits[key] for key in limits)
+        checks.append(_check(
+            "G1.dynamic_mass_properties_authored", PASS if ok else FAIL,
+            "mass, COM, principal inertia and axes read back from the written USD "
+            + ("match the build manifest" if ok else "do not match the build manifest"),
+            {"authored": {"mass_kg": measured_mass, "center_of_mass_local_m": measured_com,
+                          "principal_moments_kg_m2": measured_inertia,
+                          "principal_axes_quaternion_wxyz": measured_axes},
+             "expected": {"mass_kg": want["total_mass_kg"],
+                          "center_of_mass_local_m": want["center_of_mass_local_m"],
+                          "principal_moments_kg_m2": want["principal_moments_kg_m2"],
+                          "principal_axes_quaternion_wxyz": want["principal_axes_quaternion_wxyz"]},
+             "absolute_errors": errors, "limits": limits}))
+
     # The official NVIDIA rule set is appended by the caller (usd_tool), so that
     # internal and official coverage stay separately identifiable in the report.
 

@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+"""Plan the pinned official Geometry handoff for an existing S2 asset; never generate or render."""
+import argparse
+import json
+from pathlib import Path
+import subprocess
+import sys
+ROOT=Path(__file__).resolve().parent.parent
+sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_run_dir,write_json
+from parcel_forge.repair_guard import allowed_file
+from parcel_forge.upstream_bridge import FILES,digest,evaluate
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--run',required=True);args=p.parse_args()
+out=Path(make_run_dir('upstream_geometry_plan'))
+result={'status':'blocked','generation':'not_tested','physics':'not_tested','render':'not_tested','model':'not_tested','exit_code':1}
+try:
+ import re
+ if not re.fullmatch(r'[A-Za-z0-9_-]+',args.run):raise ValueError('invalid run id')
+ config=json.loads((ROOT/'config/upstream_content_agents.json').read_text())
+ upstream=ROOT/'external/usd-content-agents'
+ head=subprocess.run(['git','-C',str(upstream),'rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip()
+ # Keep the same official revision as the existing focused validation adapter.
+ expected=config['commit']
+ if head!=expected:raise ValueError('upstream pin mismatch')
+ dirty=subprocess.run(['git','-C',str(upstream),'status','--porcelain'],capture_output=True,text=True,check=True).stdout
+ if dirty.strip():raise ValueError('upstream checkout dirty')
+ inputs=out/'inputs';inputs.mkdir()
+ for name in FILES:
+  source=allowed_file(ROOT/'runs'/args.run/name,ROOT,['runs']);(inputs/name).write_bytes(source.read_bytes())
+ hashes={n:digest(inputs/n) for n in FILES};evaluate(inputs,hashes)
+ cli=ROOT/'.venvs/usd-content-agents/bin/content-workflow-cli'
+ cmd=[str(cli),'geometry','run',str(inputs/'asset.usda'),'--output-dir',str(out/'official'),'--source-authoring-mode','direct_preserve','--optimization-policy','skip','--repair-mode','off','--no-install-missing-converters','--dry-run','--json']
+ write_json(str(out/'command.json'),{'command':cmd})
+ proc=subprocess.run(cmd,capture_output=True,text=True,timeout=120,cwd=upstream)
+ (out/'official.log').write_text(proc.stdout+proc.stderr)
+ if {n:digest(inputs/n) for n in FILES}!=hashes:raise ValueError('source snapshot modified')
+ result.update(status='plan_created' if proc.returncode==0 else 'planning_failed',exit_code=proc.returncode,upstream_commit=head,source_run=args.run,source_input_sha256=hashes,note='Official dry-run only, existing source; not text-to-3D generation or asset acceptance.')
+except Exception as exc:result['reason']=str(exc)
+write_json(str(out/'plan_result.json'),result);print('run:',out);print(json.dumps(result,indent=2));raise SystemExit(result['exit_code'])

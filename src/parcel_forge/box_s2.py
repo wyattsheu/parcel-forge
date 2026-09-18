@@ -148,7 +148,8 @@ def main(argv) -> int:
         # auto-frames on world-space bounds (this is what the human WebRTC viewer
         # showed as a full-screen grey wall).
         visual_ground = max(geom["outer_size_m"][0], geom["outer_size_m"][1]) * 4.0
-        runtime.add_ground_plane(size=scene_cfg["ground_size_m"], z=0.0, visual_size=visual_ground)
+        ground_path = runtime.add_ground_plane(
+            size=scene_cfg["ground_size_m"], z=0.0, visual_size=visual_ground)
         runtime.add_dome_light(intensity=scene_cfg["dome_light_intensity"])
         runtime.add_distant_light(intensity=scene_cfg["distant_light_intensity"])
         authored = runtime.add_static_box_group("/World/Box", (0.0, 0.0, box_z), geom["plates"])
@@ -157,6 +158,27 @@ def main(argv) -> int:
         result["scene"] = {"box": authored, "probe": probe,
                            "box_outer_bottom_world_z_m": box_z,
                            "opening_world_z_m": opening_world_z}
+
+        collider_paths = [ground_path, *[plate["path"] for plate in authored["plates"]],
+                          probe["path"]]
+        contact_readback = runtime.configure_contact_settings(
+            collider_paths, profile["contact"],
+            material_path="/World/PhysicsMaterials/RigidContactBaseline")
+        result["contact_settings"] = {
+            "requested": profile["contact"],
+            "pre_play_composed_usd_readback": contact_readback,
+            "claim_scope": "composed USD readback plus behavior; no tensor getter for coefficients",
+        }
+        contact_ok = all(
+            abs(item["contact_offset_m"] - profile["contact"]["contact_offset_m"]) <= 1e-9
+            and abs(item["rest_offset_m"] - profile["contact"]["rest_offset_m"]) <= 1e-9
+            and item["bound_physics_material"] == contact_readback["material_path"]
+            for item in contact_readback["colliders"])
+        result["checks"].append({
+            "id": "S2.contact_settings_composed_readback",
+            "status": "pass" if contact_ok else "fail",
+            "detail": f"{len(collider_paths)} colliders use explicit contact/material settings",
+        })
 
         geo_checks, readback = static_geometry_checks(runtime, authored, geom, box_z, tol["geometry_m"])
         result["checks"].extend(geo_checks)
@@ -194,6 +216,8 @@ def main(argv) -> int:
 
         final = rows[-1]
         speed = math.sqrt(sum(v * v for v in final["v"]))
+        result["contact_settings"]["post_play_composed_usd_readback"] = \
+            runtime.read_contact_settings(collider_paths, contact_readback["material_path"])
         result["physics"] = {
             "status": "ran",
             "steps_requested": sim_cfg["steps"],

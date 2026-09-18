@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "mode": "image",
+  "generation": "pass",
+  "physics": "pass",
+  "cold_load": "pass",
+  "render": "not_tested",
+  "human_webrtc": "not_tested",
+  "nvidia_validation": "not_tested",
+  "preflight": "ready_for_planning",
+  "intake_run": "20260918T061026Z_image_intake",
+  "export_run": "20260918T061129Z_image_export",
+  "export_folder": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge/exports/image_drill_portable_entry_v1",
+  "exit_code": 0
+}

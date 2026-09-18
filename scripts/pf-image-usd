@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+"""Convert a successful generated image mesh into USD and run physics qualification."""
+import argparse,json,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir,write_json,sha256_file
+from parcel_forge.runtime.launcher import IsaacLauncher
+from parcel_forge.repair_execute import available_gpu
+p=argparse.ArgumentParser();p.add_argument('--run',required=True,type=Path);a=p.parse_args();out=Path(make_unique_run_dir('image_drill_usd'));code=1
+try:
+ source=a.run.resolve()
+ if source.parent!=ROOT/'runs':raise ValueError('source must be project generation run')
+ result=json.loads((source/'result.json').read_text());provider=json.loads((source/'provider/raw/provider_result.json').read_text());mesh=source/'provider/raw/mesh.obj'
+ if result.get('generation')!='pass' or sha256_file(str(mesh))!=provider['obj_sha256']:raise ValueError('verified generation with matching mesh hash required')
+ bundle=json.loads((source/'bundle.json').read_text());cards={p['id']:p for p in bundle['parameter_cards']};config={'length_m':cards['length']['value'],'mass_kg':cards['mass']['value'],'parameter_cards':bundle['parameter_cards'],'mesh_sha256':sha256_file(str(mesh)),'source_generation_run':source.name,'dt_s':1/240,'units_native':'normalized model coordinates','orientation':'model native assumed Z up; human confirmation pending','physics_material_provenance':'assumed .5 static/.4 dynamic/.05 restitution','scope':'rigid whole drill; no trigger/motor/battery articulation'}
+ write_json(str(out/'config.json'),config);(out/'input').mkdir();(out/'input/mesh.obj').write_bytes(mesh.read_bytes());inventory,ready=available_gpu(0);write_json(str(out/'gpu_inventory.json'),{'free_mib':inventory,'selected':0})
+ if not ready:write_json(str(out/'blocked.json'),{'reason':'GPU0 needs 8000 MiB free'});raise ValueError('GPU unavailable')
+ script=ROOT/'src/parcel_forge/image_usd_validate.py';write_json(str(out/'code_hashes.json'),{str(q.relative_to(ROOT)):sha256_file(str(q)) for q in [script,Path(__file__),ROOT/'src/parcel_forge/runtime/isaacsim_runtime.py']});print('run:',out,flush=True);launch=IsaacLauncher().run(str(script),['--out',str(out)],str(out/'runtime.log'),timeout=600);write_json(str(out/'launch.json'),launch)
+ if (out/'result.json').exists():
+  result=json.loads((out/'result.json').read_text());print(json.dumps(result,indent=2));code=0 if launch['external_exit_code']==0 and result.get('status')=='pass' else 1
+ else:write_json(str(out/'result.json'),{'status':'fail','physics_execution':'unknown','state_readback':'unknown','error':'runtime produced no result; inspect log','external_exit_code':launch['external_exit_code']})
+except Exception as e:write_json(str(out/'host_error.json'),{'error':repr(e)});print(repr(e))
+print('run:',out);raise SystemExit(code)

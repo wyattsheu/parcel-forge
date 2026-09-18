@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""Export a cold-verified image-generated rigid asset with relative references."""
+import argparse,json,sys,shutil
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir,write_json,sha256_file
+p=argparse.ArgumentParser();p.add_argument('--run',type=Path,required=True);p.add_argument('--name',default='image_drill_v1');a=p.parse_args();out=Path(make_unique_run_dir('image_export'));result={'status':'fail','human_webrtc':'not_tested','render':'not_tested'};code=1
+try:
+ if not a.name or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in a.name):raise ValueError('invalid export name')
+ source=a.run.resolve()
+ if source.parent!=ROOT/'runs':raise ValueError('cold run must be immediate project run')
+ cold=json.loads((source/'result.json').read_text());link=json.loads((source/'source.json').read_text());launch=json.loads((source/'launch.json').read_text())
+ if cold.get('cold_live_execution')!='pass' or launch.get('external_exit_code')!=0:raise ValueError('cold-verified run required')
+ for name,expected in link['files_sha256'].items():
+  if sha256_file(str(source/name))!=expected:raise ValueError('cold package hash mismatch')
+ destination=ROOT/'exports'/a.name
+ if destination.exists():raise ValueError('export exists; choose new name, never overwrite')
+ destination.mkdir(parents=True)
+ for name in ['asset.usda','scene.usda','config.json']:shutil.copy2(source/name,destination/name)
+ write_json(str(destination/'validation.json'),{'cold_run':source.name,'authoring_run':link['source_run'],'cold_result':cold,'human_webrtc':'not_tested','render':'not_tested'})
+ loader=ROOT/'scripts/image_drill_editor.py';(destination/'load_in_isaacsim.py').write_text("from pathlib import Path\nimport asyncio,omni.usd,omni.timeline\nasync def _load():\n if omni.timeline.get_timeline_interface().is_playing():raise RuntimeError('Save and Stop timeline first')\n ok,error=await omni.usd.get_context().open_stage_async(str(Path(PF_ASSET_FOLDER)/'scene.usda'))\n if not ok:raise RuntimeError(error)\n omni.usd.get_context().get_selection().set_selected_prim_paths(['/World/Drill'],True)\n print('Press F, inspect while stopped; then Play. Whole-object rigid asset.')\n_task=asyncio.ensure_future(_load())\ndef _done(t):\n if not t.cancelled() and t.exception() is not None:\n  import traceback\n  traceback.print_exception(t.exception())\n_task.add_done_callback(_done)\n")
+ (destination/'README.md').write_text("# Image-generated cordless drill\n\nOpen scene.usda in Isaac6.0.1, or reference asset.usda (default /Drill) into your physics world. Metres/Z up; vertex colors, no required Python material controller. Maximum bbox dimension .25m and total mass1.5kg are assumptions, not this pictured drill's calibration. PhysX convexDecomposition; shape/contact fidelity pending human/measurement checks. No trigger/motor articulation.\n\nCold physics/readback pass is recorded in validation.json. WebRTC/render not_tested. Save work and Stop before opening scene. Select /World/Drill and F; Play, then native force drag (Shift+left mouse when enabled). No pose animation.\n\nScript Editor portable loader: set PF_ASSET_FOLDER to this directory, then exec the contents of load_in_isaacsim.py.\n")
+ config=json.loads((source/'config.json').read_text());gen=ROOT/'runs'/config['source_generation_run'];req=json.loads((gen/'request.json').read_text());write_json(str(destination/'image_source.json'),req['image']);(destination/'LICENSE_SOURCES.md').write_text('Input source: '+req['image']['reference']+'\nLicense declaration: '+req['image']['license_declaration']+'\nChanges: background segmentation, neural mesh/colors, metric scaling. Retain source license obligations. TripoSR source/model MIT; torchmcubes build dependency MPL2.0, not shipped. Physical parameters assumed; fidelity/calibration not tested.\n')
+ hashes={p.name:sha256_file(str(p)) for p in destination.iterdir() if p.is_file()};write_json(str(destination/'manifest.json'),{'schema':'parcel_forge.image_export/1','cold_run':source.name,'files_sha256':hashes,'geometry_fidelity':'not_tested','calibration':'not_tested'})
+ result.update(status='exported',path=str(destination),files_sha256=hashes,cold_verified_run=source.name);code=0
+except Exception as e:result['error']=repr(e)
+result['exit_code']=code;write_json(str(out/'result.json'),result);print(json.dumps({'run':str(out),**result},indent=2));raise SystemExit(code)

@@ -1,0 +1,53 @@
+{
+  "schema": "parcel_forge.case/1",
+  "case_id": "open_box_dynamic",
+  "asset_type": "open_box",
+  "intended_task": "dynamic_mass_readback",
+  "description": "S4 dynamic open box with explicitly authored mass, COM, principal inertia and axes",
+  "units": {
+    "length": "m",
+    "mass": "kg",
+    "time": "s"
+  },
+  "frame": {
+    "origin": "bottom_outer_center",
+    "up_axis": "Z"
+  },
+  "geometry": {
+    "outer_size_m": [
+      0.3,
+      0.2,
+      0.15
+    ],
+    "wall_thickness_m": 0.005,
+    "lid": "none",
+    "fault": "none"
+  },
+  "physics": {
+    "body_mode": "dynamic",
+    "collider": "compound_boxes",
+    "shell_mass_kg": 0.2,
+    "mass_distribution": "uniform_over_five_plate_volumes"
+  },
+  "placement": {
+    "box_outer_bottom_above_world_floor_m": 0.2
+  },
+  "probe": {
+    "shape": "cube",
+    "size_m": 0.04,
+    "mass_kg": 0.1728,
+    "drop_offset_above_opening_m": 0.1,
+    "drop_xy_m": [
+      0.0,
+      0.0
+    ]
+  },
+  "expected_outcome": "inside",
+  "provenance": {
+    "dimensions": "engineering_example from IsaacSim_Asset_Workflow_Handbook.md section 7",
+    "masses": "box shell mass is an estimated workflow parameter; probe mass is material-derived",
+    "material": "probe assumes solid aluminium at 2700 kg/m^3",
+    "shell_mass": "estimated; not measured from a physical cardboard box"
+  },
+  "seed": 0
+}

@@ -165,6 +165,8 @@ def main(argv: list[str]) -> int:
         args += ["--public-ip", public_ip]
     if "--ui" in argv:
         args += ["--ui"]
+    if "--paused" in argv:
+        args += ["--paused"]
 
     print(f"scene:  {scene}")
     print(f"holding the probe for {hold}s after READY so you can connect first")

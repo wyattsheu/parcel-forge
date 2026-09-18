@@ -1,0 +1,12 @@
+{
+  "provider": "EmbodiedGen",
+  "repository": "https://github.com/HorizonRobotics/EmbodiedGen",
+  "tag": "v2.1.0",
+  "commit": "f0124197888c2b733e4eaa65acd81ad9cfda3b79",
+  "checkout": "external/EmbodiedGen",
+  "isolated_environment": ".venvs/embodiedgen",
+  "environment_status": "not_installed",
+  "model_status": "not_downloaded",
+  "preferred_backend": "TRELLIS",
+  "qualification": "not_tested"
+}

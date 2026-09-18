@@ -1,0 +1,22 @@
+{
+  "provider": "TripoSR",
+  "repository": "https://github.com/VAST-AI-Research/TripoSR",
+  "commit": "107cefdc244c39106fa830359024f6a2f1c78871",
+  "isolated_environment": ".venvs/triposr",
+  "model_repository": "stabilityai/TripoSR",
+  "model_revision": "5b521936b01fbe1890f6f9baed0254ab6351c04a",
+  "model_path": ".venvs/models/triposr/5b521936b01fbe1890f6f9baed0254ab6351c04a",
+  "model_files_sha256": {
+    "config.yaml": "74ca708ce086bf68e97709ea6b3d91f14717921c04691e84043f0eb8fcc68e62",
+    "model.ckpt": "429e2c6b22a0923967459de24d67f05962b235f79cde6b032aa7ed2ffcd970ee"
+  },
+  "mc_resolution": 128,
+  "qualification": "verified_generation_and_rigid_usd_cold_load",
+  "reason": "minimal no-API-key image geometry baseline; EmbodiedGen retained as later enriched pipeline",
+  "generation_run": "20260918T012226Z_image_generation",
+  "physics_run": "20260918T012639Z_image_drill_usd",
+  "cold_run": "20260918T012704Z_image_drill_cold",
+  "geometry_fidelity": "not_tested",
+  "calibration": "not_tested",
+  "dependency_patch": "config/patches/torchmcubes_torch28_cpp17.patch"
+}

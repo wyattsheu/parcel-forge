@@ -20,8 +20,18 @@ CONFIG_PATH = os.path.join(REPO_ROOT, "config", "isaac_env.json")
 
 
 def load_isaac_env() -> dict:
-    with open(CONFIG_PATH, encoding="utf-8") as handle:
-        return json.load(handle)
+    # Shared baseline remains provenance; local overrides never enter git.
+    path = os.environ.get("PF_ISAAC_CONFIG") or os.path.join(REPO_ROOT, "config", "isaac_env.local.json")
+    if not os.path.isfile(path):
+        if os.environ.get("PF_ISAAC_CONFIG"):
+            raise FileNotFoundError("PF_ISAAC_CONFIG does not exist")
+        path = CONFIG_PATH
+    with open(path, encoding="utf-8") as handle:
+        cfg = json.load(handle)
+    for key in ("isaac_python", "isaac_cwd"):
+        if not isinstance(cfg.get(key), str) or not os.path.isabs(cfg[key]):
+            raise ValueError(key + " must be an absolute path")
+    return cfg
 
 
 def _run(cmd: list[str], timeout: int = 30) -> tuple[int, str, str]:

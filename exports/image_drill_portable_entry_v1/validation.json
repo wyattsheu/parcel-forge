@@ -1,0 +1,88 @@
+{
+  "cold_run": "20260918T061118Z_image_drill_cold",
+  "authoring_run": "20260918T061107Z_image_drill_usd",
+  "cold_result": {
+    "status": "pass",
+    "cold_live_execution": "pass",
+    "physics_execution": "pass",
+    "state_readback": "pass",
+    "render": "not_tested",
+    "human_webrtc": "not_tested",
+    "runtime": {
+      "physics_scene_path": "/PhysicsScene",
+      "gravity_direction": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "gravity_magnitude": 9.8100004196167,
+      "dt_readback": 0.004166666666666667,
+      "device_readback": "cpu",
+      "solver_type": "TGS",
+      "gpu_dynamics": false,
+      "ccd_enabled": true,
+      "time_steps_per_second": 240
+    },
+    "checks": {
+      "cold_rigid_present": true,
+      "finite_states": true,
+      "moves_under_external_force": true,
+      "lands_above_ground": true,
+      "settles_before_push": true
+    },
+    "before": {
+      "position_m": [
+        0.1432296335697174,
+        0.03675055503845215,
+        0.035284027457237244
+      ],
+      "orientation_wxyz": [
+        0.7833993434906006,
+        0.05267619341611862,
+        0.560409426689148,
+        0.26353761553764343
+      ],
+      "linear_velocity_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "angular_velocity_radps": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "after": {
+      "position_m": [
+        0.2598433792591095,
+        0.03466075658798218,
+        0.03515298664569855
+      ],
+      "orientation_wxyz": [
+        0.7584190964698792,
+        0.02362797036767006,
+        0.5661934614181519,
+        0.3219740390777588
+      ],
+      "linear_velocity_mps": [
+        1.119011402130127,
+        -0.01645512692630291,
+        0.0007089739083312452
+      ],
+      "angular_velocity_radps": [
+        -0.00990092009305954,
+        -0.007049940526485443,
+        1.319156527519226
+      ]
+    },
+    "horizontal_displacement_m": 0.11663246949830823,
+    "mass_readback": [
+      [
+        1.5
+      ]
+    ]
+  },
+  "human_webrtc": "not_tested",
+  "render": "not_tested"
+}

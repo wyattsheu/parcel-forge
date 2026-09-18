@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Measure how the carton answers a hand: opening force, springback, permanent set."""
+import json,sys,argparse
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir,write_json,sha256_file
+from parcel_forge.repair_execute import available_gpu
+from parcel_forge.runtime.launcher import IsaacLauncher
+parser=argparse.ArgumentParser();parser.add_argument('--springback-deg',type=float,default=4.);parser.add_argument('--residual-over-weight',type=float,default=1.5)
+parser.add_argument('--base',choices=['fixed','free'],default='fixed',help='fixed nails the box to the world; free stands it on the ground so it can be pushed')
+args=parser.parse_args()
+out=Path(make_unique_run_dir('ext1_carton_pull'));inventory,ready=available_gpu(0);write_json(str(out/'gpu_inventory.json'),{'free_mib':inventory,'selected':0})
+if not ready:write_json(str(out/'blocked.json'),{'reason':'GPU0 requires 8000MiB free'});print(out);sys.exit(4)
+script=ROOT/'src/parcel_forge/carton_pull_test.py'
+write_json(str(out/'code_hashes.json'),{str(p.relative_to(ROOT)):sha256_file(str(p)) for p in [script,ROOT/'src/parcel_forge/carton_feel.py',ROOT/'src/parcel_forge/carton_author.py',ROOT/'src/parcel_forge/carton_live.py',ROOT/'src/parcel_forge/carton_force_probe.py',ROOT/'src/parcel_forge/crease_model.py',ROOT/'config/materials/b_flute_130tl.json',Path(__file__)]})
+print('run:',out,flush=True)
+res=IsaacLauncher().run(str(script),['--out',str(out),'--springback-deg',str(args.springback_deg),'--residual-over-weight',str(args.residual_over_weight),'--base',args.base],str(out/'runtime.log'),timeout=900)
+write_json(str(out/'launch.json'),res)
+if not (out/'result.json').exists():print('result missing: inspect',out/'runtime.log');sys.exit(1)
+report=json.loads((out/'result.json').read_text());print(json.dumps({k:v for k,v in report.items() if k not in ('feel','phases','runtime')},indent=2));print('run:',out)
+sys.exit(0 if res['external_exit_code']==0 and report['status']=='pass' else 1)

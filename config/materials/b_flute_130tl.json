@@ -1,0 +1,10 @@
+{
+  "profile": "B flute 130TL literature example",
+  "bending_stiffness_nm": {"MD": 4.26, "CD": 1.84},
+  "areal_mass_kg_m2": 0.403,
+  "thickness_m": 0.00278,
+  "provenance": "literature_measurement_not_our_carton_calibration",
+  "source": "https://onlinelibrary.wiley.com/doi/full/10.1002/pts.2607",
+  "source_location": "Table 1, 130TL column",
+  "crease_parameters": "not supplied by this source"
+}

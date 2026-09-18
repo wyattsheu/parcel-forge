@@ -534,3 +534,447 @@ What this does flag: the project has never justified 0.05 kg against anything. I
 a number chosen to be convenient. Any demo intended to look plausible should pick a
 mass from a stated material, and say which.
 Revisit when: a case needs a defensible probe mass, or a demo profile is built.
+
+## D028 - Methodology review: inertia feasibility and uncertainty scope
+
+Status: open finding; implementation plan pending user confirmation.
+Evidence: `runs/20260916T151106Z_methodology_review/inertia_counterexamples.json`.
+The current check accepts principal moments (4,1,1) after rotation, and rejects a
+valid small tensor via an absolute determinant threshold. Prior confidence in full
+pseudo-inertia enforcement is superseded by this counterexample. Scalable Real2Sim
+identification error is not an authored-value transport tolerance. Proposed repair
+is a separate validator-correctness task per handbook section 14; no asset verdicts
+or profiles were changed. See review_plan.md in the same run for sources and gates.
+
+## D029 - Incremental R-stage company reports
+
+Status: superseded by D030
+Reason: The S0-S7 roadmap is a technical gate and can contain too much work for one
+company status update. The user needs small, evidence-backed increments that show
+work accumulating over time.
+Consequence: `config/progress_stages.json` defines immutable reporting slices R00,
+R01, ... independently of the technical stage. `pf report` writes a new append-only
+run with Markdown, machine-readable evidence audits, hashes, PNG dimensions and
+trajectory SVGs. A stage may be `in_progress`; file existence never upgrades it.
+Historical runs without continuous render frames explicitly report video as
+`not_available`. Future motion-dependent stages capture video during simulation.
+Evidence: `runs/20260916T152811Z_progress_report_R03/` and
+`runs/20260916T152812Z_progress_report_all/`.
+Revisit when: company reporting requires a fixed PPTX/PDF template.
+
+## D030 - Two plain report folders
+
+Status: accepted, supersedes D029
+Reason: Company reporting does not need a CLI, registry, report schema or automated
+chart generator. Two distinct questions must remain clear: how far the workflow
+itself has been built, and how far one actual workflow execution has progressed.
+Consequence: `reports/development/` holds chronological workflow-construction
+reports. `reports/execution/` holds per-case or per-batch step tables that may begin
+with later steps as `not_run` and be updated as the run proceeds. Both are ordinary
+Markdown. Original machine evidence remains under append-only `runs/`; reports link
+to it. Historical PNGs may be linked, but missing historical video stays
+`not_available`.
+Evidence: `reports/development/2026-09-16_workflow_build.md`,
+`reports/execution/2026-09-16_open_box_baseline.md`, and `runs/20260916T153821Z_report_folders/`.
+Revisit when: the company provides a mandatory document or slide template.
+
+## D031 - Numerical transport is not physical identification
+
+Status: accepted
+Scalable Real2Sim errors concern real-object identification. S4 compares authored
+USD values with PhysX values, so it uses tight transport tolerances. Shell mass and
+distribution remain estimated. Evidence: runs/20260916T155652Z_s4_mass_readback/.
+
+## D032 - Wall blocking uses the whole trajectory
+
+Status: accepted
+Final pose can hide a prior wall crossing. Each direction records maximum signed
+centre coordinate; it must reach within 10 mm and overshoot by no more than 2 mm.
+The pure rule has boundary, tunnel and never-reached tests.
+Evidence: runs/20260916T161010Z_s4_sidewall_recovery/.
+
+## D033 - Save physics before optional rendering
+
+Status: accepted
+The first wall run completed all trajectories and scene export, then Kit exited -11
+during rendering. Runtime now checkpoints physics before rendering; physics and
+render keep independent statuses. Old runs remain unchanged.
+Evidence: runs/20260916T160621Z_s4_sidewall/ and
+runs/20260916T161010Z_s4_sidewall_recovery/.
+
+## D034 - Contact claims distinguish authored, composed and runtime behavior
+
+Status: accepted
+Explicitly author contact/rest offset and material friction/restitution on all
+colliders; save pre/post-play composed USD readback and binding. These are estimated
+engineering values. Do not label them an internal PhysX coefficient readback.
+Evidence: runs/20260916T163041Z_s4_sidewall/ and runs/20260917T000241Z_s4_placement_grid/.
+
+## D035 - CCD attribute does not establish effective CCD
+
+Status: accepted; supersedes D017 causal attribution, preserves measured outcomes.
+The local GPU pipeline logs that suppress readback disables CCD. Record effective
+status disabled_by_runtime_warning even when the scene attribute is true. Successful
+containment is empirical at the tested settings; it does not prove CCD is active.
+Evidence: runs/20260916T163330Z_s4_dynamic_drop/logs/isaac_runtime.log.
+
+## D036 - Human verification uses measured final scenes and separate records
+
+Status: accepted
+User needs commands for each small milestone. Retain S1 final tensor pose in USD,
+add optional physics-only mode, checkpoint physics before rendering and classify
+external crashes as insufficient evidence. Default rendering consumes the original
+live stage before writing final pose for export. This does not establish a root
+cause for the preserved crash. Final-scene viewing is not trajectory replay;
+viewer starts separate physics with its own dt. Human confirmations stay separate
+from deterministic and renderer verdicts.
+Evidence: runs/20260917T004549Z_s1_smoke/ and runs/20260917T004937Z_s1_smoke/.
+
+## D037 - Adopt upstream workflow machinery, retain ITRI acceptance
+
+Status: accepted direction; integration unverified.
+User approved planning migration to NVIDIA USD Content Agents. Supersedes custom
+S5 repair-loop implementation route, not task acceptance or D012. Pin full upstream
+SHA and isolate its environment. First reproduce its no-VLM validation example,
+then bridge normal/missing-bottom evidence, exact recordings and bounded agent
+repair. BYOR numeric tuning is distinct from geometry/spec repair.
+Never map a fault regression pass to an asset acceptance pass. Generic USD sanity
+can pass while task containment fails. Preserve both source reports and require
+ITRI gates. Old S0–S4 artifacts remain immutable historical baselines.
+Plan: docs/UPSTREAM_ADOPTION_PLAN.md; current task S5A_upstream_baseline.md.
+
+## D038 - Isolate the pinned validation baseline and archive real test videos later
+
+Status: accepted; S5-A verified, video implementation pending S5-C.
+Pin upstream 0.6.0 a96faf9cb2f5c1f655fe0d60c0ccf57e3477b1aa, keep its source
+clean and all new packages in .venvs/usd-content-agents. Direct fixed-pipeline
+Validation Agent is explicitly selected for this baseline, not a silent agentic
+fallback. Fixture approval is not new physics or a live model judgment.
+User requested clickable test-process videos. Retain exact rollout and PNG evidence,
+then encode MP4 with installed ffmpeg as a human-review attachment. Never substitute
+it for unsupported upstream judge input or resimulate a purported recording.
+Evidence: runs/20260917T010638Z_s5a_upstream_setup/.
+
+## D039 - Keep upstream sanity and ITRI task acceptance as distinct gates
+
+Status: accepted, verified.
+Pinned upstream physics_sane passes both normal and missing-bottom USD. Its sanity
+scope does not prove containment. The thin adapter freezes hashes, checks original
+input/asset hashes and finite complete CSV, recomputes existing local-frame outcome
+and requires inside irrespective of fault-regression expectation. It does not invent
+a model refine approval. Source CSV hash protection starts at first bridge binding.
+Evidence: runs/20260917T012612Z_s5b_completion/bridge_suite.json.
+
+## D040 - Render frozen measured animation with zero timeline increment
+
+Status: verified for S2 single-probe recordings.
+Use actual CSV time/pose samples; no new physics to manufacture motion. Retain
+NVIDIA exact-rollout USD/PNG path and attempt its pinned renderer. OVRTX isolated
+runtime absent with auto provisioning disabled; use existing Isaac Replicator
+step(delta_time=0, wait_for_render=True), checking timeline drift. PhysicsScene
+removed, bodies disabled. MP4/ffprobe are human delivery, not upstream judge
+approval. 900 samples per case checked exactly; 450 frames at 30 FPS, 0.25x.
+Only recorded interval/single S2 probe supported; human viewing not_tested.
+Failed empty-RGB attempts retained. Evidence in S5-C reports and suite.json.
+
+## D041 - Generate videos on demand in an independent background process
+
+User approved a background script for recording. Numeric evidence remains the
+routine development output. Explicit ./scripts/pf-video-background --run <id>
+launches one detached worker and archives request/PID/log/final result under a
+fresh run; no service, scheduler or new dependency. The same existing pf video
+checks provenance, VRAM, rendering and MP4. GPU rendering still consumes resources;
+this frees developer waiting time, not guaranteed render speed. Keep stage videos
+and useful before/after comparisons; do not render every test. Never stop shared
+processes. Completion is verified separately from successful job launch.
+
+## D042 - Narrow proposal gate before official agent repair wiring
+
+Local repair_proposal/1 supports only one /geometry/fault change from sealed_lid
+or missing_bottom to none. Everything else, especially probe/expected_outcome/
+profiles, is forbidden through this interface. Preserve original source and
+proposal, validate schema, emit a new candidate only. Hand-authored proposals
+verified before/after with measured task gates; not a live model or official
+checkpoint test. Legacy expected_outcome remains fault-regression metadata;
+repaired candidate can fail that regression while passing task containment.
+Actor filesystem sandbox and official checkpoint/resume remain pending S5-D.
+Evidence: runs/20260917T015901Z_s5d_progress/repair_suite.json.
+
+## D043 - Use official focused operation contracts and a limited write boundary
+
+Status: focused validation and content-write probes verified; full actor pending.
+Install official CLI dependency graph only in isolated upstream venv, keep pinned
+source clean and shared Isaac unchanged. Use explicit outer-selected
+prepare/check/finalize for physics_sane; AND with existing ITRI CSV gate. Generic
+sanity cannot override task failure. Official checkpoint fresh-process load is
+verified, interrupted workflow resume is not. Bubblewrap namespaces unavailable;
+Landlock ABI 6 content mutation rights tested with controlled fixtures. The
+boundary does not provide read/network/process/metadata isolation or full FD
+protection, so do not call it a complete actor sandbox. No untrusted model shell
+launched. Source: Linux kernel Landlock documentation, local syscall headers and
+pinned official CLI. Evidence: S5-D focused workflow report and completion suite.
+
+## D044 - Replace ambiguous repair v1 with source-bound v2 and receipt budget
+
+B audit identified incompatible same-name contracts and permissive probe paths.
+Active v2 permits one fault removal only; v1 rejects all and historical content
+is archived in 025429Z_bc_integration. Trusted controller verifies frozen source
+and hash, reserves three append-only receipts per original source under flock,
+including rejected submissions. v1 historical tool proposals do not retroactively
+consume v2 budget. Receipt cannot be reset by actor-supplied attempt=1. Candidate
+provenance chain stays outside strict case schema. Content linkage to historical
+measured runs is not a new simulation or causal execution claim. C duplicate
+launch exit 3 is retained; startup flock and suffix scan fix concurrent/suffixed
+jobs. Fake process tests are not render acceptance.
+
+## D045 - Respect pinned upstream's actual spec-repair integration limit
+
+A source audit: pinned validation registry accepts its four existing templates,
+not arbitrary ITRI checks. Native USD topology/physics repair is distinct from
+JSON box-spec repair. Keep outer spec proposals, controller gate and ITRI task
+acceptance external; reuse official focused validation and checkpoint contracts
+where supported. No fictitious generic plug-in, no replacement of an existing
+validator to gain a pass. Node/npm absent does not block current deterministic
+physics_sane flow. Child-runner/model integration and full actor boundary remain
+pending, as does interrupted resume. Existing S5-D descriptions are amended,
+not silently marked completed. Source: upstream_wiring_audit.md and pinned code.
+
+## D046 - Qualify resume by template and preserve failed validation after recovery
+
+Measured: pinned run_validation_workflow Wave 2 accepts visual templates only;
+physics_sane checkpoint generated by focused flow does not imply resume support.
+Do not upgrade or patch upstream to hide this limitation. Trusted render_valid
+interrupt after RUNNING claim, identity-change refusal, live-claim refusal, and
+explicit recovery after own process exit tested. Unavailable OVRTX final fail and
+CLI exit 1 are preserved while state completion reaches attempts=2. Diagnostic
+pass is not asset/render/physics/model recovery pass. No mock render approval.
+Fresh v2 missing-bottom candidate actually rerun under unchanged source profile;
+new chain and focused task gates pass, original fault expectation remains fail.
+Progress ~70% is an equal-stage planning proxy, not measured effort or material
+accuracy. See resume_and_progress report and completion suite.
+
+## D047 - Restart unsupported physics stages without pretending checkpoint resume
+
+Accepted candidate may be reused without allocating another proposal receipt; failed
+physics gets a complete new run under the original frozen profile. Link/focused checks
+get fresh evidence directories. physics_sane is re-prepared/checked/finalized because
+D046 measured resume unsupported. Visual claim recovery requires the owning process
+to have exited and preserves final failure. This is a documented manual policy, not
+an automatic restart controller. See docs/REPAIR_RESTART_POLICY.md.
+
+## D048 - Use JSON-only file exchange before provisioning a model runner
+
+No configured model endpoint or callable model tool measured. Prepare freezes source
+evidence and prompt with advisory next attempt under budget lock, never reserves it.
+Check retains raw answer, rejects duplicate keys/nonfinite JSON/out-of-scope changes
+and emits only ready_for_controller_submission. Controller alone reserves attempts
+and accepts candidate; stale attempts still rejected. File exchange cannot attest
+model identity or execution, so offline fixtures never count as model success.
+No shell runner, installation or fictitious upstream hook added.
+
+## D049 - Distinguish keyboard showcase, geometry source generation and handoff
+
+README keyboard training image is not a copy-paste reproducible generation recipe.
+Official geometry run consumes source/manifest; asset run requires source and explicitly
+routes text/image authoring to geometry-agent. Use the existing outer coding agent,
+configured authoring provider and typed source, without inventing another scheduler.
+Existing-box official dry-run keeps required rendering defaults, is plan success only,
+not generation/quality success. ITRI frozen probe/profile/task gate remains external.
+Sources: pinned README, connectors README and saved CLI help.
+
+## D050 - Bounded trusted executor with per-stage immutable completion records
+
+Reuses accepted v2 proposal, snapshots and re-verifies receipt/patch/source hashes,
+checks selected GPU resources, invokes existing box generator/physics, recomputes
+link/task then runs official focused validation. Failure stops chain. Stage 01–05
+records and final result do not pretend checkpoint resume. Original regression
+exit 2 cannot alone determine repair success; measured task and official gates
+required. No model shell, external generator, scheduler or auto video.
+
+## D051 - Codex authored four-flap proxy with correct USD units and explicit failures
+
+User authorizes current Codex modeling, independent of absent external geometry service.
+Installed Isaac 6 API, per-degree USD gain conversion, dimensionless joint friction,
+viscoplastic viscosity and accumulated-plastic softening documented. Finite-thickness
+flap-tip clearance repairs geometric startup jam with collisions enabled, not by
+relaxing gates. Fixed low-control experiment obstructs minor lids; full result remains
+fail. Force-drive offset is a virtual torque actuator, not measured robot contact.
+Rigid proxy cannot claim orthotropic plate bending; standalone USD needs Python controller
+for plastic updates. See prototype report/source references and preserved failures.
+
+
+## D052 - Independent carton diagnostics preserve old mixed-load failure
+
+Closed low-load major blocks minor lids; do not switch low-control joint to pass old gates.
+Separate opening-order (all-high, major-first then minor) and crease coupon (majors held; low/high minor)
+with declared checks, existing failure untouched. Add explicit cyclic opening/closing profile and lower-yield bound.
+Finite-thickness side kerf is generator geometry, not collision disablement. Avoid duplicate unchanged
+position-target writes; observe settling after drives stop changing. Sleep/contact can affect stopped angles,
+so do not claim force-balanced material calibration. Real rigid panels cannot prove MD/CD bending.
+Runtime progress.jsonl and development reports are separate. Native41 rules aren't material certification.
+
+## D053 - Root defaultPrim and effort-unit crease friction on Isaac6
+
+Official DefaultPrimChecker rejected nested /World/Carton. Generator now defaults /World (root),
+old failure kept and fresh official negative proves detection. No rule omitted or tolerance changed.
+Local Isaac6 Articulation API has PhysxJointAxisAPI angular static/dynamic friction efforts; explicit
+.005Nm variant avoids treating legacy dimensionless coefficient as torque and is verified via tensor readback.
+Legacy coefficient profile remains available unchanged; effort variant sets coefficient0 to avoid mixed models.
+All guessed parameters remain uncalibrated_assumption, including fatigue law. Geometry author, validation,
+stateful controller and measured replay isolated; replay disables physics only in derived recording, not asset repair.
+No official child/provider or IsaacLab integration claimed. See proxy milestone report with sources/evidence.
+
+
+## D054 - Separate measured replay and user-driven live carton interaction
+
+recording.usda disables physics intentionally and cannot respond to force. Manual Script Editor
+loader opens active asset.usda and retains a LiveCarton instance, registering only own PREstep
+and STOP callbacks. Installed Isaac6 callback(dt,context) and Articulation tensor methods verified
+in headless run; UI construction separate from native mouse/WebRTC verification. NVIDIA documented
+mouseInteractionEnabled/mouseGrab/forceGrab plus Shift-left-click used; no UI success claimed without human.
+Torque pulses use force-drive reference offset, not pose edits. Duplicate constant targets avoided.
+Stop resets own plastic history; pause retains it. Stage switch fails closed; close removes only own
+callbacks/window. Fixed box/rigid panels cannot crumple/tear. All material estimates persist.
+Manual loader doesn't autoplay or start extra viewer; private headless test strong-references source
+USD Stage to avoid weak-layer lifetime fatal. See live interaction report sources and append-only evidence.
+
+
+## D055 — Directional segmented strips with literature provenance
+
+Use separate panel bending joints, not directional crease springs, for MD/CD proxy. Cell k=D*b/h derives from bending energy; clamp half-cell doubles k. Published130TL board D/mass/thickness do not calibrate our crease or assert matching our box. New16-DOF topology profile preserves rigid four-DOF gate. Existing active joint drive radians-to-degrees convention retained. Zero-gravity coupon isolates material proxy; carton uses9.81. Beam loading is virtual end couple via force-drive offset, not pose forcing. Model covers one-dimensional bending only, with numerical damping and explicit material orientation assumptions. New callback owns only its events and supports strict declared extra joints; baseline exact four-DOF behavior retained. Exception must force fail even after a subtest passed; old121636 misclassification preserved and explicitly superseded. Private runtime scene reused without invalidating SimulationManager PhysicsScene; no shared viewer reset.
+
+
+## D056 — Passive material response, separate external-force apparatus
+
+User rejects open/close state commands. New interaction_mode external_forces_only rejects legacy drive-offset actuator. UI open/close buttons removed. Constitutive callback computes only plastic references; optional ForceProbe applies physical outer-edge forces using RigidPrim and owns separate callbacks. Robot integration attaches material only. New estimated panel plasticity preserves literature stiffness, derives Y from assumed yield curvature2/m and relaxationtime.05s; no material calibration claimed; ±30degree limits affect large-damage equilibrium. Original elastic coupon and legacy gate remain unchanged. Collision-based kinematic spherical fingertip test measures contact force and independent motion without carton commands; uses version-matched explicit stage ID and kinematic targets, not teleports. User-owned viewer not reset.
+
+## D057 — Mouse UI activation rejected; diagnose before claiming interaction
+
+Readonly headless diagnostic finds physics mouse UI extensions disabled and pickingForce1.0; does not prove viewer identical. Automatic approval rejected enabling installed UI as Isaac reconfiguration forbidden by AGENTS. No activation code executed, installed environments unchanged. Explicit user exception required before any activation; proposed scope only already-installed110.1.13 UI in current app, no install/upgrade/configfile/viewer restart. New passive loader reports readonly state; native WebRTC remains not_tested despite external-force/contact success.
+
+
+## D058 — Own-view disposal and force-mode test apparatus
+
+UnexpectedStage refcount warning does not establish physics cause. Old controller/probe held own USD references after deregistering top-level callbacks. Installed Isaac6 Prim registers strong internal callbacks; explicitly detach only own views using version-matched _deregister_callbacks, clear own weak timeline subscription and prim refs, then clear stage/joint/view fields. Never clear global manager callbacks or reset others. Loader cleans legacy own fields before opening next stage; repeated force UI reuses same instance; reload cached owned tool modules. External force signs mean normal pull/press, finite strike pulses replace continuous force and end; no carton open/close state. UI10N button construction separate from executed-1N pulse and human click verification. Mouse extension activation remains rejected/pending user exception.
+
+
+## D059 — Preflight and bind own package search before asynchronous stage replacement
+
+Long-lived Kit may cache package path or negative imports; actual viewer cause unknown despite local lifecycle file existing. Manual entry checks file visibility and points only parcel_forge namespace search/spec at repository src, invalidates import caches before legacy cleanup. Do not clear all sys.modules or install/reconfigure shared runtime. Own task done callback retrieves errors. Real private Kit executes actual entry with deliberately stale package path, physical force and second load verified; not native viewer mouse proof.
+
+
+## D060 — Settledness measured from angle, legacy mixed-load scenario retired as a spec error
+
+User authorised both repairs on 2026-09-17 after seeing the evidence; neither is a threshold relaxation.
+
+Settledness: the articulation DOF velocity readback holds a stale nonzero value while a flap rests against a sustained contact. In 20260917T105836Z_ext1_carton HingeMajorYP reported 0.2651888430118561 rad/s for the final 7.2 s while its angle stayed bit-identical at 0.2819564938545227 rad; the offline replay in 20260917T130752Z_ext1_settle_spec_delivery measures a trailing 1 s angle span of exactly 0.0 rad. The fresh run 20260917T130538Z_ext1_carton reproduced the artefact independently (HingeMinorXN 0.339 rad/s readback, 0.0021 rad trailing span). The gate is now the trailing 1 s angle span divided by the window, with the same 0.02 rad/s tolerance as before, so the mean-rate criterion is unchanged; the velocity readback is still recorded in settle_metrics and reported as velocity_readback_settled, never hidden.
+
+Legacy mixed-load: that scenario holds one major flap closed under low load while requiring both minor flaps to open plastically. On an RSC the minors fold under the majors, so the closed major physically blocks them and no torque satisfies the gate. Measured: 0.08 N.m moved the minors 0.57 deg there, and 100 deg in the opening-order scenario once the majors were open. The scenario is therefore retired as a specification error, not relaxed: it stays runnable, its checks are still computed and reported, its status is the new terminal value superseded which never becomes pass, and pf-carton still exits nonzero for it. All old run directories are untouched. The low/high load contrast it was meant to test is carried by crease-coupon, which compares two minor flaps with nothing above them. pf-carton now defaults to opening-order. No collision was disabled and no material parameter changed; all values remain uncalibrated_assumption.
+
+
+## D061 — The flap felt wrong for three measurable reasons, and the panel was not integrable
+
+User reported: the flap could not be pulled open, nothing he did left a permanent fold, the springback was far too strong, and the panel opened as separate flapping strips. New offline module `carton_feel.py` turns a config into quantities a hand can feel, and it explains all four on the asset the user was loading (20260917T123830Z, MajorYN):
+
+- crease yield angle Y/k = 0.03/0.04 = 43 deg, so nothing creased until the flap was already most of the way open, and the springback after creasing was the same 43 deg;
+- the viscoplastic flow rate depends only on the angle, and the angle is capped by the 100 deg joint limit, so the maximum plastic rate was 0.123 rad/s no matter how hard the user pulled, and creasing 45 deg required holding the flap for 6.4 s;
+- the residual holding torque equalled the yield torque, 5.35x the flap's own weight torque, so a creased flap could never droop;
+- the segmented panel drive had omega*dt = 24.9 against an integrable limit near 0.3, i.e. 6900x the stiffness this timestep can carry, which is why the strips buzzed and flung rather than holding the panel flat.
+
+Repairs. `crease_model.advance` now accepts plastic_viscosity 0, which is exactly the rate-independent return map its backward-Euler form already contained, so a harder pull creases further in the same step. Crease gains are no longer typed in: `derive_carton_creases` computes them from two things a person can check on a real box, the springback angle and whether a creased flap carries its own weight, and scales stiffness and yield with crease length so every flap springs back by the same angle. The interactive asset uses rigid panels, since the board is 530x stiffer than its creases and a segmented strip of it is not integrable here; `author_segmented_carton` now refuses to author an unstable strip unless the caller passes panel_stability_policy='record', which the two legacy strip modules do so their old evidence stays reproducible.
+
+Measured on the new asset, run 20260917T132321Z_ext1_carton_pull: 0.16 N at the tip starts a major flap opening, 0.30 N reaches 60 deg, releasing at 79.4 deg leaves it at 73.8 deg with 5.6 deg springback, a 1 N pull lasting 0.4 s leaves a permanent 98 deg fold, and a 0.05 N pull from the creased rest angle deflects the flap 3 deg and returns it with the plastic reference bit-identical. All gains remain uncalibrated_assumption; the targets are stated so a real force-angle trace can replace them.
+
+
+## D062 — The drag was weak, not the crease stiff: picking force, lever arm and joint drag
+
+User reported the mouse drag only nudges the flap. Read the installed omni.physx 110.1.13: the drag force scale is `/physics/pickingForce`, read as 1.0 in the user's application, and NVIDIA's own KaplaArenaDemo raises it to 10 to move stacked blocks. The installed package documents no newtons-per-unit for it, and there is no scriptable grab, so the delivered force cannot be measured headlessly and only the user can confirm the drag.
+
+What can be measured is the force the asset demands, and it is small. A closed major flap must overcome its crease yield plus its own weight, 0.01401 N.m, which is 0.141 N at the outer edge, matching the 0.16 N the ramp measured in 0.02 N steps. The lever arm is the trap: grabbing halfway up the flap needs twice that, a quarter of the way up four times. Bracketed in simulation on MinorXN at the half-way point, 0.7x the predicted force moved it 1.6 deg and 1.3x opened it to 49.7 deg, so the prediction holds and a drag that lands near the crease is simply under-levered.
+
+Three answers, none of which soften the cardboard: grab near the outer edge; `mouse_mode('joint')` drags with a constraint instead of a force and so does not depend on the picking scale at all, and is now the mode the UI selects on load; `grab_strength(value)` reads and sets /physics/pickingForce with the previous value printed for restoring. That is a setting in the running application, in the same class as the mouse settings this controller already sets, not an install, upgrade or restart, and it is only applied when called. ForceProbe now takes a grab fraction so a grab point part-way up the flap can be tested. The crease gains from D061 are unchanged: 0.141 N at the edge is not a stiff flap, and whether it matches real board is still not_tested.
+
+
+## D063 — The drag has four gates before it reaches PhysX, and picking force is the last of them
+
+pickingForce 1000 changed nothing for the user, which rules out force magnitude. Read from the installed omni.physx.ui 110.1.13: a viewport drag reaches physics only through `PhysxUIViewportOverlays.on_mouse_shift_drag_start`, which returns early unless (1) that extension is running and owns a viewport overlay, (2) the timeline is playing, (3) Shift is held for the whole drag, or `_mouse_interaction_state` is ENABLED, and (4) no other gesture or hover owns the cursor, which a selection gizmo does. Only then does it call `get_physx_interface().update_interaction(ray, event)`, and only then does the picking force matter.
+
+That call is scriptable, so it was driven headlessly. With omni.physx.ui disabled, as it is in our standalone apps, it moved nothing at all: no POINT_GRABBED event and a plain resting control cube displaced 2e-8 m with every interaction setting on. The test therefore reports `blocked`, not `fail`, and writes blocked.json: with no interaction subsystem loaded there is nothing to exercise, and it proves nothing about the user's viewer where the extension may be enabled. One observation stays unattributed and is recorded as such: at pickingForce 1000 MajorYP spiked to 100 degrees with no grab event.
+
+`carton_mouse_diagnostic.diagnose` now reports all four gates read-only, including whether `get_physicsui_instance()` exists, and names the blockers in plain words; the editor entry prints it on load. `LiveCarton.mouse_no_shift()` calls the extension's own `mouse_interaction_override_toggle(ENABLED)` so a plain left-drag works, and does nothing when the extension is absent. Nothing is enabled, installed or restarted; if the user's diagnosis reports omni.physx.ui disabled, enabling it is the exception that was rejected before and still needs their explicit approval. The verified way to load a flap remains the measured force tool.
+
+
+## D064 — Push works, drag does not, and a pushed-shut flap now stays shut
+
+Two reports, two separate answers.
+
+Push versus drag. The installed defaults are asymmetric: `/physics/mousePush` is 1000 while `/physics/pickingForce` is 1.0, so a click-push carries a thousand times the scale of a grab at its default. A push is also a click, and a click never competes with the selection gizmo, while a drag does: `on_mouse_shift_drag_start` returns early when `get_active_gesture() or get_active_hover()` is set. That the user's push works proves omni.physx.ui is running in their viewer, so gate 1 of D063 is passed there and the remaining suspects are the gizmo owning the drag gesture and Shift.
+
+Springback. The user's rule is the right one and is what the model encodes: small folds recover, folds past yield stay. Measured on the current asset in 20260917T140926Z_ext1_carton_pull with every other flap shut, a flap creased open to 96.9 deg and then pushed closed reaches -0.34 deg, is released, and stays at -0.34 deg: springback 0.00002 deg, plastic reference reset to 2.08 deg. It does not spring open. The first attempt at this measurement was contaminated and is kept: with all four flaps standing open the pressed major jammed at 85.5 deg against the raised minors after 11 deg of travel, which is interference, not recovery, and the two checks it failed were the test's fault. The sequence now presses while the others are shut and re-opens the major before the minor phases, because on an RSC a shut major traps the minors.
+
+Since the asset measured here cannot do what the user describes, the likely explanation is that the viewer still holds the older segmented asset, whose springback is 43.0 deg against 4.0 deg for the rigid-panel one. LiveCarton now prints the loaded panel model, the springback angle and the edge force on attach, and warns when the springback exceeds 15 deg, so which asset is loaded is visible without reading a config file.
+
+
+## D065 — The resident-stage warning is not reproducible here, and is recorded as unexplained
+
+The user's viewer warned that the outgoing stage had a reference count of 2 while being closed, naming the previous asset, which places it at the moment the entry swaps assets. The editor loader test now performs that exact swap, running the real entry against one asset and then against a different one, and scans the captured Kit log for the warning. It does not appear: the swap completes, the previous controller's stage is None, and no warning is logged. A control run with the added gc.collect() removed produced no warning either, so that collection is an untested precaution and is labelled as one in the code, not a demonstrated fix.
+
+What is left is a GUI-only difference we cannot reproduce headlessly: a selected prim of the outgoing stage is held by the selection and by the property window, neither of which exists in a private Kit. The entry now clears its own selection before opening the next stage, which is reversible with a click and also removes the gizmo that swallows the physics drag gesture in D064. This is a plausible cause treated as plausible, not a fix with evidence behind it. The warning names cleanup, not failure: in the swap test everything after the swap worked, so it does not explain anything the user reported about pulling or pushing flaps.
+
+
+## D066 — The 100 degree stop was arbitrary, and the box was nailed to the world
+
+Two limits the user ran into, both authored rather than physical.
+
+The flap stop. `author_carton` clamped every crease to -5..100 degrees, so a flap jammed just past vertical and the carton could never be opened out. A real RSC flap folds right back against the outside of the wall, and the crease is authored on that outer face, so 180 degrees lays the flap flat on it with no interpenetration. The limits are now config, and the asset uses -5..179, the last degree left out to avoid the degenerate flat pose. Measured in 20260917T143848Z_ext1_carton_pull: a major flap folds to 179.0 degrees, is released, and stays at 179.0 with a plastic reference of 176.5.
+
+The body. The base carried a FixedJoint to the world, which is what the flap experiments wanted and is wrong for a robot cell. `base_mode` is now fixed or free; free drops that joint and stands the carton on a ground plate. The base mass also stopped being a typed-in 0.2 kg and is now the board's areal mass over the bottom and four walls, 0.0846 kg. Measured free in 20260917T143819Z_ext1_carton_pull: a ramped sideways force breaks the box away at 0.7 N, which implies a friction coefficient of 0.84, and that is the simulator's default material, not authored or measured; pulling a flap with 0.25 N moves the box 2.3e-8 m. Two guessed shoves were discarded first and are recorded: 0.5 N did not move it at all and 20 N threw it 33 m, which is why the threshold is now ramped like the flap opening force.
+
+The editor loader test pulled a flap with 2 N, which is 2.4 times the free-standing box's own weight and threw the whole carton, opening all four flaps. It now uses the measured 0.30 N and additionally asserts the box does not move while one flap is pulled. Declaring a physics material for the board and the ground, so the friction coefficient is ours rather than the simulator's default, is the next thing to do and is not done.
+
+
+## D067 — 270 degrees, not 180: the user was right about the fold-back angle
+
+D066 raised the flap stop to 179 degrees and said that laid the flap flat on the outside of the wall. That was wrong. Rotating about the crease axis, local +y maps to world (y,z) = (cos, sin): 0 degrees is shut over the opening, 90 is straight up, 180 points horizontally outward like a shelf, and only 270 hangs the flap down the outside of the wall. A carton opened right out is 270 from shut, which is what the user said.
+
+At 270 the panel's thickness direction maps to world +y, inward, so a plate centred on the crease axis would sink half a board into the wall. The panel is now offset by -t/2 in local z, hanging on the outside of the axis, and the hinge heights move up by one board to keep the shut stacking, majors over minors: minors at H+t, majors at H+2t. Measured in 20260917T150421Z_ext1_carton_pull: the flap folds to 270.0, is released, stays at 268.97, its tip ends 99.5 mm below the crease, which is its whole length, and 1.79 mm clear of the wall face. The report also gives the angle the other way round, as the wall-to-flap angle a protractor at the crease would read, where shut is 90 and folded right out is 358.97.
+
+Two smaller things came out of it. `opposite_minor_undisturbed` compared abs(angle) against 5 degrees while the untouched flap rests at its -5 degree stop, so it was knife-edge and failed on a flap that had not moved; it now asks whether the flap opened. And the claim that joint drag "drags with a constraint" was never established: the installed package names the setting SETTING_MOUSE_GRAB_WITH_FORCE and scales that force by pickingForce, but what the other mode does instead is in the closed binary. The wording in the code now says that.
+
+
+## D068 — Export package, and the line between what the USD carries and what it cannot
+
+User asked how to hand this to someone else as a USD, and whether the physics is in it. The honest answer is: most of it, but not the part that makes it a carton.
+
+`scripts/pf-carton-export --run <id>` builds `exports/<name>/` and then opens the exported USD inside Isaac and reads its physics back, rather than asserting what should be there. Verified present in `carton.usda` for 20260917T150447Z: one articulation root, nine collidable plates, four PhysicsRevoluteJoints with axis, -5..270 limits, angular force drives whose per-degree stiffness converts back to the configured 0.1204 N.m/rad for every flap, drive damping, rest angle and force limit, PhysX joint friction and the static and dynamic friction efforts, rigid body masses, and the physics scene with gravity.
+
+Absent, and stated as absent in both `physics_in_usd.json` and the README: the crease yield torque, the plastic viscosity and the softening rate. A USD drive has one rest angle attribute; making a fold permanent means moving that attribute every physics step against a yield rule, which no USD attribute expresses. Opened alone the file behaves as an articulated box with elastic hinges that spring back. The package therefore ships `crease_controller/` with the six modules the rule needs and a `load_in_isaacsim.py` entry, and the README says plainly which behaviour needs it. Panel deformation is absent entirely: the panels are rigid, so the carton cannot dent, crush, buckle or tear.
+
+Two things were removed at the user's request: the joint-drag mouse mode, which took hold of the whole carton rather than the flap under the cursor, and the four edge-force sliders in the window. The ForceProbe class stays because the headless measurements use it; only its UI is gone. Two bugs were found on the way: `carton_usd_check` still asserted the old -5..100 limits, now read from config, and the readback loop shadowed the flap name with an attribute name, which silently skipped the stiffness comparison and made `gains_match_config` false.
+
+
+## D069 — Workflow contracts separate from case and repair envelopes
+
+Adopt parcel_forge.workflow_bundle/1 for task, parts, parameters, runtime and required checks. Existing case/1 and repair_proposal/2 remain distinct and unchanged. Capability registry distinguishes implemented historical proxies from unsupported behaviors; all new checks remain planned. P0 fixtures verify representability, not physics. This prevents metadata-only capability claims and silent task simplification. Evidence: runs/20260917T165040Z_wf_p0.
+
+
+## D070 — One representative carton-and-keyboard package
+
+User requested one meaningful scenario instead of a broad matrix. Use a parameterized rigid keyboard proxy (visual keys, collidable case) inside a four-flap carton. Fixed base is explicitly a laboratory opening fixture. External forces and constitutive callbacks produce opening, not angle commands. Passing this fixture must not mark payload_extraction implemented or claim image-to-3D, native GUI or real material calibration. Evidence: runs/20260917T235608Z_keyboard_package.
+
+
+## D071 — Robot props require physical whole-body mobility evidence
+
+The keyboard package used a fixed laboratory base and appeared glued to the floor in the user viewer. Change its generator to free base, reject fixed boundaries for move/extraction tasks, require structure.mobility, and accept only mobility_verified runs in the live loader. Check world-anchor joints, dynamic body enabled, and measured displacement under an external force without pose changes. Retain collision/gravity/friction; use base-local payload coordinates. Evidence: runs/20260918T001602Z_keyboard_package (12 N for 0.2 s, 0.213743 m horizontal displacement). GUI viewing and general indirect-anchor-chain analysis remain not_tested/not_implemented.
+
+## D072 — Image intake and generated geometry are separate evidence stages
+
+Use one standalone cordless drill for image-provider qualification, per user correction. Snapshot image/source declaration/bundle/registry/code hashes, enforce preflight and whole-object rigid scope before any provider handoff. Initial external artifact checker accepts OBJ and rejects flat referenced surfaces; this does not prove image generation, visual fidelity, material integrity or physics. Keep predicted PBR/physical parameters assumed; Marso is an external USD candidate rather than evidence of calibrated material behavior. Pin EmbodiedGen v2.1.0/f0124197888c2b733e4eaa65acd81ad9cfda3b79; no package changes in Isaac environment. See reports/development/2026-09-18_image_intake_marso.md.
+
+## D073 — Qualified minimal image geometry backend before estimated-physics pipeline
+
+Use pinned MIT TripoSR as one real-image geometry baseline, preserving EmbodiedGen as later enriched-pipeline candidate. Isolated torch2.8/cu128 environment; torchmcubes upstream copied with tracked C++17 compatibility patch for CUDA12.8 lerp conflict, and existing Python headers referenced read-only. Export embedded vertex-colored USD visual plus PhysX convexDecomposition rigid proxy, with assumed scale/mass/material and computed proxy inertia. Initial scene is exported after physics configuration, then relative references verified in a new directory/new process. Raw Kit exit0 with no result is failure (012442Z), never acceptance. Shape/contact fidelity/calibration/render/human viewing remain distinct from passed generation/physics/cold-load. Evidence: 012226Z_image_generation,012639Z_image_drill_usd,012704Z_image_drill_cold; report2026-09-18_image_drill_delivery.md.
+
+## D074 — Thin shared Skill, dual intake and local machine binding (2026-09-18)
+
+User authorized multi-input workflow and private GitHub push, including Codex/Claude Code reuse and preserving keyboard-carton quality. Keep one SKILL.md under .agents/skills; Claude project path uses a relative file symlink. Fixed image commands are dispatched by pf-workflow, one attempt, no automatic repair. Text entry captures a description and bundle, not arbitrary text-to-physics inference; unsupported capabilities stay blocked. Existing NVIDIA fixed-SHA adapter/state/repair contracts remain authoritative for their existing scope; new image route explicitly reports nvidia_validation not_tested. Local Isaac config overrides reference-machine inventory; metadata/API file probe is not a compatibility guarantee. Do not rewrite physical generators/thresholds. New raw runs/weights/venvs stay local; historical tracked evidence stays in history, selected new concise evidence is explicitly added. Cross-machine 5090 and actual two-agent Skill invocation need their own tests.

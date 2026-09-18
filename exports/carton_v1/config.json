@@ -1,0 +1,92 @@
+{
+  "length_m": 0.3,
+  "width_m": 0.2,
+  "height_m": 0.15,
+  "thickness_m": 0.00278,
+  "equivalent_density_kg_m3": 144.96402877697844,
+  "dt_s": 0.004166666666666667,
+  "flap_tip_clearance_m": 0.0005,
+  "flap_side_clearance_m": 0.004,
+  "softening_rate_per_rad": 0.15,
+  "joint_friction_coefficient": 0,
+  "crease_lower_limit_deg": -5,
+  "crease_upper_limit_deg": 270,
+  "crease_static_friction_nm": 0.002,
+  "crease_dynamic_friction_nm": 0.002,
+  "solver_position_iterations": 32,
+  "solver_velocity_iterations": 8,
+  "material": {
+    "profile": "B flute 130TL literature example",
+    "bending_stiffness_nm": {
+      "MD": 4.26,
+      "CD": 1.84
+    },
+    "areal_mass_kg_m2": 0.403,
+    "thickness_m": 0.00278,
+    "provenance": "literature_measurement_not_our_carton_calibration",
+    "source": "https://onlinelibrary.wiley.com/doi/full/10.1002/pts.2607",
+    "source_location": "Table 1, 130TL column",
+    "crease_parameters": "not supplied by this source"
+  },
+  "panel_model": "rigid_panel_v1",
+  "interaction_mode": "external_forces_only",
+  "panel_model_reason": "the board is far stiffer than its creases, and a segmented strip of it cannot be integrated at this timestep; the panel is therefore rigid and every degree of freedom lives in a crease",
+  "provenance": "uncalibrated_assumption",
+  "base_mode": "free",
+  "ground_plane": true,
+  "base_mass_kg": 0.08463,
+  "crease_gains": {
+    "MajorYN": {
+      "stiffness_nm_rad": 0.1204419517340881,
+      "yield_torque_nm": 0.008408434461151726,
+      "plastic_viscosity_nm_s_rad": 0.002408839034681762,
+      "damping_nm_s_rad": 0.0025639732370666304,
+      "provenance": "uncalibrated_assumption derived from target springback and self-weight ratio, not measured cardboard",
+      "width_m": 0.28644,
+      "weight_torque_nm": 0.005605622974101151,
+      "tip_force_to_start_creasing_n": 0.08450687900655
+    },
+    "MajorYP": {
+      "stiffness_nm_rad": 0.1204419517340881,
+      "yield_torque_nm": 0.008408434461151726,
+      "plastic_viscosity_nm_s_rad": 0.002408839034681762,
+      "damping_nm_s_rad": 0.0025639732370666304,
+      "provenance": "uncalibrated_assumption derived from target springback and self-weight ratio, not measured cardboard",
+      "width_m": 0.28644,
+      "weight_torque_nm": 0.005605622974101151,
+      "tip_force_to_start_creasing_n": 0.08450687900655
+    },
+    "MinorXP": {
+      "stiffness_nm_rad": 0.07839407024613668,
+      "yield_torque_nm": 0.005472938559339226,
+      "plastic_viscosity_nm_s_rad": 0.0015678814049227335,
+      "damping_nm_s_rad": 0.0016688562013639947,
+      "provenance": "uncalibrated_assumption derived from target springback and self-weight ratio, not measured cardboard",
+      "width_m": 0.18644,
+      "weight_torque_nm": 0.003648625706226151,
+      "tip_force_to_start_creasing_n": 0.055004407631550005
+    },
+    "MinorXN": {
+      "stiffness_nm_rad": 0.07839407024613668,
+      "yield_torque_nm": 0.005472938559339226,
+      "plastic_viscosity_nm_s_rad": 0.0015678814049227335,
+      "damping_nm_s_rad": 0.0016688562013639947,
+      "provenance": "uncalibrated_assumption derived from target springback and self-weight ratio, not measured cardboard",
+      "width_m": 0.18644,
+      "weight_torque_nm": 0.003648625706226151,
+      "tip_force_to_start_creasing_n": 0.055004407631550005
+    }
+  },
+  "crease_stiffness_nm_rad_per_m": 0.42047881487951444,
+  "crease_yield_nm_per_m": 0.029354959018125005,
+  "crease_targets": {
+    "springback_deg": 4.0,
+    "residual_over_self_weight": 1.5,
+    "plastic_time_s": 0.02
+  },
+  "crease_provenance": "uncalibrated_assumption; targets chosen to match how a real flap behaves by hand, then to be replaced by a measured force-angle trace",
+  "stiffness_nm_rad": 0.1204419517340881,
+  "yield_torque_nm": 0.008408434461151726,
+  "plastic_viscosity_nm_s_rad": 0.002408839034681762,
+  "damping_nm_s_rad": 0.0025639732370666304
+}

@@ -1,0 +1,170 @@
+{
+  "schema": "parcel_forge.workflow_bundle/1",
+  "asset_id": "carton_keyboard",
+  "task_brief": {
+    "intended_task": "open_and_extract",
+    "initial_state": "tape_removed_assumption",
+    "base_mode": "free",
+    "success_observations": [
+      "flaps_open_by_contact",
+      "payload_clear_of_carton_without_penetration"
+    ],
+    "required_behaviors": [
+      "rigid_contact",
+      "revolute_passive",
+      "plastic_crease",
+      "payload_extraction"
+    ]
+  },
+  "assembly_graph": {
+    "parts": [
+      {
+        "id": "body",
+        "frame": "local",
+        "material": "unknown"
+      },
+      {
+        "id": "major_1",
+        "frame": "local",
+        "material": "unknown"
+      },
+      {
+        "id": "major_2",
+        "frame": "local",
+        "material": "unknown"
+      },
+      {
+        "id": "minor_1",
+        "frame": "local",
+        "material": "unknown"
+      },
+      {
+        "id": "minor_2",
+        "frame": "local",
+        "material": "unknown"
+      },
+      {
+        "id": "keyboard",
+        "frame": "local",
+        "material": "unknown"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": "interface_0",
+        "a": "body",
+        "b": "major_1",
+        "kind": "hinge"
+      },
+      {
+        "id": "interface_1",
+        "a": "body",
+        "b": "major_2",
+        "kind": "hinge"
+      },
+      {
+        "id": "interface_2",
+        "a": "body",
+        "b": "minor_1",
+        "kind": "hinge"
+      },
+      {
+        "id": "interface_3",
+        "a": "body",
+        "b": "minor_2",
+        "kind": "hinge"
+      },
+      {
+        "id": "payload_inside",
+        "a": "body",
+        "b": "keyboard",
+        "kind": "containment"
+      }
+    ]
+  },
+  "parameter_cards": [
+    {
+      "id": "carton_inner_length",
+      "value": null,
+      "unit": "m",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    },
+    {
+      "id": "carton_inner_width",
+      "value": null,
+      "unit": "m",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    },
+    {
+      "id": "payload_length",
+      "value": null,
+      "unit": "m",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    },
+    {
+      "id": "payload_width",
+      "value": null,
+      "unit": "m",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    },
+    {
+      "id": "payload_mass",
+      "value": null,
+      "unit": "kg",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    }
+  ],
+  "asset_contract": {
+    "passive": true,
+    "forbidden_simplifications": [
+      "commanded_pose",
+      "disable_required_collision",
+      "remove_required_behavior",
+      "closed_shell_for_unwrap"
+    ],
+    "runtime_requirements": [
+      "plastic_crease"
+    ],
+    "approximation_scope": "requires_review"
+  },
+  "capability_report": {
+    "status": "not_evaluated"
+  },
+  "validation_plan": {
+    "required_checks": [
+      "structure.units",
+      "structure.references",
+      "behavior.rigid_contact",
+      "behavior.revolute_passive",
+      "behavior.plastic_crease",
+      "behavior.payload_extraction",
+      "structure.mobility"
+    ],
+    "check_status": "planned"
+  }
+}

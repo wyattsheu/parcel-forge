@@ -1,0 +1,11 @@
+{
+  "scope": "keyboard carton source baseline; file hashes do not prove physics or shape quality",
+  "files_sha256": {
+    "src/parcel_forge/keyboard_package.py": "7c679677cee76c3d666c4f498080449f0f3d10c029f07a24e8f2767104b5dbb4",
+    "src/parcel_forge/carton_author.py": "9eb213ac0f37843cc9455b733323e6c3ccc2679e7e5c4a770065ab91c0e68a2b",
+    "src/parcel_forge/carton_live.py": "754d7d9ef6af4e59d49452649ac2a19e69746fa17dfa6eec53404cba3caf57f4",
+    "src/parcel_forge/crease_model.py": "45ae7e9ec40b4bba68ce47d6bf6012a892fc63fbf8fedc962a1ff20e3c251f52",
+    "src/parcel_forge/carton_pull_test.py": "89aa9bc0a720a20d049f58973c72a9b184b593b0a7883bf217f162139077336b",
+    "config/materials/b_flute_130tl.json": "829a1576f87858e0132028c81035e9d5eb7ec6b75a01b503465dbbf9d12fe7b6"
+  }
+}

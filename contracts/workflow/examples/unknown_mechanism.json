@@ -1,0 +1,49 @@
+{
+  "schema": "parcel_forge.workflow_bundle/1",
+  "asset_id": "unknown_mechanism",
+  "task_brief": {
+    "intended_task": "interact",
+    "initial_state": "unconfirmed",
+    "base_mode": "free",
+    "success_observations": [
+      "task_completed_by_contact"
+    ],
+    "required_behaviors": [
+      "unknown_mechanism"
+    ]
+  },
+  "assembly_graph": {
+    "parts": [
+      {
+        "id": "target",
+        "frame": "local",
+        "material": "unknown"
+      }
+    ],
+    "interfaces": []
+  },
+  "parameter_cards": [],
+  "asset_contract": {
+    "passive": true,
+    "forbidden_simplifications": [
+      "commanded_pose",
+      "disable_required_collision",
+      "remove_required_behavior",
+      "closed_shell_for_unwrap"
+    ],
+    "runtime_requirements": [],
+    "approximation_scope": "requires_review"
+  },
+  "capability_report": {
+    "status": "not_evaluated"
+  },
+  "validation_plan": {
+    "required_checks": [
+      "structure.units",
+      "structure.references",
+      "behavior.unknown_mechanism",
+      "structure.mobility"
+    ],
+    "check_status": "planned"
+  }
+}

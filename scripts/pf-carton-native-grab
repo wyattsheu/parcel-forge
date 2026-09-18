@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""Exercise the real physx viewport grab API on a flap, headless."""
+import json,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir,write_json,sha256_file
+from parcel_forge.repair_execute import available_gpu
+from parcel_forge.runtime.launcher import IsaacLauncher
+out=Path(make_unique_run_dir('ext1_native_grab'));inventory,ready=available_gpu(0);write_json(str(out/'gpu_inventory.json'),{'free_mib':inventory,'selected':0})
+if not ready:write_json(str(out/'blocked.json'),{'reason':'GPU0 requires 8000MiB free'});print(out);sys.exit(4)
+script=ROOT/'src/parcel_forge/carton_native_grab_test.py'
+write_json(str(out/'code_hashes.json'),{str(p.relative_to(ROOT)):sha256_file(str(p)) for p in [script,ROOT/'src/parcel_forge/carton_pull_test.py',ROOT/'src/parcel_forge/carton_live.py',Path(__file__)]})
+print('run:',out,flush=True)
+res=IsaacLauncher().run(str(script),['--out',str(out)],str(out/'runtime.log'),timeout=900);write_json(str(out/'launch.json'),res)
+if not (out/'result.json').exists():print('result missing: inspect',out/'runtime.log');sys.exit(1)
+report=json.loads((out/'result.json').read_text());print(json.dumps(report,indent=2)[:4000]);print('run:',out)
+sys.exit(0 if res['external_exit_code']==0 and report['status']=='pass' else (4 if report['status']=='blocked' else 1))

@@ -1,0 +1,20 @@
+{
+  "source_run": "20260917T150447Z_ext1_carton_pull",
+  "isaac_sim": "6.0.1.0",
+  "provenance": "uncalibrated_assumption",
+  "files": {
+    "README.md": "2e3d758aa4ba4f389fd7a93826f5e5f59903b2a7b3740bf24632556a47c0515b",
+    "carton.usda": "75cae384f34476d3dbc308d9f5a328fd259051922c6376683fc0be3fe35f1700",
+    "config.json": "6aa781f15e6ff8bce745d061db1dbfad068fa305e3b450cf9f0395e2c334198d",
+    "crease_controller/load_in_isaacsim.py": "b7579f5d0f845042a189b20645a06f55444e49520ac855b40c24081aee29f8ab",
+    "crease_controller/parcel_forge/__init__.py": "74df749ee9df0edf9cf4aaf19934e0529108f51e92a7835986d2f59a209e1878",
+    "crease_controller/parcel_forge/carton_feel.py": "b933eb89ab8c43919e8c4b6c2202dcf8e5f31d2a5dd5c264032fad06f6300c45",
+    "crease_controller/parcel_forge/carton_force_probe.py": "61cde334c3e21780458e6588ba7e308da4b32d324db95fd7b78b4dd863276175",
+    "crease_controller/parcel_forge/carton_lifecycle.py": "8f91318580004ca97ec5150d36bfc2b8b67032ce64625d3157582183977c9003",
+    "crease_controller/parcel_forge/carton_live.py": "754d7d9ef6af4e59d49452649ac2a19e69746fa17dfa6eec53404cba3caf57f4",
+    "crease_controller/parcel_forge/carton_mouse_diagnostic.py": "aa42082301f6665ed2f867a3e4fec9e6d41defcc157561f0f1dd9b6480d886cf",
+    "crease_controller/parcel_forge/crease_model.py": "45ae7e9ec40b4bba68ce47d6bf6012a892fc63fbf8fedc962a1ff20e3c251f52",
+    "manifest.json": "d72b815a4f639fbb21ccc9d2f242b21e3bbbce5eacfebbe0b7826299d5528143",
+    "physics_in_usd.json": "e5da1a8958dc3af738286a8006a0d07973192904be8d68a0220ec29b845c3951"
+  }
+}

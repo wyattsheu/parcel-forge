@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Generate and exercise four RSC flaps with a per-step crease controller."""
+import datetime,json,sys,subprocess,argparse,math
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir as make_run_dir,write_json,sha256_file
+from parcel_forge.runtime.launcher import IsaacLauncher
+from parcel_forge.repair_execute import available_gpu
+parser=argparse.ArgumentParser();parser.add_argument('--physics-device',choices=['cuda:0','cpu'],default='cuda:0');parser.add_argument('--initial-angle-deg',type=float,default=0);parser.add_argument('--scenario',choices=['opening-order','crease-coupon','crease-cyclic','legacy-mixed'],default='opening-order');parser.add_argument('--dt-s',type=float,default=1/240);parser.add_argument('--crease-friction-nm',type=float,default=None);args=parser.parse_args()
+if args.crease_friction_nm is not None and (not math.isfinite(args.crease_friction_nm) or args.crease_friction_nm<0):parser.error('crease-friction-nm must be finite and nonnegative')
+if not math.isfinite(args.initial_angle_deg) or not -5<=args.initial_angle_deg<=100:parser.error('initial-angle-deg must be finite and within limits')
+if not 0<args.dt_s<=1/120:parser.error('dt-s must be positive and <=1/120')
+out=Path(make_run_dir('ext1_carton'));config={'length_m':.30,'width_m':.20,'height_m':.15,'thickness_m':.004,'equivalent_density_kg_m3':180,'stiffness_nm_rad':.04,'damping_nm_s_rad':.003,'yield_torque_nm':.03,'plastic_viscosity_nm_s_rad':.08,'softening_rate_per_rad':.15,'joint_friction_coefficient':.01,'dt_s':1/240,'duration_s':10,'load_duration_s':1.5,'low_applied_torque_nm':.015,'high_applied_torque_nm':.08,'provenance':'uncalibrated_assumption','material_scope':'rigid panels; MD/CD metadata only, no orthotropic panel bending'}
+config['scenario']=args.scenario
+if args.scenario in ['opening-order','crease-coupon','crease-cyclic']:
+ config['duration_s']=20
+ config['solver_position_iterations']=32
+ config['solver_velocity_iterations']=8
+ config['opening_profile']={'major_loading_end_s':3,'minor_loading_end_s':6,'major_hold_angle_rad':1.65,'peak_min_deg':60,'plastic_min_deg':10,'residual_min_deg':10,'settled_max_rad_s':.02}
+if args.scenario=='crease-cyclic':
+ config['duration_s']=30
+ config['cycle_profile']={'opening_intervals_s':[[3,6],[9,12],[15,18],[21,24]],'closing_intervals_s':[[6,9],[12,15],[18,21]],'all_minor_actuators_off_s':24,'yield_floor_nm':.015}
+if args.crease_friction_nm is not None:
+ config['crease_static_friction_nm']=args.crease_friction_nm
+ config['crease_dynamic_friction_nm']=args.crease_friction_nm
+ config['joint_friction_coefficient']=0
+config['dt_s']=args.dt_s
+config['physics_device']=args.physics_device
+config['initial_angle_deg']=args.initial_angle_deg
+config['flap_tip_clearance_m']=0.0005
+config['flap_side_clearance_m']=0.004
+write_json(str(out/'config.json'),config)
+(out/'prompt.md').write_bytes((ROOT/'contracts/carton_codex_prompt.md').read_bytes())
+write_json(str(out/'request.json'),{'origin':'current Codex authoring requested by user','task':'RSC four-flap elastic recovery/plastic residual-angle test','official_geometry_provider':'not_used','isaac_lab':'not_used; standalone installed Isaac baseline'})
+try:
+ inventory,ready=available_gpu(0);write_json(str(out/'gpu_inventory.json'),{'free_mib':inventory,'selected':0})
+ if not ready:raise ValueError('Selected GPU0 requires 8000 MiB free')
+ runtime=ROOT/'src/parcel_forge/carton_runtime.py'
+ write_json(str(out/'code_hashes.json'),{str(p.relative_to(ROOT)):sha256_file(str(p)) for p in [runtime,ROOT/'src/parcel_forge/carton_author.py',ROOT/'src/parcel_forge/validation/carton.py',ROOT/'src/parcel_forge/carton_recording.py',ROOT/'src/parcel_forge/crease_model.py',Path(__file__)]})
+ print('run:',out,flush=True);print('progress:',out/'progress.jsonl',flush=True)
+ result=IsaacLauncher(device_index='0').run(str(runtime),['--out',str(out)],str(out/'runtime.log'),timeout=900)
+ write_json(str(out/'launch.json'),result)
+ print('run:',out);print('exit:',result['external_exit_code']);print((out/'carton_result.json').read_text() if (out/'carton_result.json').exists() else 'result missing');raise SystemExit(0 if result['external_exit_code']==0 and (out/'carton_result.json').exists() and json.loads((out/'carton_result.json').read_text())['status']=='pass' else 1)
+except ValueError as exc:write_json(str(out/'blocked.json'),{'reason':str(exc)});print(out,exc);raise SystemExit(4)

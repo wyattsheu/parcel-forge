@@ -1,0 +1,1 @@
+sample_id,box_id,flap_name,cycle,phase,time_s,angle_deg,angular_velocity_rad_s,applied_force_n,perpendicular_lever_arm_m,released_angle_deg,humidity_percent,notes

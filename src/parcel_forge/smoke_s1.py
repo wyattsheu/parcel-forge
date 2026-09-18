@@ -35,6 +35,7 @@ def parse_args(argv):
     p = argparse.ArgumentParser(description="S1 cube-drop smoke inside the Isaac runtime")
     p.add_argument("--out", required=True, help="run directory (already created by the host CLI)")
     p.add_argument("--profile", required=True, help="path to the acceptance profile JSON")
+    p.add_argument("--skip-render", action="store_true")
     return p.parse_args(argv)
 
 
@@ -172,45 +173,65 @@ def main(argv) -> int:
                       if did_not_fall_through else "cube passed through the ground plane",
         })
 
-        # --- render (reported separately from physics) -----------------
-        cam_cfg = profile["render"]
-        camera = runtime.add_camera("/World/EvidenceCam", tuple(cam_cfg["eye_m"]),
-                                    tuple(cam_cfg["target_m"]), focal_length=cam_cfg["focal_length_mm"])
-        try:
-            frame = runtime.capture_rgb("/World/EvidenceCam", cam_cfg["width"], cam_cfg["height"],
-                                        settle_frames=cam_cfg["settle_frames"])
-        except Exception as exc:
-            frame = {"ok": False, "reason": f"{exc.__class__.__name__}: {exc}"}
-            result["errors"].append(traceback.format_exc())
+        if args.skip_render:
+            # Retain the tensor-measured final pose for human scene inspection.
+            runtime.set_prim_transform("/World/Cube", final["p"], final["q"])
+            runtime.export_stage(os.path.join(out, "scene_final.usda"))
+            result["scene"]["final_scene"] = "scene_final.usda"
+            result["scene"]["final_pose_source"] = "last trajectory row; not a replay"
 
-        if frame.get("ok"):
-            png_rel = os.path.join("renders", "scene_final.png")
-            png_path = os.path.join(out, png_rel)
-            write_rgb_png(png_path, frame["width"], frame["height"], frame["pixels"], 3)
-            stats = image_stats(frame["width"], frame["height"], frame["pixels"], 3)
-            result["render"] = {
-                "status": "ok" if not stats["looks_blank"] else "blank",
-                "png": png_rel,
-                "png_bytes": os.path.getsize(png_path),
-                "image_stats": stats,
-                "camera": camera,
-                "captured_after": "final physics step (no scene rebuild)",
-                "settle_frames": frame["settle_frames"],
-            }
-            checks.append({
-                "id": "S1.render_png_not_blank",
-                "status": "pass" if not stats["looks_blank"] else "fail",
-                "detail": f"{frame['width']}x{frame['height']} png, {os.path.getsize(png_path)} bytes, "
-                          f"mean_r={stats['mean_r']}, distinct_r={stats['distinct_r']}"
-                          + ("" if not stats["looks_blank"] else " -> flat/black frame is a render failure"),
-            })
-        else:
-            result["render"] = {"status": "failed", "reason": frame.get("reason"), "camera": camera}
-            checks.append({
-                "id": "S1.render_png_not_blank",
-                "status": "fail",
-                "detail": f"no image captured: {frame.get('reason')}",
-            })
+        result["render"] = {"status": "not_tested" if args.skip_render else "pending"}
+        result["summary"] = {"verdict": "pass" if all(c["status"] != "fail" for c in checks) else "fail",
+                             "claim_scope": "physics checkpoint before optional render"}
+        with open(os.path.join(out, "s1_result.json"), "w", encoding="utf-8") as handle:
+            json.dump(result, handle, indent=2)
+        if not args.skip_render:
+            # --- render (reported separately from physics) -----------------
+            cam_cfg = profile["render"]
+            camera = runtime.add_camera("/World/EvidenceCam", tuple(cam_cfg["eye_m"]),
+                                        tuple(cam_cfg["target_m"]), focal_length=cam_cfg["focal_length_mm"])
+            try:
+                frame = runtime.capture_rgb("/World/EvidenceCam", cam_cfg["width"], cam_cfg["height"],
+                                            settle_frames=cam_cfg["settle_frames"])
+            except Exception as exc:
+                frame = {"ok": False, "reason": f"{exc.__class__.__name__}: {exc}"}
+                result["errors"].append(traceback.format_exc())
+
+            if frame.get("ok"):
+                png_rel = os.path.join("renders", "scene_final.png")
+                png_path = os.path.join(out, png_rel)
+                write_rgb_png(png_path, frame["width"], frame["height"], frame["pixels"], 3)
+                stats = image_stats(frame["width"], frame["height"], frame["pixels"], 3)
+                result["render"] = {
+                    "status": "ok" if not stats["looks_blank"] else "blank",
+                    "png": png_rel,
+                    "png_bytes": os.path.getsize(png_path),
+                    "image_stats": stats,
+                    "camera": camera,
+                    "captured_after": "final physics step (no scene rebuild)",
+                    "settle_frames": frame["settle_frames"],
+                }
+                checks.append({
+                    "id": "S1.render_png_not_blank",
+                    "status": "pass" if not stats["looks_blank"] else "fail",
+                    "detail": f"{frame['width']}x{frame['height']} png, {os.path.getsize(png_path)} bytes, "
+                              f"mean_r={stats['mean_r']}, distinct_r={stats['distinct_r']}"
+                              + ("" if not stats["looks_blank"] else " -> flat/black frame is a render failure"),
+                })
+            else:
+                result["render"] = {"status": "failed", "reason": frame.get("reason"), "camera": camera}
+                checks.append({
+                    "id": "S1.render_png_not_blank",
+                    "status": "fail",
+                    "detail": f"no image captured: {frame.get('reason')}",
+                })
+
+        if not args.skip_render:
+            # Retain the tensor-measured final pose for human scene inspection.
+            runtime.set_prim_transform("/World/Cube", final["p"], final["q"])
+            runtime.export_stage(os.path.join(out, "scene_final.usda"))
+            result["scene"]["final_scene"] = "scene_final.usda"
+            result["scene"]["final_pose_source"] = "last trajectory row; not a replay"
 
         checks.append({
             "id": "S1.webrtc_human_view",

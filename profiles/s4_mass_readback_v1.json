@@ -1,0 +1,17 @@
+{
+  "schema": "parcel_forge.profile/1",
+  "profile_id": "s4_mass_readback_v1",
+  "stage": "S4",
+  "description": "Compare PhysX tensor-view mass properties with the values explicitly authored into the dynamic open-box USD.",
+  "simulation": {"dt": 0.008333333333333333, "device": "cuda:0", "warmup_steps": 2},
+  "tolerances": {
+    "mass_kg_absolute": 0.000001,
+    "com_m_absolute": 0.000001,
+    "inertia_kg_m2_absolute": 0.00000001,
+    "principal_axes_quaternion_absolute": 0.00001
+  },
+  "provenance": {
+    "numeric_tolerances": "serialization and PhysX tensor-view transport tolerances; these are not real-to-sim identification tolerances",
+    "physical_uncertainty": "the shell mass and uniform material distribution remain estimates; agreement only proves parameter transport"
+  }
+}

@@ -5,3 +5,16 @@ __pycache__/
 # pf view is a human-facing tool; its log is transient and is never acceptance
 # evidence (D020). Run evidence under runs/<run-id>/ stays tracked.
 runs/viewer.log
+
+# Pinned upstream source and isolated tool environments; provenance in config/runs.
+/external/
+/.venvs/
+
+# New local evidence remains on disk; historical tracked evidence is retained.
+/runs/
+/config/*.local.json
+.env
+.env.*
+*.pem
+*.key
+/.cache/

@@ -1,0 +1,112 @@
+{
+  "schema": "parcel_forge.workflow_bundle/1",
+  "asset_id": "wrapped_mug",
+  "task_brief": {
+    "intended_task": "unwrap",
+    "initial_state": "unconfirmed",
+    "base_mode": "free",
+    "success_observations": [
+      "task_completed_by_contact"
+    ],
+    "required_behaviors": [
+      "rigid_contact",
+      "shell_bending",
+      "compressible_layer",
+      "peelable_bond"
+    ]
+  },
+  "assembly_graph": {
+    "parts": [
+      {
+        "id": "mug",
+        "frame": "local",
+        "material": "unknown"
+      },
+      {
+        "id": "wrap",
+        "frame": "local",
+        "material": "unknown"
+      },
+      {
+        "id": "tape",
+        "frame": "local",
+        "material": "unknown"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": "interface_0",
+        "a": "wrap",
+        "b": "tape",
+        "kind": "adhesion"
+      },
+      {
+        "id": "interface_1",
+        "a": "wrap",
+        "b": "mug",
+        "kind": "contact"
+      }
+    ]
+  },
+  "parameter_cards": [
+    {
+      "id": "film_thickness",
+      "value": null,
+      "unit": "m",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    },
+    {
+      "id": "bubble_height",
+      "value": null,
+      "unit": "m",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    },
+    {
+      "id": "areal_mass",
+      "value": null,
+      "unit": "kg/m2",
+      "required": true,
+      "provenance": "unknown",
+      "source": null,
+      "confidence": "unknown",
+      "conditions": {},
+      "derivation": null
+    }
+  ],
+  "asset_contract": {
+    "passive": true,
+    "forbidden_simplifications": [
+      "commanded_pose",
+      "disable_required_collision",
+      "remove_required_behavior",
+      "closed_shell_for_unwrap"
+    ],
+    "runtime_requirements": [],
+    "approximation_scope": "requires_review"
+  },
+  "capability_report": {
+    "status": "not_evaluated"
+  },
+  "validation_plan": {
+    "required_checks": [
+      "structure.units",
+      "structure.references",
+      "behavior.rigid_contact",
+      "behavior.shell_bending",
+      "behavior.compressible_layer",
+      "behavior.peelable_bond",
+      "structure.mobility"
+    ],
+    "check_status": "planned"
+  }
+}

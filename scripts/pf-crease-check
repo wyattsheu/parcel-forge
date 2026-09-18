@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""Offline constitutive checks; never claims physical carton calibration."""
+import argparse,csv,json,math,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent
+sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.crease_model import CreaseState,advance
+from parcel_forge.evidence import make_unique_run_dir as make_run_dir
+parser=argparse.ArgumentParser();parser.add_argument('--cycles',type=int,default=4);args=parser.parse_args()
+if args.cycles<2:parser.error('at least two cycles required')
+out=Path(make_run_dir('ext1_crease_checks'))
+state=CreaseState();rows=[];cycle_yields=[]
+dt=.005
+for cycle in range(args.cycles):
+ for step in range(1600):
+  phase=step/1600
+  theta=1.6*math.sin(2*math.pi*phase)
+  state,info=advance(state,theta,dt,.04,.03,.08)
+  rows.append([cycle,step*dt,theta,state.target,.04*(theta-state.target),info['yield_torque_nm'],state.accumulated_plastic])
+ cycle_yields.append(info['yield_torque_nm'])
+with (out/'cycles.csv').open('w') as f:
+ w=csv.writer(f);w.writerow(['cycle','time_in_cycle_s','angle_rad','plastic_target_rad','restoring_torque_nm','yield_torque_nm','accumulated_plastic_rad']);w.writerows(rows)
+def solution(dt):
+ s=CreaseState()
+ for _ in range(round(2/dt)):s,_=advance(s,1.5,dt,.04,.03,.08,softening_rate=0)
+ return s.target
+exact=.75*(1-math.exp(-1));errors=[abs(solution(dt)-exact) for dt in [.02,.01,.005]]
+low,_=advance(CreaseState(),.5,.005,.04,.03,.08)
+checks={'below_yield_unchanged':low.target==0,'cyclic_softening':all(b<a for a,b in zip(cycle_yields,cycle_yields[1:])),'yield_floor':all(.015<=r[5]<=.03 for r in rows),'time_refinement':errors[2]<errors[1]<errors[0],'plastic_history_nonzero':state.accumulated_plastic>0}
+result={'status':'pass' if all(checks.values()) else 'fail','checks':checks,'cycle_end_yield_nm':cycle_yields,'refinement_error_rad':errors,'samples':len(rows),'physics_execution':'not_tested','material_calibration':'not_tested','provenance':'uncalibrated_assumption','scope':'constitutive model only, prescribed angles; not actual flap motion or real cardboard validation'}
+(out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+print(out);print(json.dumps(result,indent=2));sys.exit(0 if result['status']=='pass' else 1)

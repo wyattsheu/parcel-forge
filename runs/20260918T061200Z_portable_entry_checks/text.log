@@ -1,0 +1,15 @@
+{
+  "run": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge/runs/20260918T061156Z_workflow",
+  "status": "unsupported",
+  "mode": "text",
+  "generation": "not_tested",
+  "physics": "not_tested",
+  "cold_load": "not_tested",
+  "render": "not_tested",
+  "human_webrtc": "not_tested",
+  "nvidia_validation": "not_tested",
+  "preflight": "unsupported",
+  "description_spec_consistency": "not_tested",
+  "next_action": "agent selects supported authoring recipe; intake is not generation",
+  "exit_code": 4
+}

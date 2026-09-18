@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+"""Start or query one on-demand detached recording job.
+
+No daemon, scheduler or shared process control. This wraps ``pf video`` in a
+detached worker so the caller does not block; it never claims a fake process
+result is a real render, and it never touches video_host's own acceptance
+logic (video_result.json / test_recording.mp4 are produced there, unchanged).
+"""
+import argparse
+import fcntl
+from datetime import datetime, timezone
+import json
+import os
+import sys
+import subprocess
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+RUNS = ROOT / 'runs'
+
+
+def now_utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def write(path, data):
+    path.write_text(json.dumps(data, indent=2) + '\n')
+
+
+def pid_alive(pid):
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def worker(job: Path) -> int:
+    """Run the recording command and always leave a job_result.json behind,
+    including when the command cannot even be started or its evidence is
+    malformed. A job with no job_result.json means the wrapper process itself
+    was killed before this function ran, not that rendering "failed"."""
+    result = {'exit_code': None, 'finished_utc': None, 'video_run': None,
+              'status': 'failed', 'video': None, 'error': None}
+    try:
+        request = json.loads((job / 'job_request.json').read_text())
+        command = request['command']
+        with (job / 'video.log').open('w') as log:
+            process = subprocess.run(command, cwd=ROOT, stdin=subprocess.DEVNULL,
+                                      stdout=log, stderr=subprocess.STDOUT)
+        result['exit_code'] = process.returncode
+        output = (job / 'video.log').read_text()
+        paths = [line[5:].strip() for line in output.splitlines() if line.startswith('run: ')]
+        video_run = Path(paths[-1]) if paths else None
+        if video_run and video_run.parent.resolve() == RUNS.resolve():
+            result['video_run'] = str(video_run)
+            evidence = video_run / 'video_result.json'
+            if evidence.exists():
+                report = json.loads(evidence.read_text())
+                if process.returncode == 0 and report.get('status') == 'pass':
+                    result['status'] = 'pass'
+                    result['video'] = str(video_run / 'test_recording.mp4')
+    except Exception as exc:
+        result['error'] = f'{type(exc).__name__}: {exc}'
+    result['finished_utc'] = now_utc()
+    write(job / 'job_result.json', result)
+    return 0 if result['status'] == 'pass' else (result['exit_code'] or 1)
+
+
+def find_active_job(source_run):
+    """Return an existing background job dir still working on source_run, if any."""
+    if not RUNS.is_dir():
+        return None
+    for candidate in sorted(RUNS.glob('*_background_video*')):
+        request_path = candidate / 'job_request.json'
+        started_path = candidate / 'job_started.json'
+        if not request_path.is_file() or not started_path.is_file():
+            continue
+        if (candidate / 'job_result.json').is_file():
+            continue
+        try:
+            request = json.loads(request_path.read_text())
+            started = json.loads(started_path.read_text())
+        except (json.JSONDecodeError, OSError):
+            continue
+        if request.get('source_run') != source_run:
+            continue
+        pid = started.get('pid')
+        if isinstance(pid, int) and pid_alive(pid):
+            return candidate
+    return None
+
+
+def make_job_dir():
+    """Create a fresh job dir, tolerating a same-second name collision."""
+    base = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '_background_video'
+    for attempt in range(1000):
+        name = base if attempt == 0 else f'{base}-{attempt}'
+        job = RUNS / name
+        try:
+            job.mkdir()
+            return job
+        except FileExistsError:
+            continue
+    raise RuntimeError('could not allocate a unique background_video job directory')
+
+
+def status_of(job: Path):
+    request_path = job / 'job_request.json'
+    started_path = job / 'job_started.json'
+    result_path = job / 'job_result.json'
+    if result_path.is_file():
+        try:
+            return {'job': str(job), 'state': 'completed',
+                    'result': json.loads(result_path.read_text())}
+        except (json.JSONDecodeError, OSError) as exc:
+            return {'job': str(job), 'state': 'unknown', 'error': str(exc)}
+    if not request_path.is_file():
+        return {'job': str(job), 'state': 'unknown', 'error': 'no job_request.json at this path'}
+    info = {'job': str(job)}
+    try:
+        info['request'] = json.loads(request_path.read_text())
+        if started_path.is_file():
+            info['started'] = json.loads(started_path.read_text())
+        if result_path.is_file():
+            info['result'] = json.loads(result_path.read_text())
+            info['state'] = 'completed'
+            return info
+    except (json.JSONDecodeError, OSError) as exc:
+        info['state'] = 'unknown'
+        info['error'] = f'{type(exc).__name__}: {exc}'
+        return info
+    pid = info.get('started', {}).get('pid')
+    if isinstance(pid, int) and pid_alive(pid):
+        info['state'] = 'running'
+    else:
+        info['state'] = 'stalled'
+        info['note'] = 'no job_result.json and worker pid is not alive'
+    return info
+
+
+def resolve_job_arg(value):
+    path = Path(value)
+    if not path.is_absolute():
+        path = RUNS / value
+    return path
+
+
+def cmd_status(args):
+    job = resolve_job_arg(args.status)
+    info = status_of(job)
+    print(json.dumps(info, indent=2))
+    return 0 if info.get('state') in ('completed', 'running') else 1
+
+
+def _cmd_start(args):
+    source = (RUNS / args.run).resolve()
+    if source.parent != RUNS.resolve() or not (source / 'trajectory.csv').is_file():
+        print('error: --run must be an existing local recorded-trajectory run', file=sys.stderr)
+        return 2
+
+    args.run = source.name
+    active = find_active_job(args.run)
+    if active is not None:
+        print('error: a background video job for this run is already active:', active, file=sys.stderr)
+        print(json.dumps(status_of(active), indent=2))
+        return 3
+
+    job = make_job_dir()
+    write(job / 'job_request.json', {
+        'source_run': args.run,
+        'command': [str(ROOT / 'scripts/pf'), 'video', '--run', args.run],
+        'requested_utc': now_utc(),
+        'mode': 'explicit_background_job',
+    })
+    with (job / 'worker.log').open('w') as log:
+        process = subprocess.Popen(
+            [sys.executable, str(Path(__file__).resolve()), '--worker', str(job)],
+            cwd=ROOT, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
+            start_new_session=True, close_fds=True,
+        )
+    write(job / 'job_started.json', {'pid': process.pid, 'status': 'started_not_verified'})
+    print('job:', job)
+    print('pid:', process.pid)
+    print('log:', job / 'video.log')
+    print('completion:', job / 'job_result.json')
+    print('status:', f'{Path(__file__).name} --status {job.name}')
+    return 0
+
+
+
+def cmd_start(args):
+    with (RUNS / '.background-video-start.lock').open('a') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        return _cmd_start(args)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--run', help='existing local recorded-trajectory run id to render in the background')
+    parser.add_argument('--status', help='job directory name (under runs/) or path to query instead of starting one')
+    parser.add_argument('--worker', help=argparse.SUPPRESS)
+    args = parser.parse_args(argv)
+
+    if args.worker:
+        return worker(Path(args.worker))
+    if args.status:
+        return cmd_status(args)
+    if not args.run:
+        parser.error('one of --run or --status is required')
+    return cmd_start(args)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

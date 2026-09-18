@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+"""Recompute checks from stored physics evidence into a fresh directory."""
+import argparse,csv,json,math,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir as make_run_dir,sha256_file
+from parcel_forge.crease_model import CreaseState
+from parcel_forge.validation.carton import evaluate_carton
+p=argparse.ArgumentParser();p.add_argument('--run',required=True);a=p.parse_args()
+source=(ROOT/'runs'/a.run).resolve()
+if source.parent!=ROOT/'runs':p.error('run must be direct runs child')
+out=Path(make_run_dir('ext1_recheck'))
+try:
+ c=json.loads((source/'config.json').read_text());old=json.loads((source/'carton_result.json').read_text());names=old['dof_names'];rows=[]
+ for r in csv.reader((source/'trajectory.csv').open()):
+  if r[0]=='step':continue
+  rows.append([float(v) if i!=2 else v for i,v in enumerate(r)])
+ peaks=[max(r[3] for r in rows if r[2]==n) for n in names];plastic=[max(abs(r[5]) for r in rows if r[2]==n) for n in names]
+ states=[CreaseState(math.radians(f['plastic_target_deg']),f['accumulated_plastic_rad']) for f in old['flaps']]
+ final=[math.radians(f['final_deg']) for f in old['flaps']];vel=[f['final_velocity_rad_s'] for f in old['flaps']]
+ new=evaluate_carton(c,names,rows,peaks,plastic,states,final,vel)
+ keys=['checks','status','opening_checks','opening_diagnostic_status','coupon_checks','coupon_diagnostic_status','cyclic_checks','cyclic_diagnostic_status']
+ same=all(new.get(k)==old.get(k) for k in keys)
+ result={'status':'pass' if same else 'fail','source_run':source.name,'classifications_unchanged':same,'recomputed':new,'scope':'evidence recomputation only, no new PhysX execution; cannot promote legacy failure','source_hashes':{f:sha256_file(str(source/f)) for f in ['config.json','trajectory.csv','carton_result.json']}}
+except Exception as exc:result={'status':'fail','error':str(exc),'source_run':source.name}
+(out/'result.json').write_text(json.dumps(result,indent=2)+'\n');print(out);print(json.dumps(result,indent=2));sys.exit(0 if result['status']=='pass' else 1)

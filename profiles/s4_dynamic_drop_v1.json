@@ -1,0 +1,29 @@
+{
+  "schema": "parcel_forge.profile/1",
+  "profile_id": "s4_dynamic_drop_v1",
+  "stage": "S4",
+  "description": "Dynamic open-box root drop and settling on a ground plane.",
+  "simulation": {
+    "dt": 0.004166666666666667,
+    "steps": 720,
+    "device": "cuda:0",
+    "gravity_mps2": -9.81,
+    "spawn_root_z_m": 0.35,
+    "settle_window_s": 0.5
+  },
+  "tolerances": {
+    "settle_linear_speed_mps": 0.02,
+    "settle_angular_speed_radps": 0.05,
+    "min_root_z_m": -0.005,
+    "final_root_z_abs_m": 0.005
+  },
+  "contact": {
+    "profile_id": "rigid_contact_baseline_v1",
+    "contact_offset_m": 0.002,
+    "rest_offset_m": 0.0,
+    "static_friction": 0.6,
+    "dynamic_friction": 0.5,
+    "restitution": 0.0,
+    "provenance": "engineering baseline; explicit and reproducible, not calibrated against cardboard"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "parcel_forge.workflow_task_requirements/1",
+  "tasks": {
+    "move": [
+      "rigid_contact"
+    ],
+    "open_package": [
+      "rigid_contact",
+      "revolute_passive"
+    ],
+    "unwrap": [
+      "rigid_contact",
+      "shell_bending",
+      "peelable_bond"
+    ],
+    "interact": [],
+    "open_and_extract": [
+      "rigid_contact",
+      "revolute_passive",
+      "payload_extraction"
+    ],
+    "open_unwrap_and_extract": [
+      "rigid_contact",
+      "revolute_passive",
+      "shell_bending",
+      "peelable_bond",
+      "payload_extraction"
+    ]
+  }
+}

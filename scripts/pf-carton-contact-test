@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""Fresh headless live-controller test, leaves the existing viewer untouched."""
+import argparse,json,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir,write_json,sha256_file
+from parcel_forge.repair_execute import available_gpu
+from parcel_forge.runtime.launcher import IsaacLauncher
+parser=argparse.ArgumentParser();parser.add_argument('--run',default='20260917T123830Z_ext1_independent_interaction');args=parser.parse_args();source=(ROOT/'runs'/args.run).resolve()
+if source.parent!=ROOT/'runs':parser.error('run must be direct runs child')
+out=Path(make_unique_run_dir('ext1_passive_contact'));inv,ready=available_gpu(0);write_json(str(out/'gpu_inventory.json'),{'free_mib':inv,'selected':0})
+if not ready:write_json(str(out/'blocked.json'),{'reason':'GPU0 requires 8000MiB free'});print(out);sys.exit(4)
+script=ROOT/'src/parcel_forge/carton_contact_test.py'
+write_json(str(out/'code_hashes.json'),{str(p.relative_to(ROOT)):sha256_file(str(p)) for p in [script,ROOT/'src/parcel_forge/carton_live.py',ROOT/'src/parcel_forge/carton_lifecycle.py',ROOT/'src/parcel_forge/carton_force_probe.py',ROOT/'src/parcel_forge/carton_mouse_diagnostic.py',ROOT/'src/parcel_forge/carton_author.py',ROOT/'src/parcel_forge/crease_model.py',ROOT/'src/parcel_forge/panel_bending.py',ROOT/'config/materials/b_flute_130tl.json',Path(__file__)]})
+res=IsaacLauncher().run(str(script),['--out',str(out),'--source',str(source)],str(out/'runtime.log'),timeout=600);write_json(str(out/'launch.json'),res);print(out)
+if not (out/'result.json').exists():print('result missing: inspect runtime.log');sys.exit(1)
+report=json.loads((out/'result.json').read_text());print(json.dumps(report,indent=2));sys.exit(0 if res['external_exit_code']==0 and report['status']=='pass' else 1)

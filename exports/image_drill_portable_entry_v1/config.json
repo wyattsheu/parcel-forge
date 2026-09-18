@@ -1,0 +1,39 @@
+{
+  "length_m": 0.25,
+  "mass_kg": 1.5,
+  "parameter_cards": [
+    {
+      "id": "length",
+      "value": 0.25,
+      "unit": "m",
+      "required": true,
+      "provenance": "assumed",
+      "source": null,
+      "confidence": "low",
+      "conditions": {
+        "purpose": "image geometry qualification scale only; no matching manufacturer dimension"
+      },
+      "derivation": null
+    },
+    {
+      "id": "mass",
+      "value": 1.5,
+      "unit": "kg",
+      "required": true,
+      "provenance": "assumed",
+      "source": null,
+      "confidence": "low",
+      "conditions": {
+        "purpose": "dynamic proxy test mass only; not measured for pictured drill"
+      },
+      "derivation": null
+    }
+  ],
+  "mesh_sha256": "41630850524c3facc4db6b00372fb9572fdc2117d264ac9fb0d9e942b44f87a0",
+  "source_generation_run": "20260918T061026Z_image_generation",
+  "dt_s": 0.004166666666666667,
+  "units_native": "normalized model coordinates",
+  "orientation": "model native assumed Z up; human confirmation pending",
+  "physics_material_provenance": "assumed .5 static/.4 dynamic/.05 restitution",
+  "scope": "rigid whole drill; no trigger/motor/battery articulation"
+}

@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+"""Read-only source check, isolated append-only negative fixtures, no GPU."""
+import argparse,json,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir,sha256_file
+from parcel_forge.runtime.launcher import IsaacLauncher
+p=argparse.ArgumentParser();p.add_argument('--run',required=True);a=p.parse_args();source=(ROOT/'runs'/a.run).resolve()
+if source.parent!=ROOT/'runs':p.error('run must be direct runs child')
+out=Path(make_unique_run_dir('ext1_panel_usd_check'));script=ROOT/'src/parcel_forge/panel_usd_check.py'
+result=IsaacLauncher().run(str(script),['--source',str(source),'--out',str(out)],str(out/'runtime.log'),timeout=120)
+(out/'launch.json').write_text(json.dumps(result,indent=2)+'\n');(out/'source_hashes.json').write_text(json.dumps({f:sha256_file(str(source/f)) for f in ['config.json','asset.usda']},indent=2)+'\n')
+print(out)
+if (out/'usd_check.json').exists():
+ report=json.loads((out/'usd_check.json').read_text());print('status:',report['status'],'rules:',report['official'].get('rules_run_count'),'failures:',len(report['official'].get('failures',[])));sys.exit(0 if result['external_exit_code']==0 and report['status']=='pass' else 1)
+print('result missing; inspect runtime.log');sys.exit(1)

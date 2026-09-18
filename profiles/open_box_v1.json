@@ -63,5 +63,14 @@
     "inside_xy_margin_m": 0.001,
     "fell_through_below_local_z_m": -0.01,
     "at_mouth_min_local_z_m": 0.14
+  },
+  "contact": {
+    "profile_id": "rigid_contact_baseline_v1",
+    "contact_offset_m": 0.002,
+    "rest_offset_m": 0.0,
+    "static_friction": 0.6,
+    "dynamic_friction": 0.5,
+    "restitution": 0.0,
+    "provenance": "engineering baseline; explicit and reproducible, not calibrated against cardboard"
   }
 }

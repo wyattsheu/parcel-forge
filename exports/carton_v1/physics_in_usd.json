@@ -1,0 +1,170 @@
+{
+  "stage": "/mnt/HDD4/wyattsheu/ITRI/parcel-forge/exports/carton_v1/carton.usda",
+  "default_prim": "/World",
+  "physics_scene": [
+    {
+      "path": "/PhysicsScene",
+      "gravity_direction": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "gravity_magnitude": 9.8100004196167
+    }
+  ],
+  "articulation_roots": [
+    "/World/Carton"
+  ],
+  "rigid_bodies": [
+    {
+      "path": "/World/Carton/Base",
+      "mass_kg": 0.08462999761104584,
+      "colliders": [
+        "/World/Carton/Base/Bottom",
+        "/World/Carton/Base/WallXP",
+        "/World/Carton/Base/WallXN",
+        "/World/Carton/Base/WallYP",
+        "/World/Carton/Base/WallYN"
+      ]
+    },
+    {
+      "path": "/World/Carton/MajorYN",
+      "mass_kg": 0.011485814116895199,
+      "colliders": [
+        "/World/Carton/MajorYN/Panel"
+      ]
+    },
+    {
+      "path": "/World/Carton/MajorYP",
+      "mass_kg": 0.011485814116895199,
+      "colliders": [
+        "/World/Carton/MajorYP/Panel"
+      ]
+    },
+    {
+      "path": "/World/Carton/MinorXP",
+      "mass_kg": 0.00747596425935626,
+      "colliders": [
+        "/World/Carton/MinorXP/Panel"
+      ]
+    },
+    {
+      "path": "/World/Carton/MinorXN",
+      "mass_kg": 0.00747596425935626,
+      "colliders": [
+        "/World/Carton/MinorXN/Panel"
+      ]
+    }
+  ],
+  "revolute_joints": [
+    {
+      "path": "/World/Carton/HingeMajorYN",
+      "type": "PhysicsRevoluteJoint",
+      "axis": "X",
+      "lower_limit_deg": -5.0,
+      "upper_limit_deg": 270.0,
+      "drive_type": "force",
+      "drive_stiffness_per_deg": 0.002102108672261238,
+      "drive_damping_per_deg": 4.4749773223884404e-05,
+      "drive_target_deg": 0.0,
+      "drive_max_force": 1.0,
+      "body0": [
+        "/World/Carton/Base"
+      ],
+      "body1": [
+        "/World/Carton/MajorYN"
+      ],
+      "physx_joint_friction": 0.0,
+      "staticFrictionEffort": 0.0020000000949949026,
+      "dynamicFrictionEffort": 0.0020000000949949026,
+      "stiffness_nm_rad_from_usd": 0.12044195499841813,
+      "matches_config": true
+    },
+    {
+      "path": "/World/Carton/HingeMajorYP",
+      "type": "PhysicsRevoluteJoint",
+      "axis": "X",
+      "lower_limit_deg": -5.0,
+      "upper_limit_deg": 270.0,
+      "drive_type": "force",
+      "drive_stiffness_per_deg": 0.002102108672261238,
+      "drive_damping_per_deg": 4.4749773223884404e-05,
+      "drive_target_deg": 0.0,
+      "drive_max_force": 1.0,
+      "body0": [
+        "/World/Carton/Base"
+      ],
+      "body1": [
+        "/World/Carton/MajorYP"
+      ],
+      "physx_joint_friction": 0.0,
+      "staticFrictionEffort": 0.0020000000949949026,
+      "dynamicFrictionEffort": 0.0020000000949949026,
+      "stiffness_nm_rad_from_usd": 0.12044195499841813,
+      "matches_config": true
+    },
+    {
+      "path": "/World/Carton/HingeMinorXP",
+      "type": "PhysicsRevoluteJoint",
+      "axis": "X",
+      "lower_limit_deg": -5.0,
+      "upper_limit_deg": 270.0,
+      "drive_type": "force",
+      "drive_stiffness_per_deg": 0.001368234632536769,
+      "drive_damping_per_deg": 2.9127035304554738e-05,
+      "drive_target_deg": 0.0,
+      "drive_max_force": 1.0,
+      "body0": [
+        "/World/Carton/Base"
+      ],
+      "body1": [
+        "/World/Carton/MinorXP"
+      ],
+      "physx_joint_friction": 0.0,
+      "staticFrictionEffort": 0.0020000000949949026,
+      "dynamicFrictionEffort": 0.0020000000949949026,
+      "stiffness_nm_rad_from_usd": 0.07839406982798992,
+      "matches_config": true
+    },
+    {
+      "path": "/World/Carton/HingeMinorXN",
+      "type": "PhysicsRevoluteJoint",
+      "axis": "X",
+      "lower_limit_deg": -5.0,
+      "upper_limit_deg": 270.0,
+      "drive_type": "force",
+      "drive_stiffness_per_deg": 0.001368234632536769,
+      "drive_damping_per_deg": 2.9127035304554738e-05,
+      "drive_target_deg": 0.0,
+      "drive_max_force": 1.0,
+      "body0": [
+        "/World/Carton/Base"
+      ],
+      "body1": [
+        "/World/Carton/MinorXN"
+      ],
+      "physx_joint_friction": 0.0,
+      "staticFrictionEffort": 0.0020000000949949026,
+      "dynamicFrictionEffort": 0.0020000000949949026,
+      "stiffness_nm_rad_from_usd": 0.07839406982798992,
+      "matches_config": true
+    }
+  ],
+  "in_the_usd": [
+    "rigid bodies and their masses",
+    "collision geometry",
+    "one articulation root",
+    "four revolute creases with their axes and angle limits",
+    "angular drive stiffness, damping, rest angle and force limit",
+    "joint friction",
+    "gravity and the physics scene"
+  ],
+  "not_in_the_usd": {
+    "crease_yield_torque_nm": 0.008408434461151726,
+    "plastic_viscosity_nm_s_rad": 0.002408839034681762,
+    "softening_rate_per_rad": 0.15,
+    "why": "the drive rest angle is a single number in the USD; making a fold permanent means moving that number every physics step against a yield rule, which USD has no attribute for",
+    "consequence": "opened with the USD alone, a flap is an elastic hinge: push it and it springs back to the authored rest angle. Run crease_controller/load_in_isaacsim.py to get the permanent creasing.",
+    "panel_deformation": "not modelled at all: the panels are rigid, so the box cannot dent, crush or tear however hard it is hit"
+  }
+}

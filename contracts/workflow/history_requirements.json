@@ -1,0 +1,140 @@
+{
+  "schema": "parcel_forge.workflow_history_requirements/1",
+  "requirements": [
+    {
+      "requirement_id": "WF-R001",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "紙箱用 recording.usda 只能看動畫；D068 單 USD 缺塑性程式",
+      "prevention": "交付區分 replay、live、runtime-required；不得互相替代",
+      "required_evidence": "冷載入後施力、卸載與內部狀態讀回",
+      "check_id": "history.regression.001",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R002",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "蓋子拉不開或帶動整箱；D062–D064、D068",
+      "prevention": "分開診斷拾取、施力位置、力臂、碰撞阻擋、箱體是否固定",
+      "required_evidence": "picked body、作用點、載荷與箱體／四蓋軌跡",
+      "check_id": "history.regression.002",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R003",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "小蓋被關閉的大蓋擋住；D060",
+      "prevention": "先檢查裝配拓撲與可達性；四片獨立自由度不等於任意順序都能穿越",
+      "required_evidence": "開啟順序測試及被阻擋的負向測試",
+      "check_id": "history.regression.003",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R004",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "強回彈、需長時間拉才留摺；D061",
+      "prevention": "以力–角度、卸載回彈與循環結果定義要求，不能只填 k、yield",
+      "required_evidence": "加載／卸載曲線及參數來源",
+      "check_id": "history.regression.004",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R005",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "板子像條帶彈開；D061",
+      "prevention": "局部 coupon 後仍須驗完整裝配、時間步與網格敏感度",
+      "required_evidence": "動態收斂與穩定性報告；不把特定 omega*dt 門檻當 PhysX 通則",
+      "check_id": "history.regression.005",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R006",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "179°被誤稱折到外壁；D066/D067",
+      "prevention": "世界座標幾何檢查角度語義、厚度偏移、限位處碰撞",
+      "required_evidence": "0/90/180/270°位置與間隙讀回",
+      "check_id": "history.regression.006",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R007",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "未指定摩擦，最後使用模擬器預設；D066/D068",
+      "prevention": "所有關鍵材料顯式設定，讀回實際解析值",
+      "required_evidence": "board/ground/material pair 來源與摩擦測試",
+      "check_id": "history.regression.007",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R008",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "讀回迴圈跳過勁度比較；D068",
+      "prevention": "必填項計數、故意改錯值的負向測試；未執行不得 pass",
+      "required_evidence": "每片關節的比較結果及 negative fixture",
+      "check_id": "history.regression.008",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R009",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "泡泡紙原要可撕膠帶，後改封閉包覆",
+      "prevention": "任務需求不可因難做而默默刪除；替代模型必須保留可拆能力",
+      "required_evidence": "release/unwrap 測試；需求變更獨立版本",
+      "check_id": "history.regression.009",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R010",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "膜厚、泡泡高度、碰撞厚度混用",
+      "prevention": "分開 film_thickness、bubble_height、areal_mass、contact_offset、compression_curve",
+      "required_evidence": "單位、換算與獨立讀回",
+      "check_id": "history.regression.010",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R011",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "用負 margin、提高摩擦／質量處理塌縮",
+      "prevention": "先查初始穿透、rest shape、預張力、接合；不暗改材料換穩定",
+      "required_evidence": "初始應變、裝配過程、最終參數與質量收支",
+      "check_id": "history.regression.011",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R012",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "泡泡裝飾留在原位／消失",
+      "prevention": "視覺跟隨與物理網格分開驗；移除裝飾是明示範圍變更",
+      "required_evidence": "變形後 attachment/visual 位置與人工觀察",
+      "check_id": "history.regression.012",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R013",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "no NaN、幾何測試成功即稱完成",
+      "prevention": "幾何、物理、任務、交付各自 gate",
+      "required_evidence": "required tests 全覆蓋，未測為 not_tested",
+      "check_id": "history.regression.013",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R014",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "import 快取、stage 引用、不同 viewer 配置",
+      "prevention": "版本檢查、載入／卸載／再載入與 callback 去重",
+      "required_evidence": "真正入口測試；GUI 未復現的原因保留 unknown",
+      "check_id": "history.regression.014",
+      "check_status": "planned"
+    },
+    {
+      "requirement_id": "WF-R015",
+      "source": "docs/plans/2026-09-18_task_driven_asset_workflow.md",
+      "incident": "測試層",
+      "prevention": "共通內容",
+      "required_evidence": "紙箱",
+      "check_id": "history.regression.015",
+      "check_status": "planned"
+    }
+  ]
+}

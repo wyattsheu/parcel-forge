@@ -1,0 +1,96 @@
+{
+  "schema": "parcel_forge.workflow_capabilities/1",
+  "runtime": "isaacsim/6.0.1.0",
+  "capabilities": {
+    "rigid_contact": {
+      "implementation": "implemented",
+      "module": "src/parcel_forge/box_s2.py",
+      "historical_evidence": "runs/20260917T000053Z_s2_open_box_normal",
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.rigid_contact"
+      ],
+      "runtime_required": false
+    },
+    "revolute_passive": {
+      "implementation": "implemented",
+      "module": "src/parcel_forge/carton_author.py",
+      "historical_evidence": "runs/20260917T151929Z_ext1_carton_export",
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.revolute_passive"
+      ],
+      "runtime_required": false
+    },
+    "plastic_crease": {
+      "implementation": "implemented",
+      "module": "src/parcel_forge/crease_model.py",
+      "historical_evidence": "runs/20260917T150447Z_ext1_carton_pull",
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.plastic_crease"
+      ],
+      "runtime_required": true
+    },
+    "shell_bending": {
+      "implementation": "unsupported",
+      "module": null,
+      "historical_evidence": null,
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.shell_bending"
+      ],
+      "runtime_required": false
+    },
+    "orthotropic_board_bending": {
+      "implementation": "unsupported",
+      "module": null,
+      "historical_evidence": null,
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.orthotropic_board_bending"
+      ],
+      "runtime_required": false
+    },
+    "compressible_layer": {
+      "implementation": "unsupported",
+      "module": null,
+      "historical_evidence": null,
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.compressible_layer"
+      ],
+      "runtime_required": false
+    },
+    "peelable_bond": {
+      "implementation": "unsupported",
+      "module": null,
+      "historical_evidence": null,
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.peelable_bond"
+      ],
+      "runtime_required": false
+    },
+    "damage": {
+      "implementation": "unsupported",
+      "module": null,
+      "historical_evidence": null,
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.damage"
+      ],
+      "runtime_required": false
+    },
+    "payload_extraction": {
+      "implementation": "unsupported",
+      "module": null,
+      "historical_evidence": null,
+      "calibration": "not_tested",
+      "checks": [
+        "behavior.payload_extraction"
+      ],
+      "runtime_required": false
+    }
+  }
+}

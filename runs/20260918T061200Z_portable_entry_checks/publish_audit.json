@@ -1,0 +1,6 @@
+{
+  "tracked_bytes": 34296334,
+  "over_95mib_files": [],
+  "credential_pattern_files": [],
+  "coverage": "common literal key patterns; not a comprehensive secret audit"
+}

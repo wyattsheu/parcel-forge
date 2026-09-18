@@ -8,7 +8,7 @@ anything.
 
 Implemented now (S0/S1):
     pf doctor [--out DIR]
-    pf smoke  [--profile FILE] [--device N] [--timeout SEC]
+    pf smoke  [--physics-only] [--profile FILE] [--device N] [--timeout SEC]
     pf box    (--case <case-id> | --all | --dt-sweep) [--profile FILE] [--device N] [--timeout SEC]
     pf build  --case <case-id>            schema check, then author asset.usda
     pf verify (--case <case-id> | --all)  build + static USD validation (no GPU)
@@ -16,6 +16,20 @@ Implemented now (S0/S1):
               [--ui]        stream the full editor UI, not just the viewport
               [--replace]   stop an existing parcel-forge viewer and take over
     pf view --stop          stop the parcel-forge viewer holding the WebRTC ports
+    pf upstream-resume-check --run <run-id>
+    pf upstream-focused-check --run <run-id>
+    pf actor-boundary-check
+    pf repair-link-check --proposal-run RUN-ID --validation-run RUN-ID
+    pf proposal-exchange prepare --source-run RUN-ID
+    pf proposal-exchange check --prompt-run RUN-ID --response FILE
+    pf repair-execute --proposal-run RUN-ID [--device N]
+    pf repair-proposal --source-run RUN-ID --proposal FILE
+    pf video --run <S2-run-id>
+    pf upstream-check --run <run-id>
+    pf mass-readback [--device N] [--timeout SEC]
+    pf dynamic-drop [--device N] [--timeout SEC]
+    pf placement-grid [--physics-only] [--device N] [--timeout SEC]
+    pf sidewall [--physics-only] [--device N] [--timeout SEC]
     pf runs   [--last N]
 
 Specified in the handbook but NOT implemented yet (they exit 4, never pretend):
@@ -83,6 +97,45 @@ def main() -> int:
     if cmd == "box":
         from parcel_forge.box_host import main as box_main
         return box_main(argv)
+    if cmd == "upstream-resume-check":
+        from parcel_forge.upstream_resume_check import main as resume_main
+        return resume_main(argv)
+    if cmd == "upstream-focused-check":
+        from parcel_forge.focused_validation_host import main as focused_main
+        return focused_main(argv)
+    if cmd == "actor-boundary-check":
+        from parcel_forge.actor_boundary_check import main as boundary_main
+        return boundary_main(argv)
+    if cmd == "repair-link-check":
+        from parcel_forge.repair_link import main as link_main
+        return link_main(argv)
+    if cmd == "proposal-exchange":
+        from parcel_forge.proposal_exchange import main as exchange_main
+        return exchange_main(argv)
+    if cmd == "repair-execute":
+        from parcel_forge.repair_execute import main as execute_main
+        return execute_main(argv)
+    if cmd == "repair-proposal":
+        from parcel_forge.repair_guard import main as repair_main
+        return repair_main(argv)
+    if cmd == "video":
+        from parcel_forge.video_host import main as video_main
+        return video_main(argv)
+    if cmd == "upstream-check":
+        from parcel_forge.upstream_bridge import main as upstream_main
+        return upstream_main(argv)
+    if cmd == "mass-readback":
+        from parcel_forge.mass_readback_host import main as mass_readback_main
+        return mass_readback_main(argv)
+    if cmd == "dynamic-drop":
+        from parcel_forge.dynamic_drop_host import main as dynamic_drop_main
+        return dynamic_drop_main(argv)
+    if cmd == "placement-grid":
+        from parcel_forge.placement_grid_host import main as placement_grid_main
+        return placement_grid_main(argv)
+    if cmd == "sidewall":
+        from parcel_forge.sidewall_host import main as sidewall_main
+        return sidewall_main(argv)
     if cmd == "view":
         from parcel_forge.view_host import main as view_main
         return view_main(argv)

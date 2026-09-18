@@ -29,6 +29,7 @@ def resolve_case(case_id: str) -> str | None:
     if os.path.isfile(case_id):
         return case_id
     for candidate in (os.path.join(CASES_DIR, f"{case_id}.json"),
+                      os.path.join(CASES_DIR, "s4", f"{case_id}.json"),
                       os.path.join(INVALID_DIR, f"{case_id}.json")):
         if os.path.isfile(candidate):
             return candidate

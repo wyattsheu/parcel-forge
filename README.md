@@ -5,9 +5,11 @@ zero on 2026-09-16 against the Isaac Sim 6.0.1.0 install already present on this
 machine. This repository does not reuse the earlier Task 1 code and never
 modifies, reinstalls or upgrades the simulator, the driver or the shared venv.
 
-**Current stage: S3 complete. S4 (mass properties and coverage) not started.**
-Read `docs/STATE.md` for the verified state and the single next action, and
-`docs/ROADMAP.md` for the S0-S7 plan.
+**Current status:** image→TripoSR→rigid USD→PhysX→cold-load baseline verified; keyboard-carton baseline retained. Text descriptions are captured with a task-specific bundle; general automatic text-to-physical-asset authoring remains partial. See `docs/STATE.md` for measured results.
+
+Start here: [portable setup](docs/PORTABLE_SETUP.md). Common entry: `./scripts/pf-workflow --help`. Codex: `$parcel-forge-assets`; Claude Code: `/parcel-forge-assets`. Both read the same Skill.
+
+New raw runs, venvs, external providers and model weights stay local. Historical evidence already in Git remains in history; exported sample assets and reports are included.
 
 ## What actually works today
 
@@ -25,9 +27,13 @@ Read `docs/STATE.md` for the verified state and the single next action, and
 | Clean USD asset authored per case | verified | `pf verify`: defaultPrim, SI units, upAxis=Z, 71-line layer |
 | Illegal specs rejected before any launch | verified | 7 invalid cases, each with its own error class |
 | Static USD checks read back from the output file | verified | 10 G1 rules; dimension error ~1e-8 m |
-| NVIDIA's official USD validator (41 rules) | verified | runs on every built asset; 0 failures on all 6 legal cases |
+| NVIDIA generic USD validator (41 registered rules) | verified | runs on every built asset; separate from SimReady and Isaac-specific physics rules |
 | Proof that the official validator can fail | verified | `G7`: 3 failures on a deliberately broken fixture |
-| Mass properties, batch driver, repair loop, VLM review | **not implemented** | planned for S4-S7 |
+| Closed-form box mass/COM/inertia maths | verified | rotated impossible and small-valid counterexamples are permanent regressions |
+| Dynamic USD mass/COM/inertia authoring | verified | static USD readback plus PhysX tensor-view readback |
+| Nine-point placement | verified | 9/9 inside; trajectory, scene and PNG evidence |
+| Four-direction side-wall physics | verified | 4/4 blocked from full trajectories; original optional render crashed separately |
+| Dynamic-box settling, batch driver, repair loop, VLM review | **not implemented** | planned for remaining S4-S7 |
 
 Nothing above is claimed from reading code. Each "verified" row points at a run
 directory containing the command, exit code, log and outputs.
@@ -48,11 +54,16 @@ anything that needs Kit. Paths live in `config/isaac_env.json`.
 ./scripts/pf box --all                    # all six legal cases + a suite table (GPU)
 ./scripts/pf verify --all                 # 13 cases: schema -> USD -> static checks (~4 s, no GPU)
 ./scripts/pf build --case open_box_small  # schema check, then author asset.usda
+./scripts/pf mass-readback                 # dynamic USD -> PhysX mass/COM/inertia readback
+./scripts/pf placement-grid --physics-only # nine placements, rendering separately optional
+./scripts/pf sidewall --physics-only       # four-direction wall impact
+./scripts/pf dynamic-drop                  # dynamic rigid box settling
+./scripts/pf view --run <id> --scene scene_final.usda --ui
 ./scripts/pf runs --last 5     # list recent runs with stage and exit code
 ```
 
 Subcommands from the handbook that are **not implemented yet**
-(`build`, `validate`, `simulate`, `render`, `verify`, `batch`) exist in the CLI
+(`simulate`, `render`, `batch`) exist in the CLI
 only to exit 4 and say so, rather than to pretend.
 
 ### Exit codes
@@ -120,3 +131,32 @@ See `AGENTS.md`. The short version: read the handoff files before changing
 anything, write evidence before summarising it, never relax a threshold or
 disable a collider to make something pass, never stop another user's process,
 and never report an untested capability as passing.
+
+逐項自行驗證與 WebRTC 指令：[從零到現在清單](reports/development/2026-09-17_self_verification_from_zero.md)。
+人工確認紀錄：[空白確認表](reports/execution/2026-09-17_human_self_check.md)。
+
+NVIDIA 0.6.0 原廠驗證基準已跑通：[S5-A 重跑指令與結果](reports/development/2026-09-17_s5a_upstream_baseline.md)。
+後續錄製需求見 [採用計畫](docs/UPSTREAM_ADOPTION_PLAN.md)，MP4 實作在 S5-C。
+
+實測軌跡影片與重跑／WebRTC 開啟方式：[S5-C 錄製影片](reports/development/2026-09-17_s5c_recorded_video.md)。
+
+影片可按需在背景產生：`./scripts/pf-video-background --run <S2-run-id>`；[指令與修復工具進度](reports/development/2026-09-17_s5d_guard_and_background_video.md)。
+
+
+## Four-flap carton rigid-hinge proxy (2026-09-17)
+
+[建置成果、來源與WebRTC回放](reports/development/2026-09-17_carton_proxy_milestone.md) ·
+[實際執行進度](reports/execution/2026-09-17_carton_proxy_runs.md)。
+
+```bash
+./scripts/pf-carton --physics-device cpu --scenario opening-order --crease-friction-nm 0.005
+```
+
+Four flaps open/recover with a Python viscoplastic controller; explicit .005Nm friction effort uses Isaac6 API.
+See opening_diagnostic_status (legacy mixed-load gate retained, host exit1 intentional).
+recording.usda is measured playback; asset.usda is passive unless the controller runs.
+Material parameters estimated; orthotropic panel bending/real calibration/IsaacLab integration not verified.
+
+## 圖片生成剛體基線
+
+真實電鑽照片已經TripoSR生成OBJ/GLB並通過Isaac6.0.1剛體/冷載入。交付exports/image_drill_v1；[來源、限制與WebRTC指令](reports/development/2026-09-18_image_drill_delivery.md)。尺寸質量為假設；人工外形/接觸保真未確認，沒有宣稱完整物理材料重建。

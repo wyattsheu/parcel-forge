@@ -73,6 +73,6 @@ at 97% utilisation; override with `./scripts/pf smoke --device 1`.
 ## Known unknowns (do not report as working)
 
 - WebRTC viewing of a parcel-forge scene: never attempted. Only a human can confirm it.
-- Isaac Sim's official asset-validation rule set: not yet invoked (S3).
+- NVIDIA generic USD validator 1.19.3 runs 41 registered rules in S3. This is not SimReady certification; installed Isaac-specific physics categories are not yet connected to the adapter.
 - Determinism across GPUs/drivers: not measured.
 - Any Isaac Lab, MCP, ROS, Blender or VLM capability: not installed or not tested.

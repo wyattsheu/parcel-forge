@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Copy a passed image USD package to a fresh run and cold-load in fresh Isaac."""
+import argparse,json,sys,shutil
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
+from parcel_forge.evidence import make_unique_run_dir,write_json,sha256_file
+from parcel_forge.runtime.launcher import IsaacLauncher
+from parcel_forge.repair_execute import available_gpu
+p=argparse.ArgumentParser();p.add_argument('--run',type=Path,required=True);a=p.parse_args();out=Path(make_unique_run_dir('image_drill_cold'));code=1
+try:
+ source=a.run.resolve()
+ if source.parent!=ROOT/'runs' or json.loads((source/'result.json').read_text()).get('status')!='pass' or json.loads((source/'launch.json').read_text()).get('external_exit_code')!=0:raise ValueError('machine-passed project image USD run required')
+ hashes={}
+ for name in ['asset.usda','scene.usda','config.json']:shutil.copy2(source/name,out/name);hashes[name]=sha256_file(str(out/name))
+ write_json(str(out/'source.json'),{'source_run':source.name,'files_sha256':hashes,'script_sha256':sha256_file(str(ROOT/'src/parcel_forge/image_cold_validate.py'))});inventory,ready=available_gpu(0);write_json(str(out/'gpu_inventory.json'),{'free_mib':inventory})
+ if not ready:write_json(str(out/'blocked.json'),{'reason':'GPU0 needs 8000 MiB free'});raise ValueError('GPU unavailable')
+ print('run:',out,flush=True);launch=IsaacLauncher().run(str(ROOT/'src/parcel_forge/image_cold_validate.py'),['--out',str(out)],str(out/'runtime.log'),timeout=600);write_json(str(out/'launch.json'),launch)
+ if (out/'result.json').exists():
+  result=json.loads((out/'result.json').read_text());print(json.dumps(result,indent=2));code=0 if launch['external_exit_code']==0 and result.get('status')=='pass' else 1
+except Exception as e:write_json(str(out/'host_error.json'),{'error':repr(e)});print(repr(e))
+print('run:',out);raise SystemExit(code)
