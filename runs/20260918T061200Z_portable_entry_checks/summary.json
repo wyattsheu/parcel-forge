@@ -1,0 +1,14 @@
+{
+  "intake_tests": 11,
+  "preflight_tests": 13,
+  "boundary_tests": 5,
+  "upstream_bridge_tests": 5,
+  "skill_static": "pass",
+  "machine_probe": "metadata_checked",
+  "pipeline": "pass",
+  "text_carton_keyboard": "unsupported_exit_4",
+  "reference_quality_source_hashes": "unchanged",
+  "cross_machine": "not_tested",
+  "human_webrtc": "not_tested",
+  "render": "not_tested"
+}

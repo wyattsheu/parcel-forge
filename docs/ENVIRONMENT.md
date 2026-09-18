@@ -76,3 +76,7 @@ at 97% utilisation; override with `./scripts/pf smoke --device 1`.
 - NVIDIA generic USD validator 1.19.3 runs 41 registered rules in S3. This is not SimReady certification; installed Isaac-specific physics categories are not yet connected to the adapter.
 - Determinism across GPUs/drivers: not measured.
 - Any Isaac Lab, MCP, ROS, Blender or VLM capability: not installed or not tested.
+
+## Per-machine overrides (WF-P4 / D074)
+
+`config/isaac_env.json` is the reference machine's measured inventory, not a universal installation path. `load_isaac_env()` prefers `PF_ISAAC_CONFIG`, then ignored `config/isaac_env.local.json`, then the reference file. `scripts/pf-machine` binds an already-installed pip interpreter and checks metadata/API files without starting Kit. An API-file match is a candidate, not physics verification. RTX5090/other Isaac versions remain not_tested; use docs/PORTABLE_SETUP.md and run an actual qualification on that machine. No automatic upgrades or changes to shared runtime.

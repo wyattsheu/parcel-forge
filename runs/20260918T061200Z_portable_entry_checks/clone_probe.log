@@ -1,0 +1,14 @@
+{
+  "run": "/tmp/parcel-forge-clone-1zadlbq6/repo/runs/20260918T061316Z_machine_probe",
+  "status": "metadata_checked",
+  "physics": "not_tested",
+  "cross_machine": "not_tested",
+  "version": "6.0.1.0",
+  "api_files": {
+    "simulation_manager": true,
+    "experimental_prims": true
+  },
+  "api_compatibility": "candidate",
+  "reference_version": "6.0.1.0",
+  "exit_code": 0
+}

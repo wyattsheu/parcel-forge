@@ -1,0 +1,50 @@
+{
+  "clone_path": "/tmp/parcel-forge-clone-1zadlbq6/repo",
+  "commands": [
+    {
+      "command": [
+        "gh",
+        "repo",
+        "clone",
+        "wyattsheu/parcel-forge",
+        "/tmp/parcel-forge-clone-1zadlbq6/repo",
+        "--",
+        "--depth",
+        "1"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_portable_entry.py"
+      ],
+      "exit_code": 1
+    },
+    {
+      "command": [
+        "python3",
+        "-c",
+        "import sys,unittest;sys.path.insert(0,'src');r=unittest.TextTestRunner().run(unittest.defaultTestLoader.discover('tests',pattern='test_portable_entry.py'));sys.exit(not r.wasSuccessful())"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "./scripts/pf-machine"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "shared_skill_same_bytes": true,
+  "clone_boundary_exit": 0,
+  "clone_probe_exit": 0,
+  "clone_on_current_machine_only": true,
+  "other_machine": "not_tested"
+}

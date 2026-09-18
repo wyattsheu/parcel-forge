@@ -23,3 +23,5 @@ PYTHONPATH=src python3 -m unittest discover -s tests -p test_portable_entry.py
 WebRTC：先保存/Stop；Script Editor 使用 delivery 文件的 PF_PROJECT_ROOT 指令載入 `image_drill_editor.py` 或 `keyboard_package_editor.py`。圖片 shape fidelity / 人工 / render / 材料校準、另一臺5090及两個 agent CLI invocation 均 not_tested。沒有新影片。
 
 GitHub 私人 repo 交付結果另見 STATE/session；大型權重、venv、external 不上傳，新 runs 只提交此精簡證據摘要，歷史證據保留。
+
+已確認GitHub PRIVATE；初次push commit4845ea0。fresh clone /tmp/parcel-forge-clone-1zadlbq6/repo 成功；若不設src import path unittest會失敗，依文件PYTHONPATH=src或等效sys.path設定後5/5通過，clone probe exit0，symlink共用內容相同。另5 NVIDIA adapter tests通過。未用clone重建模型環境或另機physics。

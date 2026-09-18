@@ -58,7 +58,7 @@ git clone https://github.com/tatsy/torchmcubes external/torchmcubes
 git -C external/torchmcubes checkout 879926d0ef58e6ce0ac2630fdecb5e53af7ed3ff
 cp -a external/torchmcubes external/torchmcubes_torch28
 git -C external/torchmcubes_torch28 apply ../../config/patches/torchmcubes_torch28_cpp17.patch
-CUDA_HOME=/usr/local/cuda-12.8 .venvs/triposr/bin/python -m pip install --no-build-isolation ./external/torchmcubes_torch28 --config-settings=cmake.define.CMAKE_CUDA_ARCHITECTURES=120
+CUDA_HOME=/usr/local/cuda-12.8 .venvs/triposr/bin/python -m pip install --no-deps --no-build-isolation ./external/torchmcubes_torch28 --config-settings=cmake.define.CMAKE_CUDA_ARCHITECTURES=120
 ```
 
 编译 Python.h 找不到時用该 venv 的 Python 3.12 include 路徑追加 `--config-settings=cmake.define.Python_INCLUDE_DIR=/你的/python3.12/include`；不要沿用來源機絕對路徑。120 是來源 Blackwell build 設定，其他 GPU 必須按當機架構處理，不重配共享 CUDA。

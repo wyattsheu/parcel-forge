@@ -49,3 +49,5 @@ with a decision record explaining why.
 
 [完整主計畫](plans/2026-09-18_general_asset_workflow_master_plan.md) 將 S5/S6/S7 與 EXT2 拆成有界 P0–P5 卡，並非另一套平行里程碑。
 [WF-P0](tasks/WF_P0_contracts_and_capabilities.md)離線完成；WF-P1部分完成；[圖片基線WF-P3A](tasks/WF_P3A_image_backend.md)真生成/剛體physics/cold-load完成，人工形狀/材料校準待確認。現有 S0–S7／EXT1 狀態不變。
+
+WF-P4 雙入口/共用Skill/可攜設定與私人GitHub交付有界完成，見tasks/WF_P4_portable_entry.md。文字自動authoring、5090執行與通用資產工作流仍未完成，不將S6/S7整體標為done。
