@@ -1,0 +1,111 @@
+ARG BASE_IMAGE=nvidia/cuda:12.6.3-devel-ubuntu24.04
+FROM ${BASE_IMAGE}
+
+ARG STUDENT_USER=studentdev
+ARG STUDENT_UID=20001
+ARG STUDENT_GID=20001
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        openssh-server \
+        git \
+        curl \
+        ca-certificates \
+        sudo \
+        python3 \
+        python3-pip \
+        python3-venv \
+        vim \
+        less \
+        htop \
+        tmux \
+        unzip \
+        libvulkan1 \
+        libegl1 \
+        libgl1 \
+        libglvnd0 \
+        libxext6 \
+        libxt6 \
+        vulkan-tools \
+        libxrandr2 \
+        libxinerama1 \
+        libxcursor1 \
+        libxi6 \
+        libfontconfig1 \
+        libsm6 \
+        libice6 \
+        libnss3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# NVIDIA's Vulkan ICD / EGL vendor JSON are not auto-injected by the
+# nvidia-container-toolkit under this host's rootless Docker setup, so the
+# Vulkan loader finds the NVIDIA driver libraries (mounted in via
+# NVIDIA_DRIVER_CAPABILITIES=graphics) but has no ICD pointing at them.
+# Isaac Sim's Kit renderer needs this to initialize even in headless mode.
+RUN mkdir -p /usr/share/vulkan/icd.d /usr/share/glvnd/egl_vendor.d \
+    && printf '%s\n' \
+        '{' \
+        '    "file_format_version" : "1.0.1",' \
+        '    "ICD": {' \
+        '        "library_path": "libGLX_nvidia.so.0",' \
+        '        "api_version" : "1.4.312"' \
+        '    }' \
+        '}' > /usr/share/vulkan/icd.d/nvidia_icd.json \
+    && printf '%s\n' \
+        '{' \
+        '    "file_format_version" : "1.0.0",' \
+        '    "ICD" : {' \
+        '        "library_path" : "libEGL_nvidia.so.0"' \
+        '    }' \
+        '}' > /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+
+# code-server (VS Code in browser), installed system-wide. Non-fatal if it fails.
+RUN curl -fsSL https://code-server.dev/install.sh | sh || \
+    echo "WARNING: code-server install failed, continuing without it" >&2
+
+RUN groupadd --gid ${STUDENT_GID} ${STUDENT_USER} \
+    && useradd --uid ${STUDENT_UID} --gid ${STUDENT_GID} \
+        --create-home --shell /bin/bash ${STUDENT_USER} \
+    && mkdir -p /workspace \
+    && chown -R ${STUDENT_USER}:${STUDENT_USER} /workspace
+
+# Owner's explicit decision (2026-09-27): grant studentdev full passwordless
+# sudo so they can self-serve missing system packages (e.g. Isaac Sim/Omniverse
+# Kit runtime deps) without round-tripping through the owner for every rebuild.
+# This requires disabling `no-new-privileges` on the container (see
+# run-container.sh) since that flag blocks setuid binaries like sudo
+# regardless of sudoers config. Mitigated by rootless Docker's user-namespace
+# remapping: "root" here still isn't real host root. No password auth either
+# way. No root SSH login either way (sshd config below still forbids it).
+RUN echo "${STUDENT_USER} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${STUDENT_USER} \
+    && chmod 440 /etc/sudoers.d/${STUDENT_USER}
+
+RUN mkdir -p /var/run/sshd
+
+RUN { \
+      echo "Port 22"; \
+      echo "ListenAddress 0.0.0.0"; \
+      echo "PermitRootLogin no"; \
+      echo "PasswordAuthentication no"; \
+      echo "KbdInteractiveAuthentication no"; \
+      echo "PubkeyAuthentication yes"; \
+      echo "AllowUsers ${STUDENT_USER}"; \
+      echo "X11Forwarding no"; \
+      echo "AllowAgentForwarding no"; \
+      echo "GatewayPorts no"; \
+      echo "PermitTunnel no"; \
+      echo "PrintMotd no"; \
+      echo "Subsystem sftp /usr/lib/openssh/sftp-server"; \
+    } > /etc/ssh/sshd_config.d/99-student.conf
+
+COPY container-entrypoint.sh /usr/local/bin/container-entrypoint.sh
+RUN chmod 755 /usr/local/bin/container-entrypoint.sh
+
+ENV STUDENT_USER=${STUDENT_USER}
+ENV STUDENT_UID=${STUDENT_UID}
+ENV STUDENT_GID=${STUDENT_GID}
+
+EXPOSE 22 8080
+
+ENTRYPOINT ["/usr/local/bin/container-entrypoint.sh"]
